@@ -1,3 +1,3 @@
 rm *.class
-javac -Xlint:unchecked Main.java
-java -Xmx1024M -Xss64M Main
+javac -Xlint:unchecked Simplifier.java
+java -Xmx1024M -Xss64M Simplifier

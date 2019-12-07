@@ -9,11 +9,12 @@ public class Polytope {
 
     private Vector<Vertex> vertices;
     private Facet external;
+    private Edge start, end;
 
     private void structuralize() {
         for (int i = 0; i < vertices.size(); i ++) {
             Vertex v = vertices.get(i);
-            if (i == 0 || v.getPoint().getX().compareTo(vertices.get(i - 1).getPoint().getX()) == 1)
+            if (i == 0 || v.getPoint().getX().compareTo(vertices.get(i - 1).getPoint().getX()) == 1) 
                 v.setSide(1);
             else 
                 v.setSide(2);
@@ -53,6 +54,8 @@ public class Polytope {
             from.setIn(e.getPrev());
         }
         this.external = external;
+        this.start = getVertex(-1).getHead();
+        this.end = getVertex(vertices.size() / 2 - 1).getHead();
     }
 
     private void points2Vertices(Vector<Point> points) {
@@ -75,21 +78,19 @@ public class Polytope {
             Point p = s.get(i);
             Point q = new Point(p);
             Vect v = new Vect(BigDecimal.ZERO, eps.negate());
-            q.add(v);
-            points.add(q);
+            points.add(q.add(v));
         }
         for (int i = s.size() - 1; i >= 0; i --) {
             Point p = s.get(i);
             Point q = new Point(p);
             Vect v = new Vect(BigDecimal.ZERO, eps);
-            q.add(v);
-            points.add(q);
+            points.add(q.add(v));
         }
         points2Vertices(points);
         structuralize();
     }
 
-    public Polytope(int N, BigDecimal radius) {
+    private Polytope(int N, BigDecimal radius) {
         Vector<Point> points = new Vector<Point>();
         points.add(new Point("-1", "-1"));
         BigDecimal n = new BigDecimal(Integer.toString(N));
@@ -127,6 +128,14 @@ public class Polytope {
             return this.vertices.get(i + size());
         else 
             return this.vertices.get(i);
+    }
+
+    public Edge getStart() {
+        return start;
+    }
+
+    public Edge getEnd() {
+        return end;
     }
 
     public boolean isBoundary(Edge e) {
@@ -174,10 +183,10 @@ public class Polytope {
                     max = area;
             }
         }
-        System.out.println("difference: " + result);
-        System.out.println("min: " + min);
-        System.out.println("max: " + max);
-        System.out.println("triangles: " + (queue.size() - 1));
+        System.out.print("difference: " + result);
+        System.out.print(" min: " + min.add(BigDecimal.ZERO, Arithmetic.DMC));
+        System.out.print(" max: " + max.add(BigDecimal.ZERO, Arithmetic.DMC));
+        System.out.println(" facets: " + (queue.size() - 1));
     }
 
     public void triangulate() {
@@ -188,104 +197,5 @@ public class Polytope {
                 internal.triangulate();
             }
         }
-    }
-
-    public Vector<Edge> intersectEdges(Chord chord) {
-        Vector<Edge> result = new Vector<Edge>();
-        Vector<Facet> queue = new Vector<Facet>();
-        Vector<Facet> margin = new Vector<Facet>();
-        Vect v0 = new Vect(chord.getFromVertex(), chord.getToVertex());
-        Facet start = chord.getFirstFacet();
-        start.setVisited();
-        queue.add(start);
-        for (int i = 0; i < queue.size(); i ++) {
-            Facet f = queue.get(i);
-            Edge e = f.getLoop();
-            do {
-                Facet f0 = e.getTwin().getFacet();
-                if (f0 != external && ! f0.isVisited()) {
-                    f0.setVisited();
-                    Vect v1 = new Vect(e);
-                    if (! v0.isIntersect(v1)) {
-                        margin.add(f0);
-                    }
-                    else {
-                        result.add(e);
-                        queue.add(f0);
-                    }
-                }
-                e = e.getNext();
-            } while (e != f.getLoop());
-        }
-        for (int i = 0; i < queue.size(); i ++) 
-            queue.get(i).cleanVisited();
-        for (int i = 0; i < margin.size(); i ++) 
-            margin.get(i).cleanVisited();
-        return result;
-    }
-    
-    private void appendChord(Vector<Chord> windows, Chord chord) {
-        if (chord.valid()) {
-            windows.add(chord);
-        }
-    }
-
-    private void biDepthFirstSearch(Edge e, Funnel fn0, Funnel fn1, Vector<Chord> windows) {
-        Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
-        if (e.getNext().getNext().getNext() != e) 
-            throw new NullPointerException("triangle error");
-        Vertex t00 = fn0.getApex(), t11 = fn1.getApex();
-        Vertex t10 = fn0.getRightHead(), t01 = fn1.getLeftHead();
-        Vect t0 = new Vect(t11, t01);
-        Vect t1 = new Vect(t00, t10);
-        Funnel fn0_ = new Funnel(), fn1_ = new Funnel();
-        if (fn0.split(0, B, fn0_)) {
-            Funnel temp = fn0; fn0 = fn0_; fn0_ = temp;
-        }
-        if (fn1.split(1, B, fn1_)) {
-            Funnel temp = fn1; fn1 = fn1_; fn1_ = temp;
-        }
-        if (B.leftConvex(0) && C.rightConvex(1)) {
-            Edge BC = e.getNext().getTwin();
-            if (! isOutside(BC)) {
-                biDepthFirstSearch(BC, fn0_, fn1_, windows);
-            }
-            else {
-                Vect v1 = new Vect(BC);
-                Point p0 = v1.segmentIntersect(t0);
-                Point p1 = v1.segmentIntersect(t1);
-                Chord chord = null;
-                if (p0 != null) 
-                    appendChord(windows, new Chord(t01, new Vertex(-1, p0), null, BC));
-                appendChord(windows, new Chord(new Vertex(-1, p1), t10, BC, null));
-            }
-        }
-        if (A.leftConvex(0) && B.rightConvex(1)) {
-            Edge AB = e.getPrev().getTwin();
-            if (! isOutside(AB)) {
-                biDepthFirstSearch(AB, fn0, fn1, windows);
-            }
-            else {
-                Vect v0 = new Vect(AB);
-                Point p0 = v0.segmentIntersect(t0);
-                Point p1 = v0.segmentIntersect(t1);
-                Chord chord = null;
-                appendChord(windows, new Chord(t01, new Vertex(-1, p0), null, AB));
-                if (p1 != null) 
-                    appendChord(windows, new Chord(new Vertex(-1, p1), t10, AB, null));
-            }
-        }
-    }
-
-    public Vector<Chord> getWindows(Edge e) {
-        Vector<Chord> windows = new Vector<Chord>();
-        Funnel fn0 = new Funnel(e.getFrom(), null, e.getTo());
-        Funnel fn1 = new Funnel(e.getTo(), e.getFrom(), null);
-        e.getFrom().shortestLink(0, null);
-        e.getTo().shortestLink(1, null);
-        e.getFrom().shortestLink(1, e.getTo());
-        e.getTo().shortestLink(0, e.getFrom());
-        biDepthFirstSearch(e, fn0, fn1, windows);
-        return windows;
     }
 }

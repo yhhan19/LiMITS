@@ -2,7 +2,7 @@ import java.util.Vector;
 import java.math.BigDecimal;
 
 public class Funnel {
-    
+
     private Vertex apex;
     private Vector<Vertex> left, right;
 
@@ -83,7 +83,7 @@ public class Funnel {
     public boolean isRightEmpty() {
         return right.isEmpty();
     }
-    
+
     public Vertex getLeftest() {
         if (left.isEmpty()) 
             return apex;
@@ -120,14 +120,15 @@ public class Funnel {
             Vect v0 = new Vect(getLeft(i - 1), getLeft(i));
             Vect v1 = new Vect(getLeft(i), v);
             BigDecimal cross = v0.cross(v1);
-            if (cross.signum() >= 0) break;
+            if (cni == -1 && Arithmetic.sgn(cross) >= 0) cni = i;
+            if (Arithmetic.sgn(cross) > 0) break;
         }
-        if (i >= 0) {
-            v.shortestLink(index, getLeft(i));
+        if (cni >= 0) {
+            v.shortestLink(index, getLeft(cni));
             that.copy(new Funnel(getLeft(i), null, v));
             for (int k = i + 1; k < left.size(); k ++)
                 that.left.add(getLeft(k));
-            for (int k = left.size() - 1; k > i; k --)
+            for (int k = left.size() - 1; k > cni; k --)
                 left.remove(k);
             left.add(v);
             return true;
@@ -137,14 +138,15 @@ public class Funnel {
             Vect v0 = new Vect(getRight(j - 1), getRight(j));
             Vect v1 = new Vect(getRight(j), v);
             BigDecimal cross = v0.cross(v1);
-            if (cross.signum() <= 0) break;
+            if (cnj == -1 && Arithmetic.sgn(cross) <= 0) cnj = j;
+            if (Arithmetic.sgn(cross) < 0) break;
         }
-        if (j >= 0) {
-            v.shortestLink(index, getRight(j));
+        if (cnj >= 0) {
+            v.shortestLink(index, getRight(cnj));
             that.copy(new Funnel(getRight(j), v, null));
             for (int k = j + 1; k < right.size(); k ++) 
                 that.right.add(getRight(k));
-            for (int k = right.size() - 1; k > j; k --)
+            for (int k = right.size() - 1; k > cnj; k --)
                 right.remove(k);
             right.add(v);
             return false;

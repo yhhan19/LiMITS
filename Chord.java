@@ -4,7 +4,7 @@ import javafx.util.Pair;
 public class Chord {
 
     Pair<Vertex, Edge> from, to;
-    
+
     private void init() {
         Vertex v0 = getFromVertex();
         Vertex v1 = getToVertex();
@@ -12,12 +12,6 @@ public class Chord {
         Edge e1 = getToEdge();
         if (v0.getSide() == -1) v0.setSide(e0.getSide());
         if (v1.getSide() == -1) v1.setSide(e1.getSide());
-    }
-
-    public Chord(Pair<Vertex, Edge> from, Pair<Vertex, Edge> to) {
-        this.from = from;
-        this.to = to;
-        init();
     }
 
     public Chord(Vertex from, Vertex to, Edge efrom, Edge eto) {
@@ -46,10 +40,14 @@ public class Chord {
         System.out.println(getFromVertex().getSide() + " " + getToVertex().getSide());
     }
 
-    public boolean valid() {
-        BigDecimal d = getFromVertex().getPoint().distL1(getToVertex().getPoint());
+    public boolean intermediate() {
         return (getFromVertex().getSide() == 1 && getToVertex().getSide() == 2)
-        || (getFromVertex().getSide() == 2 && getToVertex().getSide() == 1);
+            || (getFromVertex().getSide() == 2 && getToVertex().getSide() == 1);
+    }
+
+    public boolean valid() {
+        BigDecimal d = getFromVertex().getPoint().distLoo(getToVertex().getPoint());
+        return Arithmetic.sgn(d) != 0;
     }
 
     public Pair<Vertex, Edge> getFrom() {

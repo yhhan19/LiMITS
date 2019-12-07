@@ -2,7 +2,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 public class Vect {
-    
+
     private Point from, to;
 
     public Vect(Point from, Point to) {
@@ -13,6 +13,11 @@ public class Vect {
     public Vect(Edge e) {
         this.from = e.getFrom().getPoint();
         this.to = e.getTo().getPoint();
+    }
+
+    public Vect(Chord ch) {
+        this.from = ch.getFromVertex().getPoint();
+        this.to = ch.getToVertex().getPoint();
     }
 
     public Vect(Vertex v0, Vertex v1) {
@@ -35,7 +40,6 @@ public class Vect {
         this.to = new Point(x, y);
     }
 
-    
     public void display() {
         from.display();
         to.display();
@@ -58,6 +62,13 @@ public class Vect {
 
     public Point getTo() {
         return to;
+    }
+
+    public Vect scalar(BigDecimal r) {
+        BigDecimal x = getX().multiply(r);
+        BigDecimal y = getY().multiply(r);
+        Point to_ = from.add(new Vect(x, y));
+        return new Vect(from, to_);
     }
 
     public BigDecimal dot(Vect v) {
@@ -99,8 +110,11 @@ public class Vect {
             return d0 == 1 && d1 == 1;
         }
         else {
-            if (d1 != 0) 
+            if (d1 != 0) {
+                this.display();
+                v.display();
                 throw new NullPointerException("intersect error");
+            }
             else 
                 return v.from.on(this) || v.to.on(this);
         }

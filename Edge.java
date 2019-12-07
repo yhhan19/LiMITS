@@ -15,14 +15,6 @@ public class Edge {
         System.out.print("<" + from.getId() + " " + to.getId() + "> ");
     }
 
-    public void setFrom(Vertex v) {
-        from = v;
-    }
-    
-    public void setTo(Vertex v) {
-        to = v;
-    }
-
     public void setTwin(Edge e) {
         twin = e;
     }
@@ -85,7 +77,7 @@ public class Edge {
         int sd1 = from.getSide();
         int sd2 = to.getSide();
         if (sd1 == sd2) return sd1;
-        return -1;
+        return 3;
     }
 
     public void disconnect() {

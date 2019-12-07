@@ -9,10 +9,6 @@ public class Facet {
     private Edge loop;
     private boolean visited;
 
-    public Facet() {
-        visited = false;
-    }
-
     public void display() {
         System.out.print("[ ");
         Vector<Edge> edges = getEdges();

@@ -5,7 +5,6 @@ import java.math.MathContext;
 public class Point {
 
     private BigDecimal x, y;
-    
     static Point ORIGIN = new Point("0", "0");
 
     public Point(int x, int y) {
@@ -53,9 +52,16 @@ public class Point {
         return y;
     }
 
-    public void add(Vect v) {
-        x = x.add(v.getX());
-        y = y.add(v.getY());
+    public Point add(Vect v) {
+        BigDecimal x_ = x.add(v.getX());
+        BigDecimal y_ = y.add(v.getY());
+        return new Point(x_, y_);
+    }
+
+    public Vect subtract(Point p) {
+        BigDecimal x_ = x.subtract(p.x);
+        BigDecimal y_ = y.subtract(p.y);
+        return new Vect(x_, y_);
     }
 
     public BigDecimal distL1(Point p) {
@@ -153,5 +159,21 @@ public class Point {
         else 
             return Arithmetic.sgn(y.subtract(p.getY())) <= 0
                 && Arithmetic.sgn(y.subtract(q.getY())) >= 0;
+    }
+
+    static public Point interpolationX(Point p, Point q, BigDecimal x) {
+        Vect v = new Vect(p, q);
+        if (Arithmetic.sgn(v.getX()) == 0) 
+            return null;
+        BigDecimal r = x.subtract(p.x).divide(v.getX(), Arithmetic.MC);
+        return p.add(v.scalar(r));
+    }
+
+    static public Point interpolationY(Point p, Point q, BigDecimal y) {
+        Vect v = new Vect(p, q);
+        if (Arithmetic.sgn(v.getY()) == 0) 
+            return null;
+        BigDecimal r = y.subtract(p.y).divide(v.getY(), Arithmetic.MC);
+        return p.add(v.scalar(r));
     }
 }

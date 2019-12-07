@@ -1,5 +1,6 @@
 import java.util.Random;
 import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.lang.String;
 import java.util.Vector;
 import java.math.MathContext;
@@ -7,6 +8,19 @@ import java.math.MathContext;
 public class Series {
 
     private Vector<Point> data;
+
+    public Series() {
+        this.data = new Vector<Point>();
+        data.add(new Point("0", "0"));
+    }
+
+    public Series(Vector<Point> data) {
+        this.data = new Vector<Point>();
+        for (int i = 0; i < data.size(); i ++) {
+            this.data.add(data.get(i));
+        }
+        //simplify();
+    }
 
     public Series(int N, int bound) {
         data = new Vector<Point>();
@@ -24,7 +38,8 @@ public class Series {
             else 
                 y = y.subtract(delta);
         }
-        simplify();
+        System.out.println("input: " + data.size());
+        //simplify();
     }
 
     public void simplify() {
@@ -66,5 +81,34 @@ public class Series {
 
     public Point get(int i) {
         return data.get(i);
+    }
+
+    public BigDecimal distance(Series that, BigDecimal eps) {
+        BigDecimal error = BigDecimal.ZERO;
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
+            if (this.get(i).getX().compareTo(that.get(j).getX()) == -1) {
+                if (j != 0) {
+                    Point p = Point.interpolationX(that.get(j - 1), that.get(j), this.get(i).getX());
+                    BigDecimal delta = p.getY().subtract(this.get(i).getY()).abs();
+                    if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
+                        System.out.println(delta.add(BigDecimal.ZERO, Arithmetic.DMC));
+                    if (delta.compareTo(error) == 1) 
+                        error = delta;
+                }
+                i ++;
+            }
+            else {
+                if (i != 0) {
+                    Point p = Point.interpolationX(this.get(i - 1), this.get(i), that.get(j).getX());
+                    BigDecimal delta = p.getY().subtract(that.get(j).getY()).abs();
+                    if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
+                        System.out.println(delta.add(BigDecimal.ZERO, Arithmetic.DMC));
+                    if (delta.compareTo(error) == 1) 
+                        error = delta;
+                }
+                j ++;
+            }
+        }
+        return error;
     }
 }
