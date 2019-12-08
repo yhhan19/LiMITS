@@ -1,5 +1,5 @@
-import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 
 public class Point {
@@ -161,7 +161,7 @@ public class Point {
                 && Arithmetic.sgn(y.subtract(q.getY())) >= 0;
     }
 
-    static public Point interpolationX(Point p, Point q, BigDecimal x) {
+    public static Point interpolationX(Point p, Point q, BigDecimal x) {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getX()) == 0) 
             return null;
@@ -169,7 +169,7 @@ public class Point {
         return p.add(v.scalar(r));
     }
 
-    static public Point interpolationY(Point p, Point q, BigDecimal y) {
+    public static Point interpolationY(Point p, Point q, BigDecimal y) {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getY()) == 0) 
             return null;

@@ -1,5 +1,5 @@
-import java.util.Vector;
 import java.math.BigDecimal;
+import java.util.Vector;
 
 public class Funnel {
 
@@ -76,44 +76,22 @@ public class Funnel {
             return right.get(0);
     }
 
-    public boolean isLeftEmpty() {
-        return left.isEmpty();
-    }
-
-    public boolean isRightEmpty() {
-        return right.isEmpty();
-    }
-
-    public Vertex getLeftest() {
-        if (left.isEmpty()) 
-            return apex;
-        else
-            return left.lastElement();
-    }
-
-    public Vertex getRightest() {
-        if (right.isEmpty()) 
-            return apex;
-        else 
-            return right.lastElement();
-    }
-
     public int size() {
         return left.size() + right.size();
     }
 
-    public boolean split(int index, Vertex v, Funnel that) {
+    public String split(int index, Vertex v, Funnel that) {
         if (left.isEmpty()) {
             v.shortestLink(index, apex);
             that.copy(new Funnel(apex, null, v));
             left.add(v);
-            return true;
+            return "Left";
         }
         if (right.isEmpty()) {
             v.shortestLink(index, apex);
             right.add(v);
             that.copy(new Funnel(apex, v, null));
-            return false;
+            return "Right";
         }
         int i = 0, cni = -1;
         for (i = left.size() - 1; i >= 0; i --) {
@@ -131,7 +109,7 @@ public class Funnel {
             for (int k = left.size() - 1; k > cni; k --)
                 left.remove(k);
             left.add(v);
-            return true;
+            return "Left";
         }
         int j = 0, cnj = -1;
         for (j = right.size() - 1; j >= 0; j --) {
@@ -149,7 +127,7 @@ public class Funnel {
             for (int k = right.size() - 1; k > cnj; k --)
                 right.remove(k);
             right.add(v);
-            return false;
+            return "Right";
         }
         else {
             v.shortestLink(index, apex);
@@ -159,7 +137,7 @@ public class Funnel {
             for (int k = right.size() - 1; k >= 0; k --)
                 right.remove(k);
             right.add(v);
-            return false;
+            return "Right";
         }
     }
 }

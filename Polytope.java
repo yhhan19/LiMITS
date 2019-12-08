@@ -1,15 +1,13 @@
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Vector;
-import java.util.Iterator;
-import javafx.util.Pair;
-import java.lang.Integer;
 
 public class Polytope {
 
     private Vector<Vertex> vertices;
     private Facet external;
     private Edge start, end;
+    private Vect lastChord;
 
     private void structuralize() {
         for (int i = 0; i < vertices.size(); i ++) {
@@ -47,12 +45,6 @@ public class Polytope {
         }
         Edge.linkEdge(last0, internal.getLoop());
         Edge.linkEdge(external.getLoop(), last1);
-        for (int i = 0; i < vertices.size(); i ++) {
-            Vertex from = vertices.get(i);
-            Edge e = from.getHead();
-            from.setOut(e);
-            from.setIn(e.getPrev());
-        }
         this.external = external;
         this.start = getVertex(-1).getHead();
         this.end = getVertex(vertices.size() / 2 - 1).getHead();
@@ -85,24 +77,6 @@ public class Polytope {
             Point q = new Point(p);
             Vect v = new Vect(BigDecimal.ZERO, eps);
             points.add(q.add(v));
-        }
-        points2Vertices(points);
-        structuralize();
-    }
-
-    private Polytope(int N, BigDecimal radius) {
-        Vector<Point> points = new Vector<Point>();
-        points.add(new Point("-1", "-1"));
-        BigDecimal n = new BigDecimal(Integer.toString(N));
-        BigDecimal delta = radius.divide(n, Arithmetic.MC);
-        BigDecimal x = radius, y = BigDecimal.ZERO;
-        points.add(new Point(x, y));
-        for (int i = 0; i < N; i ++) {
-            x = x.subtract(delta);
-            BigDecimal y2 = radius.multiply(radius).subtract(x.multiply(x));
-            y = Arithmetic.sqrt(y2, Arithmetic.MC);
-            Point p = new Point(x, y);
-            points.add(p);
         }
         points2Vertices(points);
         structuralize();
@@ -197,5 +171,241 @@ public class Polytope {
                 internal.triangulate();
             }
         }
+    }
+
+    public Vector<Edge> intersectEdges(Chord chord) {
+        Vector<Edge> result = new Vector<Edge>();
+        Vector<Facet> queue = new Vector<Facet>();
+        Vector<Facet> margin = new Vector<Facet>();
+        Vect v0 = new Vect(chord.getFromVertex(), chord.getToVertex());
+        Facet start = chord.getFirstFacet();
+        start.setVisited();
+        queue.add(start);
+        for (int i = 0; i < queue.size(); i ++) {
+            Facet f = queue.get(i);
+            Edge e = f.getLoop();
+            do {
+                if (! isOutside(e.getTwin())) {
+                    Facet f0 = e.getTwin().getFacet();
+                    if (! f0.isVisited()) {
+                        f0.setVisited();
+                        Vect v1 = new Vect(e);
+                        if (! v0.isSegmentIntersect(v1)) {
+                            margin.add(f0);
+                        }
+                        else {
+                            result.add(e);
+                            queue.add(f0);
+                        }
+                    }
+                }
+                e = e.getNext();
+            } while (e != f.getLoop());
+        }
+        for (int i = 0; i < queue.size(); i ++) 
+            queue.get(i).cleanVisited();
+        for (int i = 0; i < margin.size(); i ++) 
+            margin.get(i).cleanVisited();
+        return result;
+    }
+
+    private Vector<Chord> biDepthFirstSearch(Edge e, Funnel fn0, Funnel fn1) {
+        if (e.getNext().getNext().getNext() != e) 
+            throw new NullPointerException("triangle error");
+        Vector<Chord> windows = new Vector<Chord>();
+        Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
+        Vertex t00 = fn0.getApex(), t11 = fn1.getApex(), t10 = fn0.getRightHead(), t01 = fn1.getLeftHead();
+        Vect t0 = new Vect(t11, t01), t1 = new Vect(t00, t10);
+        Funnel fn0_ = new Funnel(), fn1_ = new Funnel();
+        if (fn0.split(0, B, fn0_).equals("Left")) {
+            Funnel temp = fn0; fn0 = fn0_; fn0_ = temp;
+        }
+        if (fn1.split(1, B, fn1_).equals("Left")) {
+            Funnel temp = fn1; fn1 = fn1_; fn1_ = temp;
+        }
+        if (A.leftConvex(0) && B.rightConvex(1)) {
+            Edge AB = e.getPrev().getTwin();
+            if (! isOutside(AB)) {
+                windows.addAll(biDepthFirstSearch(AB, fn0, fn1));
+            }
+            else {
+                if (AB == getEnd().getTwin()) lastChord = t0;
+                Vect v0 = new Vect(AB);
+                Point p0 = v0.segmentLineIntersect(t0);
+                Point p1 = v0.segmentLineIntersect(t1);
+                Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
+                if (ch.intermediate()) windows.add(ch);
+                if (p1 != null) {
+                    ch = new Chord(new Vertex(-1, p1), t10, AB, null);
+                    if (ch.intermediate()) windows.add(ch);
+                }
+            }
+        }
+        if (B.leftConvex(0) && C.rightConvex(1)) {
+            Edge BC = e.getNext().getTwin();
+            if (! isOutside(BC)) {
+                windows.addAll(biDepthFirstSearch(BC, fn0_, fn1_));
+            }
+            else {
+                if (BC == getEnd().getTwin()) lastChord = t1;
+                Vect v1 = new Vect(BC);
+                Point p0 = v1.segmentLineIntersect(t0);
+                Point p1 = v1.segmentLineIntersect(t1);
+                Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
+                if (ch.intermediate()) windows.add(ch);
+                if (p0 != null) {
+                    ch = new Chord(t01, new Vertex(-1, p0), null, BC);
+                    if (ch.intermediate()) windows.add(ch);
+                }
+            }
+        }
+        return windows;
+    }
+
+    private Vector<Chord> getWindows(Edge e) {
+        Funnel fn0 = new Funnel(e.getFrom(), null, e.getTo());
+        Funnel fn1 = new Funnel(e.getTo(), e.getFrom(), null);
+        e.getFrom().shortestLink(0, null);
+        e.getTo().shortestLink(1, null);
+        e.getFrom().shortestLink(1, e.getTo());
+        e.getTo().shortestLink(0, e.getFrom());
+        return biDepthFirstSearch(e, fn0, fn1);
+    }
+
+    private Vector<Chord> simDepthFirstSearch(Edge e, Funnel fn) {
+        if (e.getNext().getNext().getNext() != e) 
+            throw new NullPointerException("triangle error");
+        Vector<Chord> windows = new Vector<Chord>();
+        Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
+        Vertex t00 = fn.getApex(), t10 = fn.getRightHead(), t01 = fn.getLeftHead();
+        Vect t0 = new Vect(t00, t01), t1 = new Vect(t00, t10);
+        Funnel fn_ = new Funnel();
+        if (fn.split(0, B, fn_).equals("Left")) {
+            Funnel temp = fn; fn = fn_; fn_ = temp;
+        }
+        if (A.leftConvex(0) && B.rightConvex(0)) {
+            Edge AB = e.getPrev().getTwin();
+            if (! isOutside(AB)) {
+                windows.addAll(simDepthFirstSearch(AB, fn));
+            }
+            else {
+                if (AB == getEnd().getTwin()) lastChord = t0;
+                Vect v0 = new Vect(AB);
+                Point p0 = v0.segmentLineIntersect(t0);
+                Point p1 = v0.segmentLineIntersect(t1);
+                Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
+                if (ch.intermediate()) windows.add(ch);
+                if (p1 != null) {
+                    ch = new Chord(new Vertex(-1, p1), t10, AB, null);
+                    if (ch.intermediate()) windows.add(ch);
+                }
+            }
+        }
+        if (B.leftConvex(0) && C.rightConvex(0)) {
+            Edge BC = e.getNext().getTwin();
+            if (! isOutside(BC)) {
+                windows.addAll(simDepthFirstSearch(BC, fn_));
+            }
+            else {
+                if (BC == getEnd().getTwin()) lastChord = t1;
+                Vect v1 = new Vect(BC);
+                Point p0 = v1.segmentLineIntersect(t0);
+                Point p1 = v1.segmentLineIntersect(t1);
+                Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
+                if (ch.intermediate()) windows.add(ch);
+                if (p0 != null) {
+                    ch = new Chord(t01, new Vertex(-1, p0), null, BC);
+                    if (ch.intermediate()) windows.add(ch);
+                }
+            }
+        }
+        return windows;
+    }
+
+    private Vector<Chord> getWindows(Vertex v) {
+        Edge e = v.getHead();
+        Funnel fn = new Funnel(v, null, e.getTo());
+        v.shortestLink(0, null);
+        e.getTo().shortestLink(0, v);
+        return simDepthFirstSearch(e, fn);
+    }
+
+    private Vector<Chord> getTrace(Vector<Chord> windows) {
+        Vector<Chord> trace = new Vector<Chord>();
+        Edge iterator = null;
+        while (windows.size() > 0) {
+            Chord chord = null;
+            for (int j = 0; j < windows.size(); j ++) {
+                Chord ch = windows.get(j);
+                if (chord == null || ch.reach().compareTo(chord.reach()) == 1) 
+                    chord = ch;
+            }
+            trace.add(chord);
+            Vector<Edge> edges = intersectEdges(chord);
+            for (int j = 0; j < edges.size(); j ++) {
+                Edge e = edges.get(j);
+                e.disconnect();
+            }
+            Facet f = chord.getFirstFacet();
+            Edge e0 = chord.getFromEdge(), e1= chord.getToEdge();
+            Vertex v0 = chord.getFromVertex(), v1 = chord.getToVertex();
+            if (e0 != null && e1 == null) {
+                Vertex v0_ = e0.splitAt(v0);
+                if (v0_ == null)
+                    addVertex(v0);
+                else 
+                    v0 = v0_;
+                iterator = v0.connect(v1, f);
+                iterator.getFacet().triangulate();
+            }
+            else if (e0 == null && e1 != null) {
+                Vertex v1_ = e1.splitAt(v1);
+                if (v1_ == null) 
+                    addVertex(v1);
+                else 
+                    v1 = v1_;
+                iterator = v0.connect(v1, f);
+                iterator.getFacet().triangulate();
+            }
+            else throw new NullPointerException("chord structure error");
+            windows = getWindows(iterator);
+        }
+        return trace;
+    }
+
+    private Vector<Point> getPoints(Vector<Chord> trace) {
+        if (lastChord == null)
+            throw new NullPointerException("last chord error");
+        Vector<Point> points = new Vector<Point>();
+        Vect v0 = new Vect(getStart()), v1 = null;
+        for (int i = 0; i < trace.size(); i ++) {
+            v1 = new Vect(trace.get(i));
+            points.add(v0.lineIntersect(v1));
+            v0 = v1;
+        }
+        points.add(v0.lineIntersect(lastChord));
+        points.add(lastChord.lineIntersect(new Vect(getEnd())));
+        return points;
+    }
+
+    public Vector<Point> minLinkPath() {
+        Edge start = getStart();
+        lastChord = null;
+        triangulate();
+        return getPoints(getTrace(getWindows(start)));
+    }
+
+    public Vector<Point> minLinkPath(BigDecimal y) {
+        Point r = Point.interpolationY(getStart().getFrom().getPoint(), getStart().getTo().getPoint(), y);
+        Vertex start_ = new Vertex(-1, r), start = getStart().splitAt(start_);
+        if (start == null) {
+            addVertex(start_);
+            start = start_;
+        }
+        start.setSide(1);
+        start.setHead(start.match(getVertex(0)));
+        lastChord = null;
+        triangulate();
+        return getPoints(getTrace(getWindows(start)));
     }
 }

@@ -7,7 +7,7 @@ public class Arithmetic {
     public static final int precision = 64;
     public static final BigDecimal TWO = new BigDecimal("2");
     public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
-    public static final MathContext DMC = new MathContext(16, RoundingMode.HALF_EVEN);
+    public static final MathContext DMC = new MathContext(precision / 4, RoundingMode.HALF_EVEN);
  
     public static BigDecimal sqrt(BigDecimal x, MathContext mc) {
         BigDecimal g = x.divide(TWO, mc);

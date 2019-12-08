@@ -1,9 +1,8 @@
-import java.util.Random;
-import java.math.BigInteger;
 import java.math.BigDecimal;
-import java.lang.String;
-import java.util.Vector;
+import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.Random;
+import java.util.Vector;
 
 public class Series {
 
@@ -12,6 +11,7 @@ public class Series {
     public Series() {
         this.data = new Vector<Point>();
         data.add(new Point("0", "0"));
+        data.add(new Point("1", "1"));
     }
 
     public Series(Vector<Point> data) {

@@ -4,10 +4,9 @@ import java.util.Vector;
 public class Vertex {
 
     private Point p;
-    private Edge in, out, head;
-    private int id;
+    private Edge head;
+    private int id, side;
     private ShortestPathTree[] sp;
-    private int side;
 
     public Vertex(int id, Point p) {
         this.id = id;
@@ -32,14 +31,6 @@ public class Vertex {
         this.id = id;
     }
 
-    public void setIn(Edge in) {
-        this.in = in;
-    }
-
-    public void setOut(Edge out) {
-        this.out = out;
-    }
-
     public void setHead(Edge head) {
         this.head = head;
     }
@@ -58,14 +49,6 @@ public class Vertex {
 
     public Point getPoint() {
         return p;
-    }
-
-    public Edge getIn() {
-        return in;
-    }
-
-    public Edge getOut() {
-        return out;
     }
 
     public Edge getHead() {
@@ -151,6 +134,16 @@ public class Vertex {
         for (int i = 0; i < edges.size(); i ++) {
             Edge e = edges.get(i);
             if (e.getTo() == that) 
+                return e;
+        }
+        return null;
+    }
+
+    public Edge match(Facet f) {
+        Vector<Edge> edges = getEdges();
+        for (int i = 0; i < edges.size(); i ++) {
+            Edge e = edges.get(i);
+            if (e.getFacet() == f)
                 return e;
         }
         return null;

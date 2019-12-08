@@ -55,12 +55,12 @@ public class Edge {
         return left;
     }
 
-    static void twinEdge(Edge e0, Edge e1) {
+    public static void twinEdge(Edge e0, Edge e1) {
         e0.setTwin(e1);
         e1.setTwin(e0);
     }
 
-    static void linkEdge(Edge e0, Edge e1) {
+    public static void linkEdge(Edge e0, Edge e1) {
         e0.setNext(e1);
         e1.setPrev(e0);
     }

@@ -1,9 +1,10 @@
 import java.math.BigDecimal;
-import javafx.util.Pair;
+import java.util.AbstractMap;
+import java.util.Map;
 
 public class Chord {
 
-    Pair<Vertex, Edge> from, to;
+    Map.Entry<Vertex, Edge> from, to;
 
     private void init() {
         Vertex v0 = getFromVertex();
@@ -15,20 +16,20 @@ public class Chord {
     }
 
     public Chord(Vertex from, Vertex to, Edge efrom, Edge eto) {
-        this.from = new Pair<Vertex, Edge>(from, efrom);
-        this.to = new Pair<Vertex, Edge>(to, eto);
+        this.from = new AbstractMap.SimpleEntry<Vertex, Edge>(from, efrom);
+        this.to = new AbstractMap.SimpleEntry<Vertex, Edge>(to, eto);
         init();
     }
 
     public Chord(Vertex from, Vertex to) {
-        this.from = new Pair<Vertex, Edge>(from, from.getHead());
-        this.to = new Pair<Vertex, Edge>(to, to.getHead());
+        this.from = new AbstractMap.SimpleEntry<Vertex, Edge>(from, from.getHead());
+        this.to = new AbstractMap.SimpleEntry<Vertex, Edge>(to, to.getHead());
         init();
     }
 
     public Chord(Edge e) {
-        this.from = new Pair<Vertex, Edge>(e.getFrom(), e.getPrev());
-        this.to = new Pair<Vertex, Edge>(e.getTo(), e.getNext());
+        this.from = new AbstractMap.SimpleEntry<Vertex, Edge>(e.getFrom(), e.getPrev());
+        this.to = new AbstractMap.SimpleEntry<Vertex, Edge>(e.getTo(), e.getNext());
         init();
     }
 
@@ -45,16 +46,11 @@ public class Chord {
             || (getFromVertex().getSide() == 2 && getToVertex().getSide() == 1);
     }
 
-    public boolean valid() {
-        BigDecimal d = getFromVertex().getPoint().distLoo(getToVertex().getPoint());
-        return Arithmetic.sgn(d) != 0;
-    }
-
-    public Pair<Vertex, Edge> getFrom() {
+    public Map.Entry<Vertex, Edge> getFrom() {
         return from;
     }
 
-    public Pair<Vertex, Edge> getTo() {
+    public Map.Entry<Vertex, Edge> getTo() {
         return to;
     }
 
@@ -79,18 +75,6 @@ public class Chord {
             return from.getValue().getTwin().getFacet();
         else 
             return to.getValue().getTwin().getFacet(); 
-    }
-
-    public Pair<Vertex, Edge> getToSplit() {
-        if (from.getValue() != null && to.getValue() == null) return from;
-        if (from.getValue() == null && to.getValue() != null) return to;
-        throw new NullPointerException("chord error");
-    }
-
-    public Vertex getToConnect() {
-        if (from.getValue() != null && to.getValue() == null) return to.getKey();
-        if (from.getValue() == null && to.getValue() != null) return from.getKey();
-        throw new NullPointerException("chord error");
     }
 
     public BigDecimal reach() {

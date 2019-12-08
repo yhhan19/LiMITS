@@ -1,8 +1,8 @@
-import java.util.Vector;
-import javafx.util.Pair;
-import java.util.LinkedList;
-import java.util.Stack;
 import java.math.BigDecimal;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.Stack;
+import java.util.Vector;
 
 public class Facet {
 
@@ -66,33 +66,33 @@ public class Facet {
     public void triangulate() {
         Edge start = getStartEdge();
         Edge end = getEndEdge();
-        Vector<Pair<String, Vertex>> queue = new Vector<Pair<String, Vertex>>();
-        queue.add(new Pair<String, Vertex>("3", start.getFrom()));
+        Vector<Map.Entry<String, Vertex>> queue = new Vector<Map.Entry<String, Vertex>>();
+        queue.add(new AbstractMap.SimpleEntry<String, Vertex>("3", start.getFrom()));
         Edge upper = start;
         Edge lower = start.getPrev();
         while (upper.getTo() != end.getFrom() && lower.getFrom() != end.getFrom()) {
             if (upper.getTo().getPoint().cartesianCompareTo(lower.getFrom().getPoint()) == 1) {
-                queue.add(new Pair<String, Vertex>("0", upper.getTo()));
+                queue.add(new AbstractMap.SimpleEntry<String, Vertex>("0", upper.getTo()));
                 upper = upper.getNext();
             }
             else {
-                queue.add(new Pair<String, Vertex>("1", lower.getFrom()));
+                queue.add(new AbstractMap.SimpleEntry<String, Vertex>("1", lower.getFrom()));
                 lower = lower.getPrev();
             }
         }
         while (upper.getTo() != end.getFrom()) {
-            queue.add(new Pair<String, Vertex>("0", upper.getTo()));
+            queue.add(new AbstractMap.SimpleEntry<String, Vertex>("0", upper.getTo()));
             upper = upper.getNext();
         }
         while (lower.getFrom() != end.getFrom()) {
-            queue.add(new Pair<String, Vertex>("1", lower.getFrom()));
+            queue.add(new AbstractMap.SimpleEntry<String, Vertex>("1", lower.getFrom()));
             lower = lower.getPrev();
         }
-        queue.add(new Pair<String, Vertex>("3", end.getFrom()));
-        Stack<Pair<String, Vertex>> stack = new Stack<Pair<String, Vertex>>();
+        queue.add(new AbstractMap.SimpleEntry<String, Vertex>("3", end.getFrom()));
+        Stack<Map.Entry<String, Vertex>> stack = new Stack<Map.Entry<String, Vertex>>();
         stack.push(queue.get(0));
         stack.push(queue.get(1));
-        Pair<String, Vertex> A = null, B = null, C = null;
+        Map.Entry<String, Vertex> A = null, B = null, C = null;
         for (int i = 2; i < queue.size() - 1; i ++) {
             A = queue.get(i);
             if (! A.getKey().equals(stack.peek().getKey())) {

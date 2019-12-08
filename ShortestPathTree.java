@@ -51,13 +51,13 @@ public class ShortestPathTree {
             t = t.vertex.getShortestPathTree(index).getParent();
         }
         System.out.println(")");
-        System.out.print("( ");
+        System.out.print("[ ");
         t = this;
         while (t != null) {
             System.out.print(t.cross + " ");
             t = t.vertex.getShortestPathTree(index).getParent();
         }
-        System.out.println(")");
+        System.out.println("]");
         System.out.print("[ ");
         t = this;
         while (t != null) {

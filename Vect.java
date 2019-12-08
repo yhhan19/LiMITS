@@ -103,7 +103,7 @@ public class Vect {
         return - d0 * d1; 
     }
 
-    public boolean isIntersect(Vect v) {
+    public boolean isSegmentIntersect(Vect v) {
         int d0 = divide(v.from, v.to);
         int d1 = v.divide(from, to);
         if (d0 != 0) {
@@ -135,7 +135,7 @@ public class Vect {
         return p;
     }
 
-    public Point segmentIntersect(Vect v) {
+    public Point segmentLineIntersect(Vect v) {
         Point p = lineIntersect(v);
         if (p == null) {
             BigDecimal cross = cross(new Vect(from, v.to));
