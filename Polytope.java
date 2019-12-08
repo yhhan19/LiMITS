@@ -388,14 +388,14 @@ public class Polytope {
         return points;
     }
 
-    public Vector<Point> minLinkPath() {
+    public Vector<Point> linkPath() {
         Edge start = getStart();
         lastChord = null;
         triangulate();
         return getPoints(getTrace(getWindows(start)));
     }
 
-    public Vector<Point> minLinkPath(BigDecimal y) {
+    public Vector<Point> linkPath(BigDecimal y) {
         Point r = Point.interpolationY(getStart().getFrom().getPoint(), getStart().getTo().getPoint(), y);
         Vertex start_ = new Vertex(-1, r), start = getStart().splitAt(start_);
         if (start == null) {

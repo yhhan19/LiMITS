@@ -176,4 +176,13 @@ public class Point {
         BigDecimal r = y.subtract(p.y).divide(v.getY(), Arithmetic.MC);
         return p.add(v.scalar(r));
     }
+
+    public boolean near(Point p, Point q, BigDecimal eps) {
+        Point r = interpolationX(p, q, x);
+        BigDecimal delta = r.y.subtract(y).abs();
+        if (delta.compareTo(eps) <= 0) 
+            return true;
+        else 
+            return false;
+    }
 }

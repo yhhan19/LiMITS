@@ -90,8 +90,8 @@ public class Series {
                 if (j != 0) {
                     Point p = Point.interpolationX(that.get(j - 1), that.get(j), this.get(i).getX());
                     BigDecimal delta = p.getY().subtract(this.get(i).getY()).abs();
-                    if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
-                        System.out.println(delta.add(BigDecimal.ZERO, Arithmetic.DMC));
+                    //if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
+                    //    System.out.println(i + " " + j + " " + delta.add(BigDecimal.ZERO, Arithmetic.DMC));
                     if (delta.compareTo(error) == 1) 
                         error = delta;
                 }
@@ -101,8 +101,8 @@ public class Series {
                 if (i != 0) {
                     Point p = Point.interpolationX(this.get(i - 1), this.get(i), that.get(j).getX());
                     BigDecimal delta = p.getY().subtract(that.get(j).getY()).abs();
-                    if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
-                        System.out.println(delta.add(BigDecimal.ZERO, Arithmetic.DMC));
+                    //if (delta.compareTo(eps.add(new BigDecimal("1E-6"))) == 1)
+                    //    System.out.println(i + " " + j + " " + delta.add(BigDecimal.ZERO, Arithmetic.DMC));
                     if (delta.compareTo(error) == 1) 
                         error = delta;
                 }
