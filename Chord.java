@@ -42,8 +42,9 @@ public class Chord {
     }
 
     public boolean intermediate() {
-        return (getFromVertex().getSide() == 1 && getToVertex().getSide() == 2)
-            || (getFromVertex().getSide() == 2 && getToVertex().getSide() == 1);
+        //BigDecimal d = getFromVertex().getPoint().distLoo(getToVertex().getPoint());
+        //if (Arithmetic.sgn(d) == 0) return false;
+        return (getFromVertex().getSide() ^ getToVertex().getSide()) == 3;
     }
 
     public Map.Entry<Vertex, Edge> getFrom() {
@@ -80,9 +81,12 @@ public class Chord {
     public BigDecimal reach() {
         BigDecimal fx = from.getKey().getPoint().getX();
         BigDecimal tx = to.getKey().getPoint().getX();
-        if (fx.compareTo(tx) == 1) 
-            return fx;
-        else 
-            return tx; 
+        return fx.compareTo(tx) == 1 ? fx : tx;
+    }
+
+    public BigDecimal range() {
+        BigDecimal fx = from.getKey().getPoint().getX();
+        BigDecimal tx = to.getKey().getPoint().getX();
+        return fx.subtract(tx).abs();
     }
 }

@@ -155,4 +155,8 @@ public class Vect {
         }
         return p;
     }
+
+    public boolean between(Vect v0, Vect v1) {
+        return Arithmetic.sgn(cross(v0)) <= 0 && Arithmetic.sgn(cross(v1)) >= 0;
+    }
 }

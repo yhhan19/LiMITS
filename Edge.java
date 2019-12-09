@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.Vector;
 
 public class Edge {
@@ -74,10 +75,7 @@ public class Edge {
     }
 
     public int getSide() {
-        int sd1 = from.getSide();
-        int sd2 = to.getSide();
-        if (sd1 == sd2) return sd1;
-        return 3;
+        return from.getSide() & to.getSide(); 
     }
 
     public void disconnect() {
@@ -86,10 +84,8 @@ public class Edge {
         if (f0.getLoop() == this) 
             f0.setLoop(getNext());
         Vector<Edge> edges = f1.getEdges();
-        for (int i = 0; i < edges.size(); i ++) {
-            Edge e = edges.get(i);
-            e.setFacet(f0);
-        }
+        for (int i = 0; i < edges.size(); i ++) 
+            edges.get(i).setFacet(f0);
         e1.getPrev().setNext(getNext());
         getNext().setPrev(e1.getPrev());
         e1.getNext().setPrev(getPrev());
@@ -107,7 +103,7 @@ public class Edge {
         Edge e0_ = new Edge(v, e0.to);
         e1.to = v;
         e0.to = v;
-        v.setHead(e0_);
+        v.setHead(e1_);
         twinEdge(e1, e0_);
         twinEdge(e0, e1_);
         linkEdge(e1_, e1.next);
@@ -117,5 +113,13 @@ public class Edge {
         e1_.left = e1.left;
         e0_.left = e0.left;
         return null;
+    }
+
+    public Point interpolationX(BigDecimal x) {
+        return Point.interpolationX(from.getPoint(), to.getPoint(), x); 
+    }
+
+    public Point interpolationY(BigDecimal y) {
+        return Point.interpolationY(from.getPoint(), to.getPoint(), y); 
     }
 }

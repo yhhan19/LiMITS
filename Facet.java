@@ -98,7 +98,7 @@ public class Facet {
             if (! A.getKey().equals(stack.peek().getKey())) {
                 for (int j = 1; j < stack.size(); j ++) {
                     B = stack.get(j);
-                    Edge e = A.getValue().connect(B.getValue(), this);
+                    A.getValue().connect(B.getValue(), this);
                 }
                 while (! stack.empty()) 
                     B = stack.pop();
@@ -113,7 +113,7 @@ public class Facet {
                     BigDecimal c = v0.cross(v1);
                     if (A.getKey().equals("0") && Arithmetic.sgn(c) > 0 || A.getKey().equals("1") && Arithmetic.sgn(c) < 0) {
                         C = stack.pop();
-                        Edge e = A.getValue().connect(C.getValue(), this);
+                        A.getValue().connect(C.getValue(), this);
                         B = C;
                     }
                     else 
@@ -127,7 +127,7 @@ public class Facet {
         stack.pop();
         for (int j = 1; j < stack.size(); j ++) {
             B = stack.get(j);
-            Edge e = A.getValue().connect(B.getValue(), this);
+            A.getValue().connect(B.getValue(), this);
         }
     }
 

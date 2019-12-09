@@ -82,19 +82,22 @@ public class Polytope {
         structuralize();
     }
 
-    public void display(MathContext mc) {
+    public void display() {
         System.out.println(size());
         external.display();
-        external.getLoop().getTwin().getFacet().display();
+        for (int i = 0; i < vertices.size(); i ++) 
+            vertices.get(i).display();
+        System.out.println();
     }
 
     public int size() {
         return vertices.size();
     }
 
-    public void addVertex(Vertex v) {
+    public Vertex addVertex(Vertex v) {
         vertices.add(v);
         v.setId(vertices.size() - 1);
+        return v;
     }
 
     public Vertex getVertex(int i) {
@@ -147,19 +150,17 @@ public class Polytope {
         for (int i = 0; i < queue.size(); i ++) {
             Facet f = queue.get(i);
             BigDecimal area = f.area();
-            if (f == external) 
-                result = result.add(area);
-            else {
-                result = result.add(area);
+            result = result.add(area);
+            if (f != external) {
                 if (min == null || area.compareTo(min) == -1) 
                     min = area;
                 if (max == null || area.compareTo(max) == 1) 
                     max = area;
             }
         }
-        System.out.print("difference: " + result);
-        System.out.print(" min: " + min.add(BigDecimal.ZERO, Arithmetic.DMC));
-        System.out.print(" max: " + max.add(BigDecimal.ZERO, Arithmetic.DMC));
+        System.out.print("difference: " + Arithmetic.format(result));
+        System.out.print(" min: " + Arithmetic.format(min));
+        System.out.print(" max: " + Arithmetic.format(max));
         System.out.println(" facets: " + (queue.size() - 1));
     }
 
@@ -210,8 +211,6 @@ public class Polytope {
     }
 
     private Vector<Chord> biDepthFirstSearch(Edge e, Funnel fn0, Funnel fn1) {
-        if (e.getNext().getNext().getNext() != e) 
-            throw new NullPointerException("triangle error");
         Vector<Chord> windows = new Vector<Chord>();
         Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
         Vertex t00 = fn0.getApex(), t11 = fn1.getApex(), t10 = fn0.getRightHead(), t01 = fn1.getLeftHead();
@@ -231,8 +230,7 @@ public class Polytope {
             else {
                 if (AB == getEnd().getTwin()) lastChord = t0;
                 Vect v0 = new Vect(AB);
-                Point p0 = v0.segmentLineIntersect(t0);
-                Point p1 = v0.segmentLineIntersect(t1);
+                Point p0 = v0.segmentLineIntersect(t0), p1 = v0.segmentLineIntersect(t1);
                 Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
                 if (ch.intermediate()) windows.add(ch);
                 if (p1 != null) {
@@ -249,8 +247,7 @@ public class Polytope {
             else {
                 if (BC == getEnd().getTwin()) lastChord = t1;
                 Vect v1 = new Vect(BC);
-                Point p0 = v1.segmentLineIntersect(t0);
-                Point p1 = v1.segmentLineIntersect(t1);
+                Point p0 = v1.segmentLineIntersect(t0), p1 = v1.segmentLineIntersect(t1);
                 Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
                 if (ch.intermediate()) windows.add(ch);
                 if (p0 != null) {
@@ -273,8 +270,6 @@ public class Polytope {
     }
 
     private Vector<Chord> simDepthFirstSearch(Edge e, Funnel fn) {
-        if (e.getNext().getNext().getNext() != e) 
-            throw new NullPointerException("triangle error");
         Vector<Chord> windows = new Vector<Chord>();
         Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
         Vertex t00 = fn.getApex(), t10 = fn.getRightHead(), t01 = fn.getLeftHead();
@@ -291,8 +286,7 @@ public class Polytope {
             else {
                 if (AB == getEnd().getTwin()) lastChord = t0;
                 Vect v0 = new Vect(AB);
-                Point p0 = v0.segmentLineIntersect(t0);
-                Point p1 = v0.segmentLineIntersect(t1);
+                Point p0 = v0.segmentLineIntersect(t0), p1 = v0.segmentLineIntersect(t1);
                 Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
                 if (ch.intermediate()) windows.add(ch);
                 if (p1 != null) {
@@ -309,8 +303,7 @@ public class Polytope {
             else {
                 if (BC == getEnd().getTwin()) lastChord = t1;
                 Vect v1 = new Vect(BC);
-                Point p0 = v1.segmentLineIntersect(t0);
-                Point p1 = v1.segmentLineIntersect(t1);
+                Point p0 = v1.segmentLineIntersect(t0), p1 = v1.segmentLineIntersect(t1);
                 Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
                 if (ch.intermediate()) windows.add(ch);
                 if (p0 != null) {
@@ -335,47 +328,30 @@ public class Polytope {
         Edge iterator = null;
         while (windows.size() > 0) {
             Chord chord = null;
-            for (int j = 0; j < windows.size(); j ++) {
-                Chord ch = windows.get(j);
-                if (chord == null || ch.reach().compareTo(chord.reach()) == 1) 
-                    chord = ch;
-            }
+            for (int j = 0; j < windows.size(); j ++) 
+                if (chord == null || windows.get(j).reach().compareTo(chord.reach()) == 1) 
+                    chord = windows.get(j);
             trace.add(chord);
             Vector<Edge> edges = intersectEdges(chord);
-            for (int j = 0; j < edges.size(); j ++) {
-                Edge e = edges.get(j);
-                e.disconnect();
-            }
-            Facet f = chord.getFirstFacet();
-            Edge e0 = chord.getFromEdge(), e1= chord.getToEdge();
+            for (int j = 0; j < edges.size(); j ++) 
+                edges.get(j).disconnect();
             Vertex v0 = chord.getFromVertex(), v1 = chord.getToVertex();
-            if (e0 != null && e1 == null) {
-                Vertex v0_ = e0.splitAt(v0);
-                if (v0_ == null)
-                    addVertex(v0);
-                else 
-                    v0 = v0_;
-                iterator = v0.connect(v1, f);
-                iterator.getFacet().triangulate();
+            if (chord.getFromEdge() != null) {
+                Vertex v0_ = chord.getFromEdge().splitAt(v0);
+                v0 = v0_ != null ? v0_ : addVertex(v0);
             }
-            else if (e0 == null && e1 != null) {
-                Vertex v1_ = e1.splitAt(v1);
-                if (v1_ == null) 
-                    addVertex(v1);
-                else 
-                    v1 = v1_;
-                iterator = v0.connect(v1, f);
-                iterator.getFacet().triangulate();
+            else {
+                Vertex v1_ = chord.getToEdge().splitAt(v1);
+                v1 = v1_ != null ? v1_ : addVertex(v1);
             }
-            else throw new NullPointerException("chord structure error");
+            iterator = v0.connect(v1, chord.getFirstFacet());
+            iterator.getFacet().triangulate();
             windows = getWindows(iterator);
         }
         return trace;
     }
 
     private Vector<Point> getPoints(Vector<Chord> trace) {
-        if (lastChord == null)
-            throw new NullPointerException("last chord error");
         Vector<Point> points = new Vector<Point>();
         Vect v0 = new Vect(getStart()), v1 = null;
         for (int i = 0; i < trace.size(); i ++) {
@@ -383,28 +359,25 @@ public class Polytope {
             points.add(v0.lineIntersect(v1));
             v0 = v1;
         }
-        points.add(v0.lineIntersect(lastChord));
+        Point p = v0.lineIntersect(lastChord);
+        if (p != null) points.add(p);
         points.add(lastChord.lineIntersect(new Vect(getEnd())));
         return points;
     }
 
     public Vector<Point> linkPath() {
         Edge start = getStart();
-        lastChord = null;
         triangulate();
         return getPoints(getTrace(getWindows(start)));
     }
 
     public Vector<Point> linkPath(BigDecimal y) {
-        Point r = Point.interpolationY(getStart().getFrom().getPoint(), getStart().getTo().getPoint(), y);
-        Vertex start_ = new Vertex(-1, r), start = getStart().splitAt(start_);
+        Vertex v = new Vertex(-1, getStart().interpolationY(y));
+        Vertex start = getStart().splitAt(v);
         if (start == null) {
-            addVertex(start_);
-            start = start_;
+            start = addVertex(v);
+            start.setSide(3);
         }
-        start.setSide(1);
-        start.setHead(start.match(getVertex(0)));
-        lastChord = null;
         triangulate();
         return getPoints(getTrace(getWindows(start)));
     }

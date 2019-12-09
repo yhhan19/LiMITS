@@ -24,6 +24,7 @@ public class Vertex {
     }
 
     public void display() {
+        System.out.print(id + " ");
         p.display();
     }
 
@@ -89,7 +90,6 @@ public class Vertex {
             f1.setLoop(e1);
             for (Edge ek = ei; ek.getFrom() != that; ek = ek.getNext()) 
                 ek.setFacet(f1);
-            return e0;
         }
         else {
             e0.setFacet(f1);
@@ -98,8 +98,8 @@ public class Vertex {
             f1.setLoop(e0);
             for (Edge ek = ej; ek.getFrom() != this; ek = ek.getNext()) 
                 ek.setFacet(f1);
-            return e0;
         }
+        return e0;
     }
 
     public void shortestLink(int i, Vertex parent) {

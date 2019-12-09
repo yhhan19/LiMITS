@@ -39,9 +39,9 @@ public class Point {
     }
 
     public void display() {
-        BigDecimal x = this.x.round(Arithmetic.DMC);
-        BigDecimal y = this.y.round(Arithmetic.DMC);
-        System.out.print("(" + x + " " + y + ") ");
+        String sx = Arithmetic.format(x);
+        String sy = Arithmetic.format(y);
+        System.out.print("(" + sx + " " + sy + ") ");
     }
 
     public BigDecimal getX() {
