@@ -13,7 +13,10 @@ public class Edge {
     }
 
     public void display() {
-        System.out.print("<" + from.getId() + " " + to.getId() + "> ");
+        System.out.print("< ");
+        from.display();
+        to.display();
+        System.out.println(">");
     }
 
     public void setTwin(Edge e) {

@@ -80,6 +80,40 @@ public class Funnel {
         return left.size() + right.size();
     }
 
+    public Vertex search(Vertex v) {
+        if (left.isEmpty()) {
+            return apex;
+        }
+        if (right.isEmpty()) {
+            return apex;
+        }
+        int i = 0, cni = -1;
+        for (i = left.size() - 1; i >= 0; i --) {
+            Vect v0 = new Vect(getLeft(i - 1), getLeft(i));
+            Vect v1 = new Vect(getLeft(i), v);
+            BigDecimal cross = v0.cross(v1);
+            if (cni == -1 && Arithmetic.sgn(cross) >= 0) cni = i;
+            if (Arithmetic.sgn(cross) > 0) break;
+        }
+        if (cni >= 0) {
+            return getLeft(cni);
+        }
+        int j = 0, cnj = -1;
+        for (j = right.size() - 1; j >= 0; j --) {
+            Vect v0 = new Vect(getRight(j - 1), getRight(j));
+            Vect v1 = new Vect(getRight(j), v);
+            BigDecimal cross = v0.cross(v1);
+            if (cnj == -1 && Arithmetic.sgn(cross) <= 0) cnj = j;
+            if (Arithmetic.sgn(cross) < 0) break;
+        }
+        if (cnj >= 0) {
+            return getRight(cnj);
+        }
+        else {
+            return apex;
+        }
+    }
+
     public String split(int index, Vertex v, Funnel that) {
         if (left.isEmpty()) {
             v.shortestLink(index, apex);

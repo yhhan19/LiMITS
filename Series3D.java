@@ -14,7 +14,7 @@ public class Series3D {
             this.data.add(data.get(i));
     }
 
-    public Series3D(int N, int bound) {
+    public Series3D(int N, int bound, int mono) {
         data = new Vector<Point3D>();
         Random rand = new Random();
         BigInteger x = new BigInteger("0");
@@ -26,13 +26,14 @@ public class Series3D {
             String str = String.valueOf(rand.nextInt(bound));
             BigInteger delta = new BigInteger(str);
             x = x.add(BigInteger.ONE);
-            if (rand.nextInt(2) == 0)
+            if (rand.nextInt(mono) == 0)
                 y = y.add(delta);
             else 
                 y = y.subtract(delta);
+            str = String.valueOf(rand.nextInt(bound));
             delta = new BigInteger(str);
             str = String.valueOf(rand.nextInt(bound));
-            if (rand.nextInt(2) == 0)
+            if (rand.nextInt(mono) == 0)
                 z = z.add(delta);
             else 
                 z = z.subtract(delta);

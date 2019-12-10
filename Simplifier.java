@@ -1,5 +1,6 @@
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.util.Collections;
 import java.util.Vector;
 
 public class Simplifier {
@@ -29,6 +30,23 @@ public class Simplifier {
     public Series simplify(Series s, BigDecimal eps, BigDecimal y) {
         Polytope p = new Polytope(s, eps);
         Vector<Point> points = p.linkPath(y);
+        Series t = new Series(points);
+        //System.out.println("output: " + t.size());
+        return t;
+    }
+
+    public Series simplify(Series s, BigDecimal eps, Range y) {
+        Polytope p = new Polytope(s, eps);
+        Vector<Point> points = p.linkPath(y);
+        Series t = new Series(points);
+        //System.out.println("output: " + t.size());
+        return t;
+    }
+
+    public Series simplify(Series s, BigDecimal eps, Range y1, BigDecimal r) {
+        BigDecimal y0 = y1.interpolation(r);
+        Polytope p = new Polytope(s, eps);
+        Vector<Point> points = p.linkPath(y0, y1, r);
         Series t = new Series(points);
         //System.out.println("output: " + t.size());
         return t;
@@ -159,6 +177,54 @@ public class Simplifier {
         return t;
     }
 
+    public Series3D reRefinedCombineSimplify3D(Series3D s, BigDecimal eps, BigDecimal ratio) {
+        Series s0 = s.projectZ();
+        Series t0 = simplify(s0, eps);
+        Series s1 = s.projectY();
+        Vector<Point> points = new Vector<Point>();
+        Point start = null;
+        Range last =null;
+        for (int i = 1, j = 0; i < t0.size(); i ++) {
+            Vector<Point> buffer = new Vector<Point>();
+            BigDecimal x = t0.get(i).getX();
+            if (start != null) buffer.add(start);
+            while (j < s1.size()) {
+                int delta = Arithmetic.sgn(s1.get(j).getX().subtract(x));
+                if (delta < 0) {
+                    buffer.add(s1.get(j));
+                    j ++;
+                }
+                if (delta == 0) {
+                    buffer.add(s1.get(j));
+                    start = null;
+                    break;
+                }
+                if (delta > 0) {
+                    Point r = Point.interpolationX(s1.get(j - 1), s1.get(j), x);
+                    buffer.add(r);
+                    start = r;
+                    break;
+                }
+            }
+            Series s1_ = new Series(buffer), t1_ = null;
+            if (last == null) {
+                last = new Range(s1.get(0).getY().add(eps), s1.get(0).getY().subtract(eps));
+                t1_ = simplify(s1_, eps, last, ratio);
+                for (int k = 0; k < t1_.size(); k ++) 
+                    points.add(t1_.get(k));
+            }
+            else {
+                t1_ = simplify(s1_, eps, last, ratio);
+                for (int k = 1; k < t1_.size(); k ++) 
+                    points.add(t1_.get(k));
+            }
+        }
+        Series t1 = new Series(points);
+        Series3D t = new Series3D(t0, t1);
+        System.out.println("output: " + t.size() + " " + t0.size() + " " + t1.size());
+        return t;
+    }
+
     public Series3D greedySimplify3D(Series3D s, BigDecimal eps) {
         Vector<Point3D> points = new Vector<Point3D>();
         for (int i = 0, j = 1; j < s.size(); i = j - 1) {
@@ -271,16 +337,16 @@ public class Simplifier {
         Series t2 = greedySimplify(s, eps);
         Simplifier.getError(s, t2);
         displayTime();
-        Series t30 = dpSimplify(s, eps, (int) 1e6);
+        Series t30 = dpSimplify(s, eps, (int) 1e7);
         Simplifier.getError(s, t30);
         displayTime();
-        Series t31 = dpSimplify(s, eps, (int) 1e7);
+        Series t31 = dpSimplify(s, eps, (int) 1e8);
         Simplifier.getError(s, t31);
         displayTime();
     }
 
     private void test3D() {
-        Series3D s = new Series3D((int) 1e5, (int) 1e9);
+        Series3D s = new Series3D((int) 1e5, (int) 1e9, 2);
         BigDecimal eps = new BigDecimal((int) 1e9);
         displayTime();
         Series3D t0 = combineSimplify3D(s, eps);
@@ -292,17 +358,20 @@ public class Simplifier {
         Series3D t2 = greedySimplify3D(s, eps);
         Simplifier.getError(s, t2);
         displayTime();
-        Series3D t30 = dpSimplify3D(s, eps, (int) 1e6);
+        Series3D t30 = dpSimplify3D(s, eps, (int) 1e7);
         Simplifier.getError(s, t30);
         displayTime();
-        Series3D t31 = dpSimplify3D(s, eps, (int) 1e7);
+        Series3D t31 = dpSimplify3D(s, eps, (int) 1e8);
         Simplifier.getError(s, t31);
         displayTime();
     }
 
     public void test3D2() {
-        Series3D s = new Series3D((int) 1e4, (int) 1e9);
-        BigDecimal eps = new BigDecimal((int) 2e9);
+        Series3D s = new Series3D((int) 1e4, (int) 1e9, 2);
+        BigDecimal eps = new BigDecimal((int) 1e8);
+        displayTime();
+        Series3D t4 = reRefinedCombineSimplify3D(s, eps, new BigDecimal("0.5"));
+        Simplifier.getError(s, t4);
         displayTime();
         Series3D t0 = refinedCombineSimplify3D(s, eps);
         Simplifier.getError(s, t0);
@@ -313,10 +382,10 @@ public class Simplifier {
         Series3D t2 = greedySimplify3D(s, eps);
         Simplifier.getError(s, t2);
         displayTime();
-        Series3D t30 = dpSimplify3D(s, eps, (int) 1e6);
+        Series3D t30 = dpSimplify3D(s, eps, (int) 1e7);
         Simplifier.getError(s, t30);
         displayTime();
-        Series3D t31 = dpSimplify3D(s, eps, (int) 1e7);
+        Series3D t31 = dpSimplify3D(s, eps, (int) 1e8);
         Simplifier.getError(s, t31);
         displayTime();
     }

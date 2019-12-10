@@ -7,7 +7,8 @@ public class Polytope {
     private Vector<Vertex> vertices;
     private Facet external;
     private Edge start, end;
-    private Vect lastChord;
+    private Vect endChord, endRange;
+    private BigDecimal endRatio = null;
 
     private void structuralize() {
         for (int i = 0; i < vertices.size(); i ++) {
@@ -228,7 +229,6 @@ public class Polytope {
                 windows.addAll(biDepthFirstSearch(AB, fn0, fn1));
             }
             else {
-                if (AB == getEnd().getTwin()) lastChord = t0;
                 Vect v0 = new Vect(AB);
                 Point p0 = v0.segmentLineIntersect(t0), p1 = v0.segmentLineIntersect(t1);
                 Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
@@ -236,6 +236,15 @@ public class Polytope {
                 if (p1 != null) {
                     ch = new Chord(new Vertex(-1, p1), t10, AB, null);
                     if (ch.intermediate()) windows.add(ch);
+                }
+                if (AB == getEnd().getTwin()) {
+                    endRange = new Vect(p0, p1 != null ? p1 : B.getPoint());
+                    endChord = t0;
+                    if (endRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
+                        endChord = new Vect(fn0.search(endVertex), endVertex);
+                    }
                 }
             }
         }
@@ -245,7 +254,6 @@ public class Polytope {
                 windows.addAll(biDepthFirstSearch(BC, fn0_, fn1_));
             }
             else {
-                if (BC == getEnd().getTwin()) lastChord = t1;
                 Vect v1 = new Vect(BC);
                 Point p0 = v1.segmentLineIntersect(t0), p1 = v1.segmentLineIntersect(t1);
                 Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
@@ -253,6 +261,15 @@ public class Polytope {
                 if (p0 != null) {
                     ch = new Chord(t01, new Vertex(-1, p0), null, BC);
                     if (ch.intermediate()) windows.add(ch);
+                }
+                if (BC == getEnd().getTwin()) {
+                    endRange = new Vect(p0 != null ? p0 : B.getPoint(), p1);
+                    endChord = t1;
+                    if (endRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
+                        endChord = new Vect(fn0_.search(endVertex), endVertex);
+                    }
                 }
             }
         }
@@ -284,7 +301,6 @@ public class Polytope {
                 windows.addAll(simDepthFirstSearch(AB, fn));
             }
             else {
-                if (AB == getEnd().getTwin()) lastChord = t0;
                 Vect v0 = new Vect(AB);
                 Point p0 = v0.segmentLineIntersect(t0), p1 = v0.segmentLineIntersect(t1);
                 Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
@@ -292,6 +308,15 @@ public class Polytope {
                 if (p1 != null) {
                     ch = new Chord(new Vertex(-1, p1), t10, AB, null);
                     if (ch.intermediate()) windows.add(ch);
+                }
+                if (AB == getEnd().getTwin()) {
+                    endRange = new Vect(p0, p1 != null ? p1 : B.getPoint());
+                    endChord = t0;
+                    if (endRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
+                        endChord = new Vect(fn.search(endVertex), endVertex);
+                    }
                 }
             }
         }
@@ -301,7 +326,6 @@ public class Polytope {
                 windows.addAll(simDepthFirstSearch(BC, fn_));
             }
             else {
-                if (BC == getEnd().getTwin()) lastChord = t1;
                 Vect v1 = new Vect(BC);
                 Point p0 = v1.segmentLineIntersect(t0), p1 = v1.segmentLineIntersect(t1);
                 Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
@@ -309,6 +333,15 @@ public class Polytope {
                 if (p0 != null) {
                     ch = new Chord(t01, new Vertex(-1, p0), null, BC);
                     if (ch.intermediate()) windows.add(ch);
+                }
+                if (BC == getEnd().getTwin()) {
+                    endRange = new Vect(p0 != null ? p0 : B.getPoint(), p1);
+                    endChord = t1;
+                    if (endRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
+                        endChord = new Vect(fn_.search(endVertex), endVertex);
+                    }
                 }
             }
         }
@@ -359,9 +392,9 @@ public class Polytope {
             points.add(v0.lineIntersect(v1));
             v0 = v1;
         }
-        Point p = v0.lineIntersect(lastChord);
+        Point p = v0.lineIntersect(endChord);
         if (p != null) points.add(p);
-        points.add(lastChord.lineIntersect(new Vect(getEnd())));
+        points.add(endChord.lineIntersect(new Vect(getEnd())));
         return points;
     }
 
@@ -380,5 +413,56 @@ public class Polytope {
         }
         triangulate();
         return getPoints(getTrace(getWindows(start)));
+    }
+
+    public Vector<Point> linkPath(Range y) {
+        Vector<Point> points = null;
+        if (Arithmetic.sgn(y.range()) == 0) {
+            BigDecimal y0 = y.getX();
+            Vertex v0 = new Vertex(-1, getStart().interpolationY(y0));
+            Vertex start = getStart().splitAt(v0);
+            if (start == null) {
+                start = addVertex(v0);
+                start.setSide(3);
+            }
+            triangulate();
+            points = getPoints(getTrace(getWindows(start)));
+        }
+        else {
+            BigDecimal y0 = y.getX(), y1 = y.getY();
+            Vertex v0 = new Vertex(-1, getStart().interpolationY(y0));
+            Vertex v1 = new Vertex(-1, getStart().interpolationY(y1));
+            Vertex v0_ = getStart().splitAt(v0);
+            if (v0_ == null) {
+                v0_ = addVertex(v0);
+                v0_.setSide(3);
+            }
+            Vertex v1_ = v0_.getHead().splitAt(v1);
+            if (v1_ == null) {
+                v1_ = addVertex(v1);
+                v1_.setSide(3);
+            }
+            Edge start = v1_.getHead().getPrev();
+            triangulate();
+            points = getPoints(getTrace(getWindows(start)));
+        }
+        y.setX(endRange.getFrom().getY());
+        y.setY(endRange.getTo().getY());
+        return points;
+    }
+
+    public Vector<Point> linkPath(BigDecimal y0, Range y1, BigDecimal r) {
+        endRatio = r;
+        Vertex v = new Vertex(-1, getStart().interpolationY(y0));
+        Vertex start = getStart().splitAt(v);
+        if (start == null) {
+            start = addVertex(v);
+            start.setSide(3);
+        }
+        triangulate();
+        Vector<Point> points = getPoints(getTrace(getWindows(start)));
+        y1.setX(endRange.getFrom().getY());
+        y1.setY(endRange.getTo().getY());
+        return points;
     }
 }

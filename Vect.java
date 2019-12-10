@@ -40,6 +40,10 @@ public class Vect {
         this.to = new Point(x, y);
     }
 
+    public BigDecimal mid() {
+        return from.getY().add(to.getY()).divide(Arithmetic.TWO);
+    }
+
     public void display() {
         from.display();
         to.display();
@@ -156,7 +160,25 @@ public class Vect {
         return p;
     }
 
-    public boolean between(Vect v0, Vect v1) {
+     public boolean between(Vect v0, Vect v1) {
         return Arithmetic.sgn(cross(v0)) <= 0 && Arithmetic.sgn(cross(v1)) >= 0;
+    }
+
+    public Point interpolationX(BigDecimal x) {
+        return Point.interpolationX(from, to, x);
+    }
+
+    public Point interpolationY(BigDecimal y) {
+        return Point.interpolationY(from, to, y);
+    }
+
+    public Point interpolationXratio(BigDecimal r) {
+        BigDecimal x = from.getX().multiply(r).add(to.getX().multiply(BigDecimal.ONE.subtract(r)));
+        return Point.interpolationX(from, to, x);
+    }
+
+    public Point interpolationYratio(BigDecimal r) {
+        BigDecimal y = from.getY().multiply(r).add(to.getY().multiply(BigDecimal.ONE.subtract(r)));
+        return Point.interpolationY(from, to, y);
     }
 }
