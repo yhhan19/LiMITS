@@ -4,6 +4,11 @@ import java.math.BigInteger;
 public class Range {
 
     private BigDecimal x, y;
+    
+    public Range() {
+        x = BigDecimal.ZERO;
+        y = BigDecimal.ZERO;
+    }
 
     public Range(int x, int y) {
         this.x = new BigDecimal(x);
@@ -71,5 +76,11 @@ public class Range {
         if (delta > 0)
             return new Range(x, y);
         return null;
+    }
+
+    public boolean contains(BigDecimal z) {
+        int dx = Arithmetic.sgn(x.subtract(z));
+        int dy = Arithmetic.sgn(z.subtract(y));
+        return dx >= 0 && dy >= 0;
     }
 }

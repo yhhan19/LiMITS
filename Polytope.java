@@ -8,7 +8,7 @@ public class Polytope {
     private Facet external;
     private Edge start, end;
     private Vect endChord, endRange;
-    private BigDecimal endRatio = null;
+    private BigDecimal relativeEndRatio = null, absoluteEndRatio = null;
 
     private void structuralize() {
         for (int i = 0; i < vertices.size(); i ++) {
@@ -180,6 +180,9 @@ public class Polytope {
         Vector<Facet> queue = new Vector<Facet>();
         Vector<Facet> margin = new Vector<Facet>();
         Vect v0 = new Vect(chord.getFromVertex(), chord.getToVertex());
+        if (Arithmetic.sgn(chord.range()) == 0) {
+            chord.display();
+        }
         Facet start = chord.getFirstFacet();
         start.setVisited();
         queue.add(start);
@@ -240,8 +243,13 @@ public class Polytope {
                 if (AB == getEnd().getTwin()) {
                     endRange = new Vect(p0, p1 != null ? p1 : B.getPoint());
                     endChord = t0;
-                    if (endRatio != null) {
-                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                    if (relativeEndRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(relativeEndRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
+                        endChord = new Vect(fn0.search(endVertex), endVertex);
+                    }
+                    if (absoluteEndRatio != null) {
+                        BigDecimal y = v0.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
                         endChord = new Vect(fn0.search(endVertex), endVertex);
                     }
@@ -265,8 +273,13 @@ public class Polytope {
                 if (BC == getEnd().getTwin()) {
                     endRange = new Vect(p0 != null ? p0 : B.getPoint(), p1);
                     endChord = t1;
-                    if (endRatio != null) {
-                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                    if (relativeEndRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(relativeEndRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
+                        endChord = new Vect(fn0_.search(endVertex), endVertex);
+                    }
+                    if (absoluteEndRatio != null) {
+                        BigDecimal y = v1.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
                         endChord = new Vect(fn0_.search(endVertex), endVertex);
                     }
@@ -312,8 +325,13 @@ public class Polytope {
                 if (AB == getEnd().getTwin()) {
                     endRange = new Vect(p0, p1 != null ? p1 : B.getPoint());
                     endChord = t0;
-                    if (endRatio != null) {
-                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                    if (relativeEndRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(relativeEndRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
+                        endChord = new Vect(fn.search(endVertex), endVertex);
+                    }
+                    if (absoluteEndRatio != null) {
+                        BigDecimal y = v0.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
                         endChord = new Vect(fn.search(endVertex), endVertex);
                     }
@@ -337,8 +355,13 @@ public class Polytope {
                 if (BC == getEnd().getTwin()) {
                     endRange = new Vect(p0 != null ? p0 : B.getPoint(), p1);
                     endChord = t1;
-                    if (endRatio != null) {
-                        BigDecimal y = endRange.interpolationYratio(endRatio).getY();
+                    if (relativeEndRatio != null) {
+                        BigDecimal y = endRange.interpolationYratio(relativeEndRatio).getY();
+                        Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
+                        endChord = new Vect(fn_.search(endVertex), endVertex);
+                    }
+                    if (absoluteEndRatio != null) {
+                        BigDecimal y = v1.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
                         endChord = new Vect(fn_.search(endVertex), endVertex);
                     }
@@ -451,8 +474,9 @@ public class Polytope {
         return points;
     }
 
-    public Vector<Point> linkPath(BigDecimal y0, Range y1, BigDecimal r) {
-        endRatio = r;
+    public Vector<Point> linkPath(BigDecimal y0, Range y1, BigDecimal r0, BigDecimal r1) {
+        relativeEndRatio = r0;
+        absoluteEndRatio = r1;
         Vertex v = new Vertex(-1, getStart().interpolationY(y0));
         Vertex start = getStart().splitAt(v);
         if (start == null) {

@@ -5,15 +5,10 @@ import java.util.Vector;
 
 public class Evaluator {
 
-    private Clock clock;
-    private long firstTime;
+    public static Clock clock = Clock.systemDefaultZone();
+    public static long firstTime = clock.millis();
     
-    public Evaluator() {
-        clock = Clock.systemDefaultZone();
-        firstTime = clock.millis();
-    }
-
-    private void displayTime() {
+    public static void displayTime() {
         long curTime = clock.millis();
         System.out.println("time: " + (curTime - firstTime) + "ms");
         firstTime = curTime;
@@ -23,7 +18,6 @@ public class Evaluator {
         Polytope p = new Polytope(s, eps);
         Vector<Point> points = p.linkPath();
         Series t = new Series(points);
-        //System.out.println("output: " + t.size());
         return t;
     }
 
@@ -31,7 +25,6 @@ public class Evaluator {
         Polytope p = new Polytope(s, eps);
         Vector<Point> points = p.linkPath(y);
         Series t = new Series(points);
-        //System.out.println("output: " + t.size());
         return t;
     }
 
@@ -39,16 +32,22 @@ public class Evaluator {
         Polytope p = new Polytope(s, eps);
         Vector<Point> points = p.linkPath(y);
         Series t = new Series(points);
-        //System.out.println("output: " + t.size());
         return t;
     }
 
     public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal r) {
         BigDecimal y0 = y.interpolation(r);
         Polytope p = new Polytope(s, eps);
-        Vector<Point> points = p.linkPath(y0, y, r);
+        Vector<Point> points = p.linkPath(y0, y, r, null);
         Series t = new Series(points);
-        //System.out.println("output: " + t.size());
+        return t;
+    }
+
+    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end) {
+        BigDecimal y0 = y.interpolation(start);
+        Polytope p = new Polytope(s, eps);
+        Vector<Point> points = p.linkPath(y0, y, null, end);
+        Series t = new Series(points);
         return t;
     }
 
@@ -67,7 +66,6 @@ public class Evaluator {
             }
         }
         points.add(s.get(s.size() - 1));
-        System.out.println("output: " + points.size());
         return new Series(points);
     }
 
@@ -105,7 +103,6 @@ public class Evaluator {
         points.setSize(opt[s.size() - 1]);
         for (int i = s.size() - 1, j = opt[s.size() - 1] - 1; i != -1; i = pre[i], j --) 
             points.set(j, s.get(i));
-        System.out.println("output: " + points.size());
         return new Series(points);
     }
 
@@ -115,7 +112,7 @@ public class Evaluator {
         Series s1 = s.projectY();
         Series t1 = simplify(s1, eps);
         Series3D t = new Series3D(t0, t1);
-        System.out.println("output: " + t.size() + " " + t0.size() + " " + t1.size());
+        System.out.println("interpolation: " + t0.size());
         return t;
     }
 
@@ -125,7 +122,7 @@ public class Evaluator {
         Series s1 = s.projectY();
         Series t1 = simplify(s1, eps, r1);
         Series3D t = new Series3D(t0, t1);
-        System.out.println("output: " + t.size() + " " + t0.size() + " " + t1.size());
+        System.out.println("interpolation: " + t0.size());
         return t;
     }
 
@@ -161,17 +158,18 @@ public class Evaluator {
         }
         Series t1 = new Series(points);
         Series3D t = new Series3D(t0, t1);
-        System.out.println("output: " + t.size() + " " + t0.size() + " " + t1.size());
+        System.out.println("interpolation: " + t0.size());
         return t;
     }
 
-    public Series3D reRefinedCombineSimplify3D(Series3D s, BigDecimal eps, BigDecimal r) {
+    public Series3D re2finedCombineSimplify3D(Series3D s, BigDecimal eps, BigDecimal r) {
         Series s0 = s.projectZ();
         Series t0 = simplify(s0, eps);
         Series s1 = s.projectY();
         Vector<Point> points = new Vector<Point>();
         Point first = null;
-        Range last =null;
+        Range last = new Range(s1.get(0).getY().add(eps), s1.get(0).getY().subtract(eps));
+        points.add(new Point(s1.get(0).getX(), last.interpolation(r)));
         for (int i = 1, j = 1, delta; i < t0.size(); i ++) {
             Vector<Point> buffer = new Vector<Point>();
             BigDecimal x = t0.get(i).getX();
@@ -183,18 +181,84 @@ public class Evaluator {
                 buffer.add(p);
             }
             Series s1_ = new Series(buffer);
-            if (last == null) {
-                last = new Range(s1.get(0).getY().add(eps), s1.get(0).getY().subtract(eps));
-                points.add(new Point(s1.get(0).getX(), last.interpolation(r)));
-            }
             Series t1_ = simplify(s1_, eps, last, r);
             for (int k = 1; k < t1_.size(); k ++) 
                 points.add(t1_.get(k));
         }
         Series t1 = new Series(points);
         Series3D t = new Series3D(t0, t1);
-        System.out.println("output: " + t.size() + " " + t0.size() + " " + t1.size());
+        System.out.println("interpolation: " + t0.size());
         return t;
+    }
+
+    private BigDecimal sample(int R, int u) {
+        BigDecimal step = BigDecimal.ONE.divide(new BigDecimal(R), Arithmetic.MC);
+        if (u == 0) return step.multiply(new BigDecimal(1e-6));
+        if (u == R) return step.multiply(BigDecimal.ONE.subtract(new BigDecimal(1e-6)));
+        return step.multiply(new BigDecimal(u));
+    }
+
+    public Series3D re3finedCombineSimplify3D(Series3D s, BigDecimal eps, int R) {
+        Series s0 = s.projectZ();
+        Series t0 = simplify(s0, eps);
+        Series s1 = s.projectY();
+        Point first = null;
+        int weight[][][] = new int[t0.size()][R + 1][R + 1], bin[][][] = new int[t0.size()][R + 1][R + 1];
+        for (int i = 1, j = 1, delta; i < t0.size(); i ++) {
+            Vector<Point> buffer = new Vector<Point>();
+            BigDecimal x = t0.get(i).getX();
+            if (first != null) buffer.add(first);
+            for (delta = -1, j = j - 1; j < s1.size() && delta < 0; j ++) {
+                delta = Arithmetic.sgn(s1.get(j).getX().subtract(x));
+                Point p = delta <= 0 ? s1.get(j) : Point.interpolationX(s1.get(j - 1), s1.get(j), x);
+                first = delta <= 0 ? null : p;
+                buffer.add(p);
+            }
+            Series s1_ = new Series(buffer);
+            for (int u = 0; u <= R; u ++) {
+                BigDecimal ru = sample(R, u);
+                Range last = new Range(s1_.get(0).getY().add(eps), s1_.get(0).getY().subtract(eps));
+                Series t1_ = simplify(s1_, eps, last, ru);
+                for (int v = 0; v <= R; v ++) {
+                    BigDecimal rv = sample(R, v);
+                    BigDecimal y = (new Range(s1_.lastElement().getY().add(eps), s1_.lastElement().getY().subtract(eps))).interpolation(rv);
+                    weight[i][u][v] = last.contains(y) ? t1_.size() : t1_.size() + 1;
+                    bin[i][u][v] = last.contains(y) ? 0 : 1;
+                }
+            }
+        }
+        Evaluator.displayTime();
+        int opt[][] = new int[t0.size()][R + 1], pre[][] = new int[t0.size()][R + 1];
+        int min = s.size(), argmin = -1;
+        for (int i = 0; i < t0.size(); i ++) {
+            for (int u = 0; u <= R; u ++) {
+                if (i == 0) {
+                    opt[i][u] = 1;
+                    pre[i][u] = -1;
+                    continue;
+                }
+                opt[i][u] = -1;
+                for (int v = 0; v <= R; v ++) {
+                    int temp = opt[i - 1][v] + weight[i][v][u] - 1;
+                    if (opt[i][u] == -1 || temp < opt[i][u]) {
+                        opt[i][u] = temp;
+                        pre[i][u] = v;
+                    }
+                }
+                if (i == t0.size() - 1 && opt[i][u] < min) {
+                    min = opt[i][u];
+                    argmin = u;
+                }
+            }
+        }
+        if (min != s.size()) {
+            int arg[] = new int[t0.size()];
+            for (int i = t0.size() - 1, j = argmin; i >= 0; j = pre[i][j], i --) {
+                arg[i] = j;
+            }
+        }
+        System.out.println("output: " + min + " ratio: " + String.format("%.2f%s", (double) min / s.size() * 100, "%"));
+        return null;
     }
 
     public Series3D greedySimplify3D(Series3D s, BigDecimal eps) {
@@ -222,7 +286,6 @@ public class Evaluator {
             }
         }
         points.add(s.get(s.size() - 1));
-        System.out.println("output: " + points.size());
         return new Series3D(points);
     }
 
@@ -269,11 +332,60 @@ public class Evaluator {
         points.setSize(opt[s.size() - 1]);
         for (int i = s.size() - 1, j = opt[s.size() - 1] - 1; i != -1; i = pre[i], j --) 
             points.set(j, s.get(i));
-        System.out.println("output: " + points.size());
         return new Series3D(points);
     }
 
-    public static BigDecimal getError(Series s, Series t) {
+    private Vector<Point3D> RDP(Series3D s, int left, int right, BigDecimal eps) {
+        Vector<Point3D> points = new Vector<Point3D>();
+        Point3D p = s.get(left), q = s.get(right);
+        if (right - left == 0) {
+            points.add(p);
+        }
+        if (right - left == 1) {
+            points.add(p);
+            points.add(q);
+        }
+        if (right - left > 1) {
+            Vect v0 = new Vect(p.projectZ(), q.projectZ());
+            Vect v1 = new Vect(p.projectY(), q.projectY());
+            BigDecimal max = null;
+            int maxarg = -1;
+            for (int i = left; i <= right; i ++) {
+                Point3D r = s.get(i);
+                Point r0 = r.projectZ(), r1 = r.projectY();
+                Point r0_ = v0.interpolationX(r0.getX()), r1_ = v1.interpolationX(r1.getX());
+                BigDecimal d0 = r0.getY().subtract(r0_.getY()), d1 = r1.getY().subtract(r1_.getY());
+                BigDecimal dist = (new Point(d0, d1)).distLoo(Point.ORIGIN);
+                if (max == null || max.compareTo(dist) == -1) {
+                    max = dist;
+                    maxarg = i;
+                }
+            }
+            if (max.compareTo(eps) <= 0) {
+                points.add(p);
+                points.add(q);
+            }
+            else {
+                Vector<Point3D> L = RDP(s, left, maxarg, eps);
+                Vector<Point3D> R = RDP(s, maxarg, right, eps);
+                for (int i = 0; i < L.size() - 1; i ++) 
+                    points.add(L.get(i));
+                for (int i = 0; i < R.size(); i ++) 
+                    points.add(R.get(i));
+            }
+        }
+        return points;
+    }
+
+    public Series3D RDPSimplify3D(Series3D s, BigDecimal eps) {
+        Vector<Point3D> points = RDP(s, 0, s.size() - 1, eps);
+        return new Series3D(points);
+    }
+
+    public static BigDecimal reportPerformance(Series s, Series t) {
+        displayTime();
+        if (t == null) return null;
+        System.out.println("output: " + t.size() + " ratio: " + String.format("%.2f%s", (double) t.size() / s.size() * 100, "%"));
         BigDecimal error = t.distance(s);
         System.out.print("head: ");
         t.get(0).subtract(s.get(0)).getTo().display();
@@ -283,14 +395,19 @@ public class Evaluator {
         return error;
     }
 
-    public static Point getError(Series3D s, Series3D t) {
+    public static Point reportPerformance(Series3D s, Series3D t) {
+        displayTime();
+        if (t == null) return null;
+        System.out.println("output: " + t.size() + " ratio: " + String.format("%.2f%s", (double) t.size() / s.size() * 100, "%"));
         Point error = t.distance(s);
+        /*
         System.out.print("head: ");
         t.get(0).projectZ().subtract(s.get(0).projectZ()).getTo().display();
         t.get(0).projectY().subtract(s.get(0).projectY()).getTo().display();
         System.out.print("tail: ");
         t.get(t.size() - 1).projectZ().subtract(s.get(s.size() - 1).projectZ()).getTo().display();
         t.get(t.size() - 1).projectY().subtract(s.get(s.size() - 1).projectY()).getTo().display();
+        */
         System.out.print("error: " + Arithmetic.format(error.getX()));
         System.out.println(" " + Arithmetic.format(error.getY()));
         return error;
@@ -299,73 +416,67 @@ public class Evaluator {
     private void evaluate() {
         Series s = new Series((int) 1e5, (int) 1e9);
         BigDecimal eps = new BigDecimal((int) 1e9);
-        displayTime();
-        Series t0 = simplify(s, eps);
-        Evaluator.getError(s, t0);
-        displayTime();
-        Series t1 = simplify(s, eps, (new BigDecimal("0.5")).multiply(eps));
-        Evaluator.getError(s, t1);
-        displayTime();
-        Series t2 = greedySimplify(s, eps);
-        Evaluator.getError(s, t2);
-        displayTime();
-        Series t30 = dpSimplify(s, eps, (int) 1e7);
-        Evaluator.getError(s, t30);
-        displayTime();
-        Series t31 = dpSimplify(s, eps, (int) 1e8);
-        Evaluator.getError(s, t31);
-        displayTime();
+        Evaluator.displayTime();
+        Evaluator.reportPerformance(s, simplify(s, eps));
+        Evaluator.reportPerformance(s, simplify(s, eps, (new BigDecimal("0.5")).multiply(eps)));
+        Evaluator.reportPerformance(s, greedySimplify(s, eps));
+        Evaluator.reportPerformance(s, dpSimplify(s, eps, (int) 1e7));
+        Evaluator.reportPerformance(s, dpSimplify(s, eps, (int) 1e8));
     }
 
     private void evaluate3D() {
         Series3D s = new Series3D((int) 1e5, (int) 1e9, 2);
         BigDecimal eps = new BigDecimal((int) 1e9);
-        displayTime();
-        Series3D t0 = combineSimplify3D(s, eps);
-        Evaluator.getError(s, t0);
-        displayTime();
-        Series3D t1 = combineSimplify3D(s, eps, (new BigDecimal("0.5")).multiply(eps), (new BigDecimal("-0.5")).multiply(eps));
-        Evaluator.getError(s, t1);
-        displayTime();
-        Series3D t2 = greedySimplify3D(s, eps);
-        Evaluator.getError(s, t2);
-        displayTime();
-        Series3D t30 = dpSimplify3D(s, eps, (int) 1e7);
-        Evaluator.getError(s, t30);
-        displayTime();
-        Series3D t31 = dpSimplify3D(s, eps, (int) 1e8);
-        Evaluator.getError(s, t31);
-        displayTime();
+        Evaluator.displayTime();
+        Evaluator.reportPerformance(s, combineSimplify3D(s, eps));
+        Evaluator.reportPerformance(s, combineSimplify3D(s, eps, (new BigDecimal("0.5")).multiply(eps), (new BigDecimal("-0.5")).multiply(eps)));
+        Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e8));
     }
 
     public void evaluate3D2() {
-        Series3D s = new Series3D((int) 1e4, (int) 1e9, 2);
+        Series3D s = new Series3D((int) 1e5, (int) 1e9, 2);
         BigDecimal eps = new BigDecimal((int) 1e9);
-        displayTime();
-        Series3D t4 = reRefinedCombineSimplify3D(s, eps, new BigDecimal("0.5"));
-        Evaluator.getError(s, t4);
-        displayTime();
-        Series3D t0 = refinedCombineSimplify3D(s, eps);
-        Evaluator.getError(s, t0);
-        displayTime();
-        Series3D t1 = combineSimplify3D(s, eps);
-        Evaluator.getError(s, t1);
-        displayTime();
-        Series3D t2 = greedySimplify3D(s, eps);
-        Evaluator.getError(s, t2);
-        displayTime();
-        Series3D t30 = dpSimplify3D(s, eps, (int) 1e7);
-        Evaluator.getError(s, t30);
-        displayTime();
-        Series3D t31 = dpSimplify3D(s, eps, (int) 1e8);
-        Evaluator.getError(s, t31);
-        displayTime();
+        Evaluator.displayTime();
+        Evaluator.reportPerformance(s, re2finedCombineSimplify3D(s, eps, new BigDecimal("0.5")));
+        Evaluator.reportPerformance(s, refinedCombineSimplify3D(s, eps));
+        Evaluator.reportPerformance(s, combineSimplify3D(s, eps));
+        Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e8));
+    }
+
+    public void evaluate3D3() {
+        Series3D s = new Series3D((int) 1e4, (int) 1e9, 2);
+        BigDecimal eps = new BigDecimal("1e9");
+        BigDecimal eps_ = new BigDecimal("0.70710678118e9");
+        Evaluator.displayTime();
+        System.out.println();
+        Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 5));
+        Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 10));
+        Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 15));
+        Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 20));
+        System.out.println();
+        Evaluator.reportPerformance(s, re2finedCombineSimplify3D(s, eps, new BigDecimal("0.5")));
+        Evaluator.reportPerformance(s, refinedCombineSimplify3D(s, eps));
+        Evaluator.reportPerformance(s, combineSimplify3D(s, eps));
+        System.out.println();
+        Evaluator.reportPerformance(s, RDPSimplify3D(s, eps));
+        Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
+        Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e8));
+        System.out.println();
     }
 
     public static void main(String args[]) {
         Evaluator runtime = new Evaluator();
         //runtime.evaluate();
         //runtime.evaluate3D();
-        runtime.evaluate3D2();
+        //runtime.evaluate3D2();
+        runtime.evaluate3D3();
     }
 }
