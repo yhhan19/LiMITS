@@ -429,7 +429,8 @@ public class Evaluator {
         BigDecimal eps = new BigDecimal((int) 1e9);
         Evaluator.displayTime();
         Evaluator.reportPerformance(s, combineSimplify3D(s, eps));
-        Evaluator.reportPerformance(s, combineSimplify3D(s, eps, (new BigDecimal("0.5")).multiply(eps), (new BigDecimal("-0.5")).multiply(eps)));
+        Evaluator.reportPerformance(s, combineSimplify3D(s, eps, 
+        (new BigDecimal("0.5")).multiply(eps), (new BigDecimal("-0.5")).multiply(eps)));
         Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
@@ -451,25 +452,24 @@ public class Evaluator {
 
     public void evaluate3D3() {
         Series3D s = new Series3D((int) 1e4, (int) 1e9, 2);
-        BigDecimal eps = new BigDecimal("1e9");
+        BigDecimal eps = new BigDecimal("2e8");
         BigDecimal eps_ = new BigDecimal("0.70710678118e9");
         Evaluator.displayTime();
-        System.out.println();
+        System.out.println("re3:");
         Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 5));
         Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 10));
         Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 15));
         Evaluator.reportPerformance(s, re3finedCombineSimplify3D(s, eps, 20));
-        System.out.println();
+        System.out.println("re12:");
         Evaluator.reportPerformance(s, re2finedCombineSimplify3D(s, eps, new BigDecimal("0.5")));
         Evaluator.reportPerformance(s, refinedCombineSimplify3D(s, eps));
         Evaluator.reportPerformance(s, combineSimplify3D(s, eps));
-        System.out.println();
+        System.out.println("base:");
         Evaluator.reportPerformance(s, RDPSimplify3D(s, eps));
         Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e8));
-        System.out.println();
     }
 
     public static void main(String args[]) {
