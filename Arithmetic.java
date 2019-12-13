@@ -3,13 +3,22 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Random;
 
 public class Arithmetic {
 
-    public static final int precision = 64;
+    public static final int precision = 80;
     public static final BigDecimal TWO = new BigDecimal("2");
     public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
-    public static final int displayScale = 4;
+    public static final int displayScale = 6;
+
+    public static BigDecimal epsRand() {
+        Random rand = new Random();
+        String str = String.valueOf(rand.nextInt((int) 1e9));
+        BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e20"));
+        //System.out.println(d);
+        return d;
+    }
  
     public static BigDecimal sqrt(BigDecimal x, MathContext mc) {
         BigDecimal g = x.divide(TWO, mc);

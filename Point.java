@@ -164,7 +164,7 @@ public class Point {
     public static Point interpolationX(Point p, Point q, BigDecimal x) {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getX()) == 0) 
-            return null;
+            return p;
         BigDecimal r = x.subtract(p.x).divide(v.getX(), Arithmetic.MC);
         return p.add(v.scalar(r));
     }
@@ -172,7 +172,7 @@ public class Point {
     public static Point interpolationY(Point p, Point q, BigDecimal y) {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getY()) == 0) 
-            return null;
+            return p;
         BigDecimal r = y.subtract(p.y).divide(v.getY(), Arithmetic.MC);
         return p.add(v.scalar(r));
     }

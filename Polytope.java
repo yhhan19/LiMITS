@@ -219,6 +219,12 @@ public class Polytope {
         Vertex A = e.getFrom(), B = e.getNext().getTo(), C = e.getTo();
         Vertex t00 = fn0.getApex(), t11 = fn1.getApex(), t10 = fn0.getRightHead(), t01 = fn1.getLeftHead();
         Vect t0 = new Vect(t11, t01), t1 = new Vect(t00, t10);
+        /*
+        t11.display(); t01.display();
+        System.out.println();
+        t00.display(); t10.display();
+        System.out.println();
+        */
         Funnel fn0_ = new Funnel(), fn1_ = new Funnel();
         if (fn0.split(0, B, fn0_).equals("Left")) {
             Funnel temp = fn0; fn0 = fn0_; fn0_ = temp;
@@ -235,9 +241,11 @@ public class Polytope {
                 Vect v0 = new Vect(AB);
                 Point p0 = v0.segmentLineIntersect(t0), p1 = v0.segmentLineIntersect(t1);
                 Chord ch = new Chord(t01, new Vertex(-1, p0), null, AB);
+                //ch.display();
                 if (ch.intermediate()) windows.add(ch);
                 if (p1 != null) {
                     ch = new Chord(new Vertex(-1, p1), t10, AB, null);
+                    //ch.display();
                     if (ch.intermediate()) windows.add(ch);
                 }
                 if (AB == getEnd().getTwin()) {
@@ -265,9 +273,11 @@ public class Polytope {
                 Vect v1 = new Vect(BC);
                 Point p0 = v1.segmentLineIntersect(t0), p1 = v1.segmentLineIntersect(t1);
                 Chord ch = new Chord(new Vertex(-1, p1), t10, BC, null);
+                //ch.display();
                 if (ch.intermediate()) windows.add(ch);
                 if (p0 != null) {
                     ch = new Chord(t01, new Vertex(-1, p0), null, BC);
+                    //ch.display();
                     if (ch.intermediate()) windows.add(ch);
                 }
                 if (BC == getEnd().getTwin()) {
@@ -380,13 +390,16 @@ public class Polytope {
     }
 
     private Vector<Chord> getTrace(Vector<Chord> windows) {
+        //this.display();
         Vector<Chord> trace = new Vector<Chord>();
         Edge iterator = null;
         while (windows.size() > 0) {
             Chord chord = null;
-            for (int j = 0; j < windows.size(); j ++) 
+            for (int j = 0; j < windows.size(); j ++) {
                 if (chord == null || windows.get(j).reach().compareTo(chord.reach()) == 1) 
                     chord = windows.get(j);
+                //windows.get(j).display();
+            }
             trace.add(chord);
             Vector<Edge> edges = intersectEdges(chord);
             for (int j = 0; j < edges.size(); j ++) 

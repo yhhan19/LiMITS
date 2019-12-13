@@ -8,10 +8,10 @@ public class Series {
 
     private Vector<Point> data;
 
-    public Series() {
+    public Series(int N) {
         this.data = new Vector<Point>();
-        data.add(new Point("0", "0"));
-        data.add(new Point("1", "1"));
+        for (int i = 0; i < N; i ++) 
+            this.data.add(new Point(String.valueOf(i), "0"));
     }
 
     public Series(Vector<Point> data) {

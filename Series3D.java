@@ -8,6 +8,12 @@ public class Series3D {
 
     private Vector<Point3D> data;
 
+    public Series3D(int N) {
+        this.data = new Vector<Point3D>();
+        for (int i = 0; i < N; i ++) 
+            this.data.add(new Point3D(String.valueOf(i), "0", "0"));
+    }
+
     public Series3D(Vector<Point3D> data) {
         this.data = new Vector<Point3D>();
         for (int i = 0; i < data.size(); i ++) 
