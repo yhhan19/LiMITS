@@ -312,7 +312,7 @@ public class Evaluator {
         Point pl1 = l1.interpolationX(x), ph1 = h1.interpolationX(x);
         Point p0 = (new Vect(pl0, ph0)).interpolationYratio(new BigDecimal("0.5"));
         Point p1 = (new Vect(pl1, ph1)).interpolationYratio(new BigDecimal("0.5"));
-        return new Point3D(x, p0.getY(), p1.getY());
+        return new Point3D(x, p0.getY().add(BigDecimal.ZERO, Arithmetic.MC), p1.getY().add(BigDecimal.ZERO, Arithmetic.MC));
     }
 
     public Series3D greedy2Simplify3D(Series3D s, BigDecimal eps) {
