@@ -47,6 +47,10 @@ public class Point3D {
         return new Point(x, z);
     }
 
+    public Point projectX() {
+        return new Point(y, z);
+    }
+
     public BigDecimal getX() {
         return x;
     }

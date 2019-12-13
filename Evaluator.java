@@ -7,7 +7,7 @@ public class Evaluator {
 
     public static Clock clock = Clock.systemDefaultZone();
     public static long firstTime = clock.millis();
-    public static int totalMethods = 6;
+    public static int totalMethods = 7;
     
     public static void setTime() {
         long curTime = clock.millis();
@@ -307,29 +307,50 @@ public class Evaluator {
         return new Series3D(points);
     }
 
+    private Point3D centroid(Vect l0, Vect h0, Vect l1, Vect h1, BigDecimal x) {
+        Point pl0 = l0.interpolationX(x), ph0 = h0.interpolationX(x);
+        Point pl1 = l1.interpolationX(x), ph1 = h1.interpolationX(x);
+        Point p0 = (new Vect(pl0, ph0)).interpolationYratio(new BigDecimal("0.5"));
+        Point p1 = (new Vect(pl1, ph1)).interpolationYratio(new BigDecimal("0.5"));
+        return new Point3D(x, p0.getY(), p1.getY());
+    }
+
     public Series3D greedy2Simplify3D(Series3D s, BigDecimal eps) {
         Vector<Point3D> points = new Vector<Point3D>();
+        Point3D point = s.get(0);
         for (int i = 0, j = 1; j < s.size(); i = j - 1) {
-            points.add(s.get(i));
-            Point p0 = s.get(i).projectZ(), p1 = s.get(i).projectY();
+            points.add(point);
+            Point p0 = point.projectZ(), p1 = point.projectY();
             Vect l0 = new Vect(p0, p0.add(new Vect("0", "-1")));
             Vect h0 = new Vect(p0, p0.add(new Vect("0", "1")));
             Vect l1 = new Vect(p1, p1.add(new Vect("0", "-1")));
             Vect h1 = new Vect(p1, p1.add(new Vect("0", "1")));
+            //System.out.print(i + ": ");
+            point = null;
             while (j < s.size()) {
+                //System.out.print(j + " ");
                 Point q0 = s.get(j).projectZ(), q1 = s.get(j).projectY();
                 Vect c0 = new Vect(p0, q0), c1 = new Vect(p1, q1);
-                if (! c0.between(l0, h0) || ! c1.between(l1, h1)) break;
                 Vect l0_ = new Vect(p0, q0.add(new Vect(BigDecimal.ZERO, eps.negate())));
                 Vect h0_ = new Vect(p0, q0.add(new Vect(BigDecimal.ZERO, eps)));
                 Vect l1_ = new Vect(p1, q1.add(new Vect(BigDecimal.ZERO, eps.negate())));
                 Vect h1_ = new Vect(p1, q1.add(new Vect(BigDecimal.ZERO, eps)));
+                if (j != i + 1) {
+                    if (c0.between(l0, h0) && c1.between(l1, h1)) 
+                        point = s.get(j - 1);
+                    else {
+                        point = centroid(l0, h0, l1, h1, s.get(j - 1).getX());
+                        //System.out.println(Arithmetic.format(point.projectX().distLoo(s.get(j - 1).projectX())));
+                    }
+                }
                 if (l0.cross(l0_).signum() > 0) l0 = l0_;
                 if (h0.cross(h0_).signum() < 0) h0 = h0_;
                 if (l1.cross(l1_).signum() > 0) l1 = l1_;
                 if (h1.cross(h1_).signum() < 0) h1 = h1_;
+                if (l0.cross(h0).signum() < 0 || l1.cross(h1).signum() < 0) break;
                 j ++;
             }
+            //System.out.println();
         }
         points.add(s.get(s.size() - 1));
         return new Series3D(points);
@@ -523,6 +544,7 @@ public class Evaluator {
         System.out.println("base:");
         Evaluator.reportPerformance(s, RDPSimplify3D(s, eps));
         Evaluator.reportPerformance(s, greedySimplify3D(s, eps));
+        Evaluator.reportPerformance(s, greedy2Simplify3D(s, eps));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e6));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e7));
         Evaluator.reportPerformance(s, dpSimplify3D(s, eps, (int) 1e8));
@@ -535,6 +557,7 @@ public class Evaluator {
         Evaluator.recordPerformance(s, re3finedCombineSimplify3D(s, eps, 10), space, time);
         Evaluator.recordPerformance(s, RDPSimplify3D(s, eps), space, time);
         Evaluator.recordPerformance(s, greedySimplify3D(s, eps), space, time);
+        Evaluator.recordPerformance(s, greedy2Simplify3D(s, eps), space, time);
         Evaluator.recordPerformance(s, dpSimplify3D(s, eps, (int) 1e8), space, time);
     }
 }

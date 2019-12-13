@@ -68,6 +68,10 @@ public class Vect {
         return to;
     }
 
+    public Vect add(Vect v) {
+        return new Vect(from, to.add(v));
+    }
+
     public Vect scalar(BigDecimal r) {
         BigDecimal x = getX().multiply(r);
         BigDecimal y = getY().multiply(r);
@@ -180,5 +184,11 @@ public class Vect {
     public Point interpolationYratio(BigDecimal r) {
         BigDecimal y = from.getY().multiply(r).add(to.getY().multiply(BigDecimal.ONE.subtract(r)));
         return Point.interpolationY(from, to, y);
+    }
+
+    public Vect bisector(Vect that) {
+        Vect v0 = this.scalar(that.modulus(Arithmetic.MC));
+        Vect v1 = that.scalar(this.modulus(Arithmetic.MC));
+        return v0.add(v1);
     }
 }

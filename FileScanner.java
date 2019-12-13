@@ -20,12 +20,11 @@ public class FileScanner {
         int inputSpace = 0;
         int k = 0;
         for (final File fileEntry : folder.listFiles()) {
-            System.out.println(k);
-            if (k < 0) {
+            if (k < 5010) {
                 k ++;
                 continue;
             }
-            if (k == 100000) break;
+            System.out.println(k);
             if (fileEntry.isDirectory()) continue;
             String fileName = folderName + fileEntry.getName();
             BufferedReader br = new BufferedReader(new FileReader(fileName)); 
@@ -75,9 +74,17 @@ public class FileScanner {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void testSimData() {
+        Evaluator eva = new Evaluator();
+        eva.evaluate3D3();
+    }
+
+    public static void testRealData() throws Exception {
         String folderName = "./data/";
         FileScanner fs = new FileScanner();
         fs.listFilesForFolder(folderName);
+    }
+    public static void main(String[] args) throws Exception {
+        testRealData();
     }
 }
