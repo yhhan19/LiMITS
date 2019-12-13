@@ -145,4 +145,65 @@ public class Series3D {
         }
         return new Point(e0, e1);
     }
+
+    public BigDecimal distanceL2(Series3D that) {
+        BigDecimal e = BigDecimal.ZERO;
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
+            if (this.get(i).getX().compareTo(that.get(j).getX()) == -1) {
+                if (j != 0) {
+                    Point p0 = that.get(j - 1).projectZ(), q0 = that.get(j).projectZ();
+                    Point r0 = Point.interpolationX(p0, q0, this.get(i).getX());
+                    BigDecimal d0 = r0.getY().subtract(this.get(i).getY()).abs();
+                    Point p1 = that.get(j - 1).projectY(), q1 = that.get(j).projectY();
+                    Point r1 = Point.interpolationX(p1, q1, this.get(i).getX());
+                    BigDecimal d1 = r1.getY().subtract(this.get(i).getZ()).abs();
+                    BigDecimal d = (new Vect(d0, d1)).modulus(Arithmetic.MC);
+                    if (d.compareTo(e) == 1) e = d;
+                }
+                i ++;
+            }
+            else {
+                if (i != 0) {
+                    Point p0 = this.get(i - 1).projectZ(), q0 = this.get(i).projectZ();
+                    Point r0 = Point.interpolationX(p0, q0, that.get(j).getX());
+                    BigDecimal d0 = r0.getY().subtract(that.get(j).getY()).abs();
+                    Point p1 = this.get(i - 1).projectY(), q1 = this.get(i).projectY();
+                    Point r1 = Point.interpolationX(p1, q1, that.get(j).getX());
+                    BigDecimal d1 = r1.getY().subtract(that.get(j).getZ()).abs();
+                    BigDecimal d = (new Vect(d0, d1)).modulus(Arithmetic.MC);
+                    if (d.compareTo(e) == 1) e = d;
+                }
+                j ++;
+            }
+        }
+        return e;
+    }
+
+    public Series3D toL2(Series3D that, BigDecimal eps) {
+        BigDecimal e = BigDecimal.ZERO;
+        Vector<Point3D> points = new Vector<Point3D>();
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
+            if (this.get(i).getX().compareTo(that.get(j).getX()) == -1) {
+                if (j != 0) {
+                    Point p = this.get(i).projectX();
+                    Point p0 = that.get(j - 1).projectZ(), q0 = that.get(j).projectZ();
+                    Point r0 = Point.interpolationX(p0, q0, this.get(i).getX());
+                    Point p1 = that.get(j - 1).projectY(), q1 = that.get(j).projectY();
+                    Point r1 = Point.interpolationX(p1, q1, this.get(i).getX());
+                    Point r = new Point(r0.getY(), r1.getY());
+                    Point p_ = p.toL2(r, eps);
+                    Point3D p__ = new Point3D(this.get(i).getX(), p_.getX(), p_.getY());
+                    BigDecimal d = p_.distL2(r, Arithmetic.MC);
+                    if (d.compareTo(e) == 1) e = d;
+                    points.add(p__);
+                }
+                i ++;
+            }
+            else {
+                j ++;
+            }
+        }
+        System.out.println(Arithmetic.format(e));
+        return new Series3D(points);
+    }
 }

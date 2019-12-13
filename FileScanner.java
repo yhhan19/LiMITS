@@ -19,8 +19,9 @@ public class FileScanner {
         }
         int inputSpace = 0;
         int k = 0;
+        int count = 0, countLen = 0;
         for (final File fileEntry : folder.listFiles()) {
-            if (k < 5010) {
+            if (k < 0) {
                 k ++;
                 continue;
             }
@@ -59,19 +60,24 @@ public class FileScanner {
             z.clear();
             Series3D input = new Series3D(points);
             points.clear();
-            inputSpace += input.size();
-            eva.evaluate3D4(input, new BigDecimal("1e-4"), space, time);
-            for (int i = 0; i < space.size(); i ++) {
-                totalSpace.set(i, new Long(totalSpace.get(i).intValue() + space.get(i).intValue()));
-                totalTime.set(i, new Long(totalTime.get(i).intValue() + time.get(i).intValue()));
+            if (input.size() > (int) 1e4) {
+                count ++;
+                countLen += input.size();
+                inputSpace += input.size();
+                eva.evaluate3D6(input, new BigDecimal("1e-4"), space, time);
+                for (int i = 0; i < space.size(); i ++) {
+                    totalSpace.set(i, new Long(totalSpace.get(i).intValue() + space.get(i).intValue()));
+                    totalTime.set(i, new Long(totalTime.get(i).intValue() + time.get(i).intValue()));
+                }
+                space.clear();
+                time.clear();
+                System.out.println(inputSpace);
+                for (int i = 0; i < Evaluator.totalMethods; i ++) 
+                    System.out.println(totalSpace.get(i) + " " + totalTime.get(i));
             }
-            space.clear();
-            time.clear();
-            System.out.println(inputSpace);
-            for (int i = 0; i < Evaluator.totalMethods; i ++) 
-                System.out.println(totalSpace.get(i) + " " + totalTime.get(i));
             k ++;
         }
+        System.out.println(count + " " + countLen);
     }
 
     public static void testSimData() {

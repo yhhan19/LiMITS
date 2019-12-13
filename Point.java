@@ -185,4 +185,11 @@ public class Point {
         else 
             return false;
     }
+
+    public Point toL2(Point p, BigDecimal r) {
+        BigDecimal dx = x.subtract(p.x).divide(r, Arithmetic.MC), dy = y.subtract(p.y).divide(r, Arithmetic.MC);
+        BigDecimal sx = Arithmetic.sqrt(BigDecimal.ONE.subtract(dy.multiply(dy).divide(Arithmetic.TWO, Arithmetic.MC)), Arithmetic.MC);
+        BigDecimal sy = Arithmetic.sqrt(BigDecimal.ONE.subtract(dx.multiply(dx).divide(Arithmetic.TWO, Arithmetic.MC)), Arithmetic.MC);
+        return new Point(dx.multiply(sx).multiply(r).add(p.x), dy.multiply(sy).multiply(r).add(p.y));
+    }
 }
