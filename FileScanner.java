@@ -84,7 +84,9 @@ public class FileScanner {
         FileScanner fs = new FileScanner();
         fs.listFilesForFolder(folderName);
     }
+
     public static void main(String[] args) throws Exception {
+        testSimData();
         testRealData();
     }
 }
