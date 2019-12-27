@@ -29,16 +29,15 @@ public class Series3D {
         for (int i = 0; i < N; i ++) {
             Point3D p = new Point3D(x, y, z);
             data.add(p);
+            x = x.add(BigInteger.ONE);
             String str = String.valueOf(rand.nextInt(bound));
             BigInteger delta = new BigInteger(str);
-            x = x.add(BigInteger.ONE);
             if (rand.nextInt(mono) == 0)
                 y = y.add(delta);
             else 
                 y = y.subtract(delta);
             str = String.valueOf(rand.nextInt(bound));
             delta = new BigInteger(str);
-            str = String.valueOf(rand.nextInt(bound));
             if (rand.nextInt(mono) == 0)
                 z = z.add(delta);
             else 
@@ -84,7 +83,7 @@ public class Series3D {
             i ++;
         }
         while (j < s1.size()) {
-            Point p = s0.get(s0.size() - 2), q = s0.get(s1.size() - 1);
+            Point p = s0.get(s0.size() - 2), q = s0.get(s0.size() - 1);
             Point r = Point.interpolationX(p, q, s1.get(j).getX());
             data.add(new Point3D(s1.get(j).getX(), r.getY(), s1.get(j).getY()));
             j ++;

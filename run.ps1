@@ -1,3 +1,3 @@
 rm *.class
-javac -Xlint:unchecked FileScanner.java
+javac -Xlint:unchecked -Xlint:deprecation FileScanner.java
 java -Xmx8192M -Xss256M FileScanner

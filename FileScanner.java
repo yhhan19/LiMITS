@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -17,15 +19,12 @@ public class FileScanner {
             totalSpace.add((long) 0);
             totalTime.add((long) 0);
         }
-        int inputSpace = 0;
-        int k = 0;
-        int count = 0, countLen = 0;
+        int inputSpace = 0, inputCount = 0, processSpace = 0, processCount = 0;
         for (final File fileEntry : folder.listFiles()) {
-            if (k < 0) {
-                k ++;
+            if (inputCount < 0) {
+                inputCount ++;
                 continue;
             }
-            System.out.println(k);
             if (fileEntry.isDirectory()) continue;
             String fileName = folderName + fileEntry.getName();
             BufferedReader br = new BufferedReader(new FileReader(fileName)); 
@@ -60,24 +59,28 @@ public class FileScanner {
             z.clear();
             Series3D input = new Series3D(points);
             points.clear();
-            if (input.size() > (int) 1e4) {
-                count ++;
-                countLen += input.size();
-                inputSpace += input.size();
-                eva.evaluate3D6(input, new BigDecimal("1e-4"), space, time);
+            inputCount ++;
+            inputSpace += input.size();
+            System.out.println(inputCount + " " + inputSpace);
+            if (input.size() <= (int) 1e9) {
+                processCount ++;
+                processSpace += input.size();
+                System.out.println(processCount + " " + processSpace);
+                eva.evaluate3D4(input, new BigDecimal("1e-4"), space, time);
                 for (int i = 0; i < space.size(); i ++) {
-                    totalSpace.set(i, new Long(totalSpace.get(i).intValue() + space.get(i).intValue()));
-                    totalTime.set(i, new Long(totalTime.get(i).intValue() + time.get(i).intValue()));
+                    totalSpace.set(i,  totalSpace.get(i).longValue() + space.get(i).longValue());
+                    totalTime.set(i, totalTime.get(i).longValue() + time.get(i).longValue());
                 }
                 space.clear();
                 time.clear();
-                System.out.println(inputSpace);
-                for (int i = 0; i < Evaluator.totalMethods; i ++) 
-                    System.out.println(totalSpace.get(i) + " " + totalTime.get(i));
+                for (int i = 0; i < Evaluator.totalMethods; i ++) {
+                    NumberFormat formatter = new DecimalFormat("0.000000");
+                    String spatial = formatter.format(totalSpace.get(i) / (double) processSpace);
+                    String temporal = formatter.format(totalTime.get(i) / (double) processCount);
+                    System.out.println(spatial  + " " + temporal);
+                }
             }
-            k ++;
         }
-        System.out.println(count + " " + countLen);
     }
 
     public static void testSimData() {
@@ -92,7 +95,19 @@ public class FileScanner {
     }
 
     public static void main(String[] args) throws Exception {
-        testSimData();
-        testRealData();
+        //testSimData();
+        //testRealData();
+        SeriesKD s = new SeriesKD(10000, 4, (int) 1e9, 2);
+        BigDecimal eps = new BigDecimal((int) 5e8);
+        EvaluatorKD ekd = new EvaluatorKD();
+        SeriesKD t = ekd.greedySimplify(s, eps);
+        System.out.println(s.size() + " " + t.size());
+        System.out.println(Arithmetic.format(s.distanceLoo(t)));
+        t = ekd.greedy2Simplify(s, eps);
+        System.out.println(s.size() + " " + t.size());
+        System.out.println(Arithmetic.format(s.distanceLoo(t)));
+        t = ekd.refinedCombineSimplify(s, eps, new BigDecimal("0.5"));
+        System.out.println(s.size() + " " + t.size());
+        System.out.println(Arithmetic.format(s.distanceLoo(t)));
     }
 }
