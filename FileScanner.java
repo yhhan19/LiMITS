@@ -99,8 +99,8 @@ public class FileScanner {
         //testRealData();
         Evaluator eva = new Evaluator();
         Series3D s_ = new Series3D(10000, (int) 1e9, 2);
-        SeriesKD s = new SeriesKD(10000, 3, (int) 1e9, 2);
-        BigDecimal eps = new BigDecimal((int) 1e9);
+        SeriesKD s = new SeriesKD(10000, 5, (int) 1e9, 2);
+        BigDecimal eps = new BigDecimal((int) 5e8);
         EvaluatorKD ekd = new EvaluatorKD();
         System.out.println();
 
@@ -109,7 +109,7 @@ public class FileScanner {
         t_.display();
         s_.distance(t_).display();
         System.out.println();
-        
+
         t_ = eva.greedy2Simplify3D(s_, eps);
         System.out.println(s_.size() + " " + t_.size());
         t_.display();
@@ -124,6 +124,9 @@ public class FileScanner {
         System.out.println(s.size() + " " + t.size());
         System.out.println(Arithmetic.format(s.distanceLoo(t)));
         t = ekd.refinedCombineSimplify(s, eps, new BigDecimal("0.5"));
+        System.out.println(s.size() + " " + t.size());
+        System.out.println(Arithmetic.format(s.distanceLoo(t)));
+        t = ekd.refinedCombineSimplify(s, eps, 10);
         System.out.println(s.size() + " " + t.size());
         System.out.println(Arithmetic.format(s.distanceLoo(t)));
     }
