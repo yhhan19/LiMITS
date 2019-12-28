@@ -97,9 +97,26 @@ public class FileScanner {
     public static void main(String[] args) throws Exception {
         //testSimData();
         //testRealData();
-        SeriesKD s = new SeriesKD(10000, 4, (int) 1e9, 2);
-        BigDecimal eps = new BigDecimal((int) 5e8);
+        Evaluator eva = new Evaluator();
+        Series3D s_ = new Series3D(10000, (int) 1e9, 2);
+        SeriesKD s = new SeriesKD(10000, 3, (int) 1e9, 2);
+        BigDecimal eps = new BigDecimal((int) 1e9);
         EvaluatorKD ekd = new EvaluatorKD();
+        System.out.println();
+
+        Series3D t_ = eva.re3finedCombineSimplify3D(s_, eps, 10);
+        System.out.println(s_.size() + " " + t_.size());
+        t_.display();
+        s_.distance(t_).display();
+        System.out.println();
+        
+        t_ = eva.greedy2Simplify3D(s_, eps);
+        System.out.println(s_.size() + " " + t_.size());
+        t_.display();
+        s_.distance(t_).display();
+        System.out.println();
+        System.out.println();
+
         SeriesKD t = ekd.greedySimplify(s, eps);
         System.out.println(s.size() + " " + t.size());
         System.out.println(Arithmetic.format(s.distanceLoo(t)));

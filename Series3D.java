@@ -90,6 +90,16 @@ public class Series3D {
         }
     }
 
+    public void display() {
+        BigDecimal min = null;
+        for (int i = 1; i < size(); i ++) {
+            BigDecimal gap = get(i).getX().subtract(get(i - 1).getX());
+            if (min == null || gap.compareTo(min) == -1) 
+                min = gap;
+        }
+        System.out.println(Arithmetic.format(min) + " " + Arithmetic.format(get(0).getX()) + " " + Arithmetic.format(get(size() - 1).getX())); 
+    }
+
     public int size() {
         return data.size();
     }

@@ -7,7 +7,7 @@ public class Polytope {
     private Vector<Vertex> vertices;
     private Facet external;
     private Edge start, end;
-    private Vect endChord, endRange;
+    private Vect endChord, endChord_, endRange;
     private BigDecimal relativeEndRatio = null, absoluteEndRatio = null;
 
     private void structuralize() {
@@ -260,6 +260,9 @@ public class Polytope {
                         BigDecimal y = v0.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
                         endChord = new Vect(fn0.search(endVertex), endVertex);
+                        if (! endVertex.getPoint().on(endRange)) {
+                            endChord_ = new Vect(t01, new Vertex(-1, p0));
+                        }
                     }
                 }
             }
@@ -292,6 +295,9 @@ public class Polytope {
                         BigDecimal y = v1.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
                         endChord = new Vect(fn0_.search(endVertex), endVertex);
+                        if (! endVertex.getPoint().on(endRange)) {
+                            endChord_ = new Vect(new Vertex(-1, p1), t10);
+                        }
                     }
                 }
             }
@@ -344,6 +350,9 @@ public class Polytope {
                         BigDecimal y = v0.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p0.getX(), y));
                         endChord = new Vect(fn.search(endVertex), endVertex);
+                        if (! endVertex.getPoint().on(endRange)) {
+                            endChord_ = new Vect(t01, new Vertex(-1, p0));
+                        }
                     }
                 }
             }
@@ -374,6 +383,9 @@ public class Polytope {
                         BigDecimal y = v1.interpolationYratio(absoluteEndRatio).getY();
                         Vertex endVertex = new Vertex(-1, new Point(p1.getX(), y));
                         endChord = new Vect(fn_.search(endVertex), endVertex);
+                        if (! endVertex.getPoint().on(endRange)) {
+                            endChord_ = new Vect(new Vertex(-1, p1), t10);
+                        }
                     }
                 }
             }
@@ -428,9 +440,18 @@ public class Polytope {
             points.add(v0.lineIntersect(v1));
             v0 = v1;
         }
-        Point p = v0.lineIntersect(endChord);
-        if (p != null) points.add(p);
-        points.add(endChord.lineIntersect(new Vect(getEnd())));
+        if (endChord_ == null) {
+            Point p = v0.lineIntersect(endChord);
+            if (p != null) points.add(p);
+            points.add(endChord.lineIntersect(new Vect(getEnd())));
+        }
+        else {
+            Point p = v0.lineIntersect(endChord_);
+            if (p != null) points.add(p);
+            p = endChord_.lineIntersect(endChord);
+            if (p != null) points.add(p);
+            points.add(endChord.lineIntersect(new Vect(getEnd())));
+        }
         return points;
     }
 
@@ -497,6 +518,7 @@ public class Polytope {
             start.setSide(3);
         }
         triangulate();
+        endChord = endChord_ = null;
         Vector<Point> points = getPoints(getTrace(getWindows(start)));
         y1.setX(endRange.getFrom().getY());
         y1.setY(endRange.getTo().getY());
