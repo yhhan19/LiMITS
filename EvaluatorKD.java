@@ -265,21 +265,20 @@ public class EvaluatorKD {
 
     private BigDecimal sample(int R, int u) {
         BigDecimal step = BigDecimal.ONE.divide(new BigDecimal(R), Arithmetic.MC);
-        if (u == 0) return step.multiply(new BigDecimal(1e-6));
-        if (u == R) return step.multiply(BigDecimal.ONE.subtract(new BigDecimal(1e-6)));
+        if (u == 0) return step.multiply(new BigDecimal("1e-6"));
+        if (u == R) return step.multiply((new BigDecimal(u)).subtract(new BigDecimal("1e-6")));
         return step.multiply(new BigDecimal(u));
     }
 
     public SeriesKD refinedCombineSimplify(SeriesKD s, BigDecimal eps, int R) {
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
+            Series s_ = s.project(dim);
+            Series t_ = null;
             if (dim == 1) {
-                Series s_ = s.project(dim);
-                Series t_ = simplify(s_, eps);
-                t = new SeriesKD(null, t_);
+                t_ = simplify(s_, eps);
             }
             else {
-                Series s_ = s.project(dim);
                 Point first = null;
                 Vector<Point> points = new Vector<Point>();
                 int weight[][][] = new int[t.size()][R + 1][R + 1];
@@ -298,12 +297,18 @@ public class EvaluatorKD {
                         BigDecimal ru = sample(R, u);
                         Range last = new Range(s__.get(0).getY().add(eps), s__.get(0).getY().subtract(eps));
                         Series t__ = simplify(s__, eps, last, ru);
+                        //last.display();
                         for (int v = 0; v <= R; v ++) {
                             BigDecimal rv = sample(R, v);
                             BigDecimal y = (new Range(s__.lastElement().getY().add(eps), s__.lastElement().getY().subtract(eps))).interpolation(rv);
                             weight[i][u][v] = last.contains(y) ? t__.size() : t__.size() + 1;
+                            if (last.contains(y)) {
+                                //System.out.print(v + " ");// + Arithmetic.format(y) + " ");
+                            }
                         }
+                        //System.out.println("-");
                     }
+                    //System.out.println();
                 }
                 int opt[][] = new int[t.size()][R + 1], pre[][] = new int[t.size()][R + 1];
                 int min = -1, argmin = -1;
@@ -356,10 +361,11 @@ public class EvaluatorKD {
                             points.add(t__.get(k));
                     }
                 }
-                Series t_ = new Series(points);
-                System.out.println(t_.size() + " " + min);
-                t = new SeriesKD(t, t_);
+                t_ = new Series(points);
             }
+            t = new SeriesKD(t, t_);
+            System.out.println(t.size());
+            if (t.size() > s.size()) return s;
         }
         return t;
     }
