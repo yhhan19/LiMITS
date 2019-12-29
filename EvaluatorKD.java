@@ -7,7 +7,7 @@ public class EvaluatorKD {
 
     public static Clock clock = Clock.systemDefaultZone();
     public static long firstTime = clock.millis();
-    public static int totalMethods = 6;
+    public static int totalMethods = 4;
     
     public static void setTime() {
         long curTime = clock.millis();
@@ -489,11 +489,20 @@ public class EvaluatorKD {
         return error;
     }
 
-    public static Point recordPerformance(Series3D s, Series3D t, Vector<Long> space, Vector<Long> time) {
+    public static BigDecimal recordPerformance(SeriesKD s, SeriesKD t, Vector<Long> space, Vector<Long> time) {
         if (t == null) return null;
         time.add(EvaluatorKD.getSetTime());
         space.add((long) t.size());
         System.out.print("- ");
-        return t.distance(s);
+        return t.distanceLoo(s);
+    }
+
+    public void evaluate(SeriesKD s, BigDecimal eps, Vector<Long> space, Vector<Long> time) {
+        getSetTime();
+        recordPerformance(s, refinedCombineSimplify(s, eps, 10), space, time);
+        recordPerformance(s, refinedCombineSimplify(s, eps, new BigDecimal("0.5")), space, time);
+        recordPerformance(s, greedy2Simplify(s, eps), space, time);
+        recordPerformance(s, greedySimplify(s, eps), space, time);
+        System.out.println();
     }
 }

@@ -10,7 +10,7 @@ public class SeriesKD {
     private int k;
 
     public SeriesKD(Vector<PointKD> data) {
-        this.k = data.size();
+        this.k = data.get(0).dim();
         this.data = new Vector<PointKD>();
         for (int i = 0; i < data.size(); i ++) 
             this.data.add(data.get(i));

@@ -12,9 +12,9 @@ public class FileScanner {
     public void listFilesForFolder(String folderName) throws Exception {
         File folder = new File("./data/");
         Vector<BigDecimal> x = new Vector<BigDecimal>(), y = new Vector<BigDecimal>(), z = new Vector<BigDecimal>();
-        Vector<Point3D> points = new Vector<Point3D>();
+        Vector<PointKD> points = new Vector<PointKD>();
         Vector<Long> space = new Vector<Long>(), time = new Vector<Long>(), totalSpace = new Vector<Long>(), totalTime = new Vector<Long>();
-        Evaluator eva = new Evaluator();
+        EvaluatorKD ekd = new EvaluatorKD();
         for (int i = 0; i < Evaluator.totalMethods; i ++) {
             totalSpace.add((long) 0);
             totalTime.add((long) 0);
@@ -45,19 +45,21 @@ public class FileScanner {
                 y.add(new BigDecimal(lat));
                 z.add(new BigDecimal(lon));
             }
+            Vector<BigDecimal> data = new Vector<BigDecimal>();
             for (int i = 0; i < x.size(); i ++) {
                 if (i > 0 && Arithmetic.sgn(x.get(i).subtract(x.get(i - 1))) <= 0) 
                     continue;
-                BigDecimal dx = x.get(i).subtract(x.get(0));
-                BigDecimal dy = y.get(i).subtract(y.get(0));
-                BigDecimal dz = z.get(i).subtract(z.get(0));
-                Point3D p = new Point3D(dx.add(Arithmetic.epsRand()), dy.add(Arithmetic.epsRand()), dz.add(Arithmetic.epsRand()));
-                points.add(p);
+                BigDecimal dx = x.get(i).subtract(x.get(0)).add(Arithmetic.epsRand());
+                BigDecimal dy = y.get(i).subtract(y.get(0)).add(Arithmetic.epsRand());
+                BigDecimal dz = z.get(i).subtract(z.get(0)).add(Arithmetic.epsRand());
+                data.clear();
+                data.add(dx); data.add(dy); data.add(dz);
+                points.add(new PointKD(data));
             }
             x.clear();
             y.clear();
             z.clear();
-            Series3D input = new Series3D(points);
+            SeriesKD input = new SeriesKD(points);
             points.clear();
             inputCount ++;
             inputSpace += input.size();
@@ -66,14 +68,14 @@ public class FileScanner {
                 processCount ++;
                 processSpace += input.size();
                 System.out.println(processCount + " " + processSpace);
-                eva.evaluate3D4(input, new BigDecimal("1e-4"), space, time);
+                ekd.evaluate(input, new BigDecimal("1e-4"), space, time);
                 for (int i = 0; i < space.size(); i ++) {
                     totalSpace.set(i,  totalSpace.get(i).longValue() + space.get(i).longValue());
                     totalTime.set(i, totalTime.get(i).longValue() + time.get(i).longValue());
                 }
                 space.clear();
                 time.clear();
-                for (int i = 0; i < Evaluator.totalMethods; i ++) {
+                for (int i = 0; i < EvaluatorKD.totalMethods; i ++) {
                     NumberFormat formatter = new DecimalFormat("0.000000");
                     String spatial = formatter.format(totalSpace.get(i) / (double) processSpace);
                     String temporal = formatter.format(totalTime.get(i) / (double) processCount);
@@ -85,7 +87,7 @@ public class FileScanner {
 
     public static void testSimData() {
         SeriesKD s = new SeriesKD(5000, 5, (int) 1e8, 2);
-        BigDecimal eps = new BigDecimal((int) 2e7);
+        BigDecimal eps = new BigDecimal((int) 1e7);
         EvaluatorKD ekd = new EvaluatorKD();
         SeriesKD t = ekd.greedySimplify(s, eps);
         System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
@@ -104,7 +106,7 @@ public class FileScanner {
     }
 
     public static void main(String[] args) throws Exception {
-        testSimData();
-        //testRealData();
+        //testSimData();
+        testRealData();
     }
 }
