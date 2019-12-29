@@ -1,1 +1,1 @@
-# CCCCC: The-Curse-of-Corner-Cases-and-deCimal-preCision
+# CCCCC: the Curse of Corner Cases and deCimal preCision
