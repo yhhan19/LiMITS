@@ -53,18 +53,9 @@ public class EvaluatorKD {
         return t;
     }
 
-    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal r) {
-        BigDecimal y0 = y.interpolation(r);
+    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end, boolean relative) {
         Polytope p = new Polytope(s, eps);
-        Vector<Point> points = p.linkPath(y0, y, r, null);
-        Series t = new Series(points);
-        return t;
-    }
-
-    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end) {
-        BigDecimal y0 = y.interpolation(start);
-        Polytope p = new Polytope(s, eps);
-        Vector<Point> points = p.linkPath(y0, y, null, end);
+        Vector<Point> points = p.linkPath(y, start, end, relative);
         Series t = new Series(points);
         return t;
     }
@@ -251,7 +242,7 @@ public class EvaluatorKD {
                         buffer.add(p);
                     }
                     Series s__ = new Series(buffer);
-                    Series t__ = simplify(s__, eps, last, r);
+                    Series t__ = simplify(s__, eps, last, r, r, true);
                     for (int k = 1; k < t__.size(); k ++) 
                         points.add(t__.get(k));
                 }
@@ -273,8 +264,7 @@ public class EvaluatorKD {
     public SeriesKD refinedCombineSimplify(SeriesKD s, BigDecimal eps, int R) {
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
-            Series s_ = s.project(dim);
-            Series t_ = null;
+            Series s_ = s.project(dim), t_ = null;
             if (dim == 1) {
                 t_ = simplify(s_, eps);
             }
@@ -296,19 +286,13 @@ public class EvaluatorKD {
                     for (int u = 0; u <= R; u ++) {
                         BigDecimal ru = sample(R, u);
                         Range last = new Range(s__.get(0).getY().add(eps), s__.get(0).getY().subtract(eps));
-                        Series t__ = simplify(s__, eps, last, ru);
-                        //last.display();
+                        Series t__ = simplify(s__, eps, last, ru, ru, true);
                         for (int v = 0; v <= R; v ++) {
                             BigDecimal rv = sample(R, v);
                             BigDecimal y = (new Range(s__.lastElement().getY().add(eps), s__.lastElement().getY().subtract(eps))).interpolation(rv);
                             weight[i][u][v] = last.contains(y) ? t__.size() : t__.size() + 1;
-                            if (last.contains(y)) {
-                                //System.out.print(v + " ");// + Arithmetic.format(y) + " ");
-                            }
                         }
-                        //System.out.println("-");
                     }
-                    //System.out.println();
                 }
                 int opt[][] = new int[t.size()][R + 1], pre[][] = new int[t.size()][R + 1];
                 int min = -1, argmin = -1;
@@ -334,9 +318,8 @@ public class EvaluatorKD {
                     }
                 }
                 int arg[] = new int[t.size()];
-                for (int i = t.size() - 1, j = argmin; i >= 0; j = pre[i][j], i --) {
+                for (int i = t.size() - 1, j = argmin; i >= 0; j = pre[i][j], i --) 
                     arg[i] = j;
-                }
                 for (int i = 1, j = 1, delta; i < t.size(); i ++) {
                     Vector<Point> buffer = new Vector<Point>();
                     BigDecimal x = t.get(i).get(0);
@@ -348,18 +331,12 @@ public class EvaluatorKD {
                         buffer.add(p);
                     }
                     Series s__ = new Series(buffer);
-                    int u = arg[i - 1], v = arg[i];
-                    BigDecimal ru = sample(R, u), rv = sample(R, v);
+                    BigDecimal ru = sample(R, arg[i - 1]), rv = sample(R, arg[i]);
                     Range last = new Range(s__.get(0).getY().add(eps), s__.get(0).getY().subtract(eps));
-                    Series t__ = simplify(s__, eps, last, ru, rv);
-                    if (i == 1) {
-                        for (int k = 0; k < t__.size(); k ++) 
-                            points.add(t__.get(k));
-                    }
-                    else {
-                        for (int k = 1; k < t__.size(); k ++) 
-                            points.add(t__.get(k));
-                    }
+                    Series t__ = simplify(s__, eps, last, ru, rv, false);
+                    if (i == 1) points.add(t__.get(0));
+                    for (int k = 1; k < t__.size(); k ++) 
+                        points.add(t__.get(k));
                 }
                 t_ = new Series(points);
             }

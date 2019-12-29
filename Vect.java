@@ -133,11 +133,11 @@ public class Vect {
         if (Arithmetic.sgn(cross) == 0) return null;
         Vect v0 = new Vect(from), v1 = new Vect(to);
         Vect v2 = new Vect(v.from), v3 = new Vect(v.to);
-        BigDecimal cross10 = v1.cross(v0);
-        BigDecimal cross32 = v3.cross(v2);
-        BigDecimal x = (cross10.multiply(v.getX()).subtract(cross32.multiply(this.getX())));
+        BigDecimal c10 = v1.cross(v0);
+        BigDecimal c32 = v3.cross(v2);
+        BigDecimal x = (c10.multiply(v.getX()).subtract(c32.multiply(this.getX())));
         x = x.divide(cross, Arithmetic.MC);
-        BigDecimal y = (cross10.multiply(v.getY()).subtract(cross32.multiply(this.getY())));
+        BigDecimal y = (c10.multiply(v.getY()).subtract(c32.multiply(this.getY())));
         y = y.divide(cross, Arithmetic.MC);
         Point p = new Point(x, y);
         return p;

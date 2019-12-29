@@ -91,6 +91,8 @@ public class FileScanner {
         System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
         t = ekd.greedy2Simplify(s, eps);
         System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
+        t = ekd.refinedCombineSimplify(s, eps, new BigDecimal("0.5"));
+        System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
         t = ekd.refinedCombineSimplify(s, eps, 10);
         System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
     }

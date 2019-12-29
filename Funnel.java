@@ -119,13 +119,13 @@ public class Funnel {
             v.shortestLink(index, apex);
             that.copy(new Funnel(apex, null, v));
             left.add(v);
-            return "Left";
+            return "LEFT";
         }
         if (right.isEmpty()) {
             v.shortestLink(index, apex);
             right.add(v);
             that.copy(new Funnel(apex, v, null));
-            return "Right";
+            return "RIGHT";
         }
         int i = 0, cni = -1;
         for (i = left.size() - 1; i >= 0; i --) {
@@ -143,7 +143,7 @@ public class Funnel {
             for (int k = left.size() - 1; k > cni; k --)
                 left.remove(k);
             left.add(v);
-            return "Left";
+            return "LEFT";
         }
         int j = 0, cnj = -1;
         for (j = right.size() - 1; j >= 0; j --) {
@@ -161,7 +161,7 @@ public class Funnel {
             for (int k = right.size() - 1; k > cnj; k --)
                 right.remove(k);
             right.add(v);
-            return "Right";
+            return "RIGHT";
         }
         else {
             v.shortestLink(index, apex);
@@ -171,7 +171,7 @@ public class Funnel {
             for (int k = right.size() - 1; k >= 0; k --)
                 right.remove(k);
             right.add(v);
-            return "Right";
+            return "RIGHT";
         }
     }
 }

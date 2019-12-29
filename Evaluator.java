@@ -53,18 +53,9 @@ public class Evaluator {
         return t;
     }
 
-    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal r) {
-        BigDecimal y0 = y.interpolation(r);
+    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end, boolean relative) {
         Polytope p = new Polytope(s, eps);
-        Vector<Point> points = p.linkPath(y0, y, r, null);
-        Series t = new Series(points);
-        return t;
-    }
-
-    public Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end) {
-        BigDecimal y0 = y.interpolation(start);
-        Polytope p = new Polytope(s, eps);
-        Vector<Point> points = p.linkPath(y0, y, null, end);
+        Vector<Point> points = p.linkPath(y, start, end, relative);
         Series t = new Series(points);
         return t;
     }
@@ -196,7 +187,7 @@ public class Evaluator {
                 buffer.add(p);
             }
             Series s1_ = new Series(buffer);
-            Series t1_ = simplify(s1_, eps, last, r);
+            Series t1_ = simplify(s1_, eps, last, r, r, true);
             for (int k = 1; k < t1_.size(); k ++) 
                 points.add(t1_.get(k));
         }
@@ -230,7 +221,7 @@ public class Evaluator {
             for (int u = 0; u <= R; u ++) {
                 BigDecimal ru = sample(R, u);
                 Range last = new Range(s1_.get(0).getY().add(eps), s1_.get(0).getY().subtract(eps));
-                Series t1_ = simplify(s1_, eps, last, ru);
+                Series t1_ = simplify(s1_, eps, last, ru, ru, true);
                 for (int v = 0; v <= R; v ++) {
                     BigDecimal rv = sample(R, v);
                     BigDecimal y = (new Range(s1_.lastElement().getY().add(eps), s1_.lastElement().getY().subtract(eps))).interpolation(rv);
@@ -281,7 +272,7 @@ public class Evaluator {
                 int u = arg[i - 1], v = arg[i];
                 BigDecimal ru = sample(R, u), rv = sample(R, v);
                 Range last = new Range(s1_.get(0).getY().add(eps), s1_.get(0).getY().subtract(eps));
-                Series t1_ = simplify(s1_, eps, last, ru, rv);
+                Series t1_ = simplify(s1_, eps, last, ru, rv, false);
                 if (i == 1) {
                     for (int k = 0; k < t1_.size(); k ++) 
                         points.add(t1_.get(k));
