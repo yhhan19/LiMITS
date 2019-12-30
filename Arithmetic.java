@@ -7,7 +7,7 @@ import java.util.Random;
 
 public class Arithmetic {
 
-    public static final int precision = 64;
+    public static final int precision = 60;
     public static final BigDecimal TWO = new BigDecimal("2");
     public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
     public static final int displayScale = 6;

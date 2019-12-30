@@ -60,24 +60,23 @@ public class EvaluatorKD {
         return t;
     }
 
-    public SeriesKD greedySimplify(SeriesKD s, BigDecimal eps) {
+    public SeriesKD greedySimplify(SeriesKD s, Vector<BigDecimal> eps) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vect[] low = new Vect[s.dim()], high = new Vect[s.dim()];
-        Vect pos = new Vect(BigDecimal.ZERO, eps), neg = new Vect(BigDecimal.ZERO, eps.negate());
         for (int i = 0, j = 1; j < s.size(); i = j - 1) {
             points.add(s.get(i));
             for (int k = 1; k < s.dim(); k ++) {
                 Point p = s.get(i).project(k);
-                low[k] = new Vect(p, p.add(neg));
-                high[k] = new Vect(p, p.add(pos));
+                low[k] = new Vect(p, p.add(new Vect(BigDecimal.ZERO, eps.get(k - 1).negate())));
+                high[k] = new Vect(p, p.add(new Vect(BigDecimal.ZERO, eps.get(k - 1))));
             }
             for (boolean bet = true; j < s.size(); j ++) {
                 for (int k = 1; k < s.dim(); k ++) {
                     Point p = s.get(i).project(k), q = s.get(j).project(k); 
                     Vect v = new Vect(p, q);
                     bet = bet && v.between(low[k], high[k]);
-                    Vect low_ = new Vect(p, q.add(neg));
-                    Vect high_ = new Vect(p, q.add(pos));
+                    Vect low_ = new Vect(p, q.add(new Vect(BigDecimal.ZERO, eps.get(k - 1).negate())));
+                    Vect high_ = new Vect(p, q.add(new Vect(BigDecimal.ZERO, eps.get(k - 1))));
                     if (low[k].cross(low_).signum() > 0) low[k] = low_;
                     if (high[k].cross(high_).signum() < 0) high[k] = high_;
                 }
@@ -88,18 +87,17 @@ public class EvaluatorKD {
         return new SeriesKD(points);
     }
 
-    public SeriesKD greedy2Simplify(SeriesKD s, BigDecimal eps) {
+    public SeriesKD greedy2Simplify(SeriesKD s, Vector<BigDecimal> eps) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vect[] low = new Vect[s.dim()], high = new Vect[s.dim()];
         Point[] p = new Point[s.dim()], q = new Point[s.dim()];
-        Vect pos = new Vect(BigDecimal.ZERO, eps), neg = new Vect(BigDecimal.ZERO, eps.negate());
         PointKD point = s.get(0);
         for (int i = 0, j = 1; j < s.size(); i = j - 1) {
             points.add(point);
             for (int k = 1; k < s.dim(); k ++) {
                 p[k] = point.project(k);
-                low[k] = new Vect(p[k], p[k].add(neg));
-                high[k] = new Vect(p[k], p[k].add(pos));
+                low[k] = new Vect(p[k], p[k].add(new Vect(BigDecimal.ZERO, eps.get(k - 1).negate())));
+                high[k] = new Vect(p[k], p[k].add(new Vect(BigDecimal.ZERO, eps.get(k - 1))));
             }
             point = null;
             while (j < s.size()) {
@@ -127,8 +125,8 @@ public class EvaluatorKD {
                 }
                 boolean flag = true;
                 for (int k = 1; k < s.dim(); k ++) {
-                    Vect low_ = new Vect(p[k], q[k].add(neg));
-                    Vect high_ = new Vect(p[k], q[k].add(pos));
+                    Vect low_ = new Vect(p[k], q[k].add(new Vect(BigDecimal.ZERO, eps.get(k - 1).negate())));
+                    Vect high_ = new Vect(p[k], q[k].add(new Vect(BigDecimal.ZERO, eps.get(k - 1))));
                     if (low[k].cross(low_).signum() > 0) low[k] = low_;
                     if (high[k].cross(high_).signum() < 0) high[k] = high_;
                     flag = flag && (low[k].cross(high[k]).signum() >= 0);
@@ -162,23 +160,23 @@ public class EvaluatorKD {
         return new SeriesKD(points);
     }
 
-    public SeriesKD combineSimplify(SeriesKD s, BigDecimal eps) {
+    public SeriesKD combineSimplify(SeriesKD s, Vector<BigDecimal> eps) {
         SeriesKD t = null;
         for (int i = 1; i < s.dim(); i ++) {
             Series s_ = s.project(i);
-            Series t_ = simplify(s_, eps);
+            Series t_ = simplify(s_, eps.get(i - 1));
             t = new SeriesKD(t, t_);
         }
         if (t.size() > s.size()) return s;
         return t;
     }
 
-    public SeriesKD refinedCombineSimplify(SeriesKD s, BigDecimal eps) {
+    public SeriesKD refinedCombineSimplify(SeriesKD s, Vector<BigDecimal> eps) {
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
             if (dim == 1) {
                 Series s_ = s.project(dim);
-                Series t_ = simplify(s_, eps);
+                Series t_ = simplify(s_, eps.get(dim - 1));
                 t = new SeriesKD(t, t_);
             }
             else {
@@ -198,12 +196,12 @@ public class EvaluatorKD {
                     }
                     Series s__ = new Series(buffer), t__ = null;
                     if (last == null) {
-                        t__ = simplify(s__, eps);
+                        t__ = simplify(s__, eps.get(dim - 1));
                         for (int k = 0; k < t__.size(); k ++) 
                             points.add(t__.get(k));
                     }
                     else {
-                        t__ = simplify(s__, eps, last);
+                        t__ = simplify(s__, eps.get(dim - 1), last);
                         for (int k = 1; k < t__.size(); k ++) 
                             points.add(t__.get(k));
                     }
@@ -217,19 +215,19 @@ public class EvaluatorKD {
         return t;
     }
 
-    public SeriesKD refinedCombineSimplify(SeriesKD s, BigDecimal eps, BigDecimal r) {
+    public SeriesKD refinedCombineSimplify(SeriesKD s, Vector<BigDecimal> eps, BigDecimal r) {
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
             if (dim == 1) {
                 Series s_ = s.project(dim);
-                Series t_ = simplify(s_, eps);
+                Series t_ = simplify(s_, eps.get(dim - 1));
                 t = new SeriesKD(t, t_);
             }
             else {
                 Series s_ = s.project(dim);
                 Vector<Point> points = new Vector<Point>();
                 Point first = null;
-                Range last = new Range(s_.get(0).getY().add(eps), s_.get(0).getY().subtract(eps));
+                Range last = new Range(s_.get(0).getY().add(eps.get(dim - 1)), s_.get(0).getY().subtract(eps.get(dim - 1)));
                 points.add(new Point(s_.get(0).getX(), last.interpolation(r)));
                 for (int i = 1, j = 1, delta; i < t.size(); i ++) {
                     Vector<Point> buffer = new Vector<Point>();
@@ -242,7 +240,7 @@ public class EvaluatorKD {
                         buffer.add(p);
                     }
                     Series s__ = new Series(buffer);
-                    Series t__ = simplify(s__, eps, last, r, r, true);
+                    Series t__ = simplify(s__, eps.get(dim - 1), last, r, r, true);
                     for (int k = 1; k < t__.size(); k ++) 
                         points.add(t__.get(k));
                 }
@@ -261,12 +259,12 @@ public class EvaluatorKD {
         return step.multiply(new BigDecimal(u));
     }
 
-    public SeriesKD refinedCombineSimplify(SeriesKD s, BigDecimal eps, int R) {
+    public SeriesKD refinedCombineSimplify(SeriesKD s, Vector<BigDecimal> eps, int R) {
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
             Series s_ = s.project(dim), t_ = null;
             if (dim == 1) {
-                t_ = simplify(s_, eps);
+                t_ = simplify(s_, eps.get(dim - 1));
             }
             else {
                 Point first = null;
@@ -285,11 +283,11 @@ public class EvaluatorKD {
                     Series s__ = new Series(buffer);
                     for (int u = 0; u <= R; u ++) {
                         BigDecimal ru = sample(R, u);
-                        Range last = new Range(s__.get(0).getY().add(eps), s__.get(0).getY().subtract(eps));
-                        Series t__ = simplify(s__, eps, last, ru, ru, true);
+                        Range last = new Range(s__.get(0).getY().add(eps.get(dim - 1)), s__.get(0).getY().subtract(eps.get(dim - 1)));
+                        Series t__ = simplify(s__, eps.get(dim - 1), last, ru, ru, true);
                         for (int v = 0; v <= R; v ++) {
                             BigDecimal rv = sample(R, v);
-                            BigDecimal y = (new Range(s__.lastElement().getY().add(eps), s__.lastElement().getY().subtract(eps))).interpolation(rv);
+                            BigDecimal y = (new Range(s__.lastElement().getY().add(eps.get(dim - 1)), s__.lastElement().getY().subtract(eps.get(dim - 1)))).interpolation(rv);
                             weight[i][u][v] = last.contains(y) ? t__.size() : t__.size() + 1;
                         }
                     }
@@ -332,8 +330,8 @@ public class EvaluatorKD {
                     }
                     Series s__ = new Series(buffer);
                     BigDecimal ru = sample(R, arg[i - 1]), rv = sample(R, arg[i]);
-                    Range last = new Range(s__.get(0).getY().add(eps), s__.get(0).getY().subtract(eps));
-                    Series t__ = simplify(s__, eps, last, ru, rv, false);
+                    Range last = new Range(s__.get(0).getY().add(eps.get(dim - 1)), s__.get(0).getY().subtract(eps.get(dim - 1)));
+                    Series t__ = simplify(s__, eps.get(dim - 1), last, ru, rv, false);
                     if (i == 1) points.add(t__.get(0));
                     for (int k = 1; k < t__.size(); k ++) 
                         points.add(t__.get(k));
@@ -497,7 +495,7 @@ public class EvaluatorKD {
         return t.distanceLoo(s);
     }
 
-    public void evaluate(SeriesKD s, BigDecimal eps, Vector<Long> space, Vector<Long> time) {
+    public void evaluate(SeriesKD s, Vector<BigDecimal> eps, Vector<Long> space, Vector<Long> time) {
         getSetTime();
         recordPerformance(s, refinedCombineSimplify(s, eps, 10), space, time);
         recordPerformance(s, refinedCombineSimplify(s, eps, new BigDecimal("0.5")), space, time);

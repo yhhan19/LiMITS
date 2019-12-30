@@ -15,10 +15,12 @@ public class FileScanner {
         Vector<PointKD> points = new Vector<PointKD>();
         Vector<Long> space = new Vector<Long>(), time = new Vector<Long>(), totalSpace = new Vector<Long>(), totalTime = new Vector<Long>();
         EvaluatorKD ekd = new EvaluatorKD();
+        Vector<BigDecimal> eps = new Vector<BigDecimal>();
         for (int i = 0; i < Evaluator.totalMethods; i ++) {
             totalSpace.add((long) 0);
             totalTime.add((long) 0);
         }
+        int total = 0;
         int inputSpace = 0, inputCount = 0, processSpace = 0, processCount = 0;
         for (final File fileEntry : folder.listFiles()) {
             if (inputCount < 0) {
@@ -29,6 +31,7 @@ public class FileScanner {
             String fileName = folderName + fileEntry.getName();
             BufferedReader br = new BufferedReader(new FileReader(fileName)); 
             String s;
+            BigDecimal ymin = new BigDecimal("180"), ymax = new BigDecimal("0"), zmin = new BigDecimal("180"), zmax = new BigDecimal("0");
             for (int i = 0; (s = br.readLine()) != null; i ++) {
                 if (i < 6) continue;
                 StringTokenizer st = new StringTokenizer(s, ",");
@@ -44,7 +47,16 @@ public class FileScanner {
                 x.add(new BigDecimal(stamp));
                 y.add(new BigDecimal(lat));
                 z.add(new BigDecimal(lon));
+                ymin = ymin.min(y.lastElement()); ymax = ymax.max(y.lastElement());
+                zmin = zmin.min(z.lastElement()); zmax = zmax.max(z.lastElement());
             }
+            BigDecimal ry = ymax.subtract(ymin), rz = zmax.subtract(zmax);
+            double cosy = Math.cos(Math.toRadians(ymax.doubleValue()));
+            double meters = 50;
+            BigDecimal e0 = new BigDecimal(meters / (cosy * 111320));
+            BigDecimal e1 = new BigDecimal(meters / 111320);
+            eps.clear();
+            eps.add(e0); eps.add(e1);
             Vector<BigDecimal> data = new Vector<BigDecimal>();
             for (int i = 0; i < x.size(); i ++) {
                 if (i > 0 && Arithmetic.sgn(x.get(i).subtract(x.get(i - 1))) <= 0) 
@@ -68,7 +80,7 @@ public class FileScanner {
                 processCount ++;
                 processSpace += input.size();
                 System.out.println(processCount + " " + processSpace);
-                ekd.evaluate(input, new BigDecimal("1e-4"), space, time);
+                ekd.evaluate(input, eps, space, time);
                 for (int i = 0; i < space.size(); i ++) {
                     totalSpace.set(i,  totalSpace.get(i).longValue() + space.get(i).longValue());
                     totalTime.set(i, totalTime.get(i).longValue() + time.get(i).longValue());
@@ -83,11 +95,14 @@ public class FileScanner {
                 }
             }
         }
+        System.out.println(total);
     }
 
     public static void testSimData() {
         SeriesKD s = new SeriesKD(5000, 5, (int) 1e8, 2);
-        BigDecimal eps = new BigDecimal((int) 1e7);
+        Vector<BigDecimal> eps = new Vector<BigDecimal>();
+        eps.add(new BigDecimal((int) 1e7));
+        eps.add(new BigDecimal((int) 1e7));
         EvaluatorKD ekd = new EvaluatorKD();
         SeriesKD t = ekd.greedySimplify(s, eps);
         System.out.println(t.size() + " " + Arithmetic.format(s.distanceLoo(t)));
