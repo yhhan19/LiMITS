@@ -192,4 +192,23 @@ public class Point {
         BigDecimal sy = Arithmetic.sqrt(BigDecimal.ONE.subtract(dx.multiply(dx).divide(Arithmetic.TWO, Arithmetic.MC)), Arithmetic.MC);
         return new Point(dx.multiply(sx).multiply(r).add(p.x), dy.multiply(sy).multiply(r).add(p.y));
     }
+
+    public double sphereLoo(Point p) {
+        BigDecimal dx = x.subtract(p.x).abs(), dy = y.subtract(p.y).abs();
+        BigDecimal min = x.min(p.x);
+        double cos = Math.cos(Math.toRadians(min.doubleValue()));
+        double dx_ = dx.doubleValue() * (cos * 111320);
+        double dy_ = dy.doubleValue() * 111320;
+        return dx_ > dy_ ? dx_ : dy_;
+    }
+
+    public double sphereL2(Point p) {
+        BigDecimal dy = y.subtract(p.y).abs();
+        double sx1 = Math.sin(Math.toRadians(x.doubleValue()));
+        double sx2 = Math.sin(Math.toRadians(p.x.doubleValue()));
+        double cy = Math.cos(Math.toRadians(dy.doubleValue()));
+        double cx1 = Math.cos(Math.toRadians(x.doubleValue()));
+        double cx2 = Math.cos(Math.toRadians(p.x.doubleValue()));
+        return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * (111320 * 360) / (Math.PI * 2);
+    }
 }

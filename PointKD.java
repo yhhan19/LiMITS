@@ -74,4 +74,16 @@ public class PointKD {
         VectKD v = new VectKD(this, p);
         return v.norm1();
     }
+
+    public double sphereLoo(PointKD p) {
+        Point p_ = new Point(p.get(1), p.get(2));
+        Point this_ = new Point(get(1), get(2));
+        return this_.sphereLoo(p_);
+    }
+
+    public double sphereL2(PointKD p) {
+        Point p_ = new Point(p.get(1), p.get(2));
+        Point this_ = new Point(get(1), get(2));
+        return this_.sphereL2(p_);
+    }
 }

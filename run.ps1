@@ -1,3 +1,3 @@
 rm *.class
-javac -Xlint:unchecked -Xlint:deprecation FileScanner.java
-java -Xmx8192M -Xss256M FileScanner
+javac -Xlint:unchecked -Xlint:deprecation MITS.java
+java -Xmx8192M -Xss256M MITS

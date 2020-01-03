@@ -16,7 +16,6 @@ public class Arithmetic {
         Random rand = new Random();
         String str = String.valueOf(rand.nextInt((int) 1e9));
         BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e20"));
-        //System.out.println(d);
         return d;
     }
  

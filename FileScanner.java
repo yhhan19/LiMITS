@@ -24,7 +24,7 @@ public class FileScanner {
             if (fileEntry.isDirectory()) continue;
             String fileName = folderName + fileEntry.getName(), s = null;
             BufferedReader br = new BufferedReader(new FileReader(fileName));
-            BigDecimal ymax = new BigDecimal("0");
+            BigDecimal min = new BigDecimal("360");
             for (int i = 0; (s = br.readLine()) != null; i ++) {
                 if (i < 6) continue;
                 StringTokenizer st = new StringTokenizer(s, ",");
@@ -40,10 +40,10 @@ public class FileScanner {
                 x.add(new BigDecimal(stamp));
                 y.add(new BigDecimal(lat));
                 z.add(new BigDecimal(lon));
-                ymax = ymax.max(y.lastElement());
+                min = min.max(y.lastElement());
             }
-            double cosy = Math.cos(Math.toRadians(ymax.doubleValue()));
-            BigDecimal e0 = new BigDecimal(meters / (cosy * 111320));
+            double cos = Math.cos(Math.toRadians(min.doubleValue()));
+            BigDecimal e0 = new BigDecimal(meters / (cos * 111320));
             BigDecimal e1 = new BigDecimal(meters / 111320);
             eps.clear();
             eps.add(e0); eps.add(e1);
@@ -72,14 +72,14 @@ public class FileScanner {
                 System.out.println(processCount + " " + processSpace);
                 double[] res = new double[3];
                 for (int i = 0; i < ts.length; i ++) {
-                    res = ts[i].evaluateKD(input, eps);
+                    res = ts[i].evaluateKD(input, eps, true);
                     time[i] += res[0];
                     space[i] += res[1];
                     NumberFormat formatter = new DecimalFormat("0.00000E0");
                     String spatial = formatter.format(space[i] / (double) processSpace);
                     String temporal = formatter.format(time[i] / (double) processCount);
                     String error = formatter.format(res[2]);
-                    System.out.println(spatial  + " " + temporal);
+                    System.out.println(spatial  + " " + temporal + " " + error);
                 }
             }
         }

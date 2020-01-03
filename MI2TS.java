@@ -10,14 +10,14 @@ public class MI2TS extends TS {
     }
 
     private Series simplify(Series s, BigDecimal eps) {
-        Polytope p = new Polytope(s, eps);
+        Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath();
         Series t = new Series(points);
         return t;
     }
 
     private Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end, boolean relative) {
-        Polytope p = new Polytope(s, eps);
+        Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath(y, start, end, relative);
         Series t = new Series(points);
         return t;
@@ -110,7 +110,6 @@ public class MI2TS extends TS {
                 t_ = new Series(points);
             }
             t = new SeriesKD(t, t_);
-            //System.out.println(t.size());
             if (t.size() > s.size()) return s;
         }
         return t;

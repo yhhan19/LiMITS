@@ -10,14 +10,14 @@ public class MI1TS extends TS {
     }
 
     private Series simplify(Series s, BigDecimal eps) {
-        Polytope p = new Polytope(s, eps);
+        Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath();
         Series t = new Series(points);
         return t;
     }
 
     private Series simplify(Series s, BigDecimal eps, Range y, BigDecimal start, BigDecimal end, boolean relative) {
-        Polytope p = new Polytope(s, eps);
+        Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath(y, start, end, relative);
         Series t = new Series(points);
         return t;

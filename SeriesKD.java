@@ -162,4 +162,54 @@ public class SeriesKD {
         }
         return error;
     }
+
+    public double sphereLoo(SeriesKD that) {
+        double error = 0;
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
+            if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
+                if (j != 0) {
+                    PointKD p = that.get(j - 1), q = that.get(j);
+                    PointKD r = PointKD.interpolation(p, q, this.get(i).get(0), 0);
+                    double e = r.sphereLoo(this.get(i));
+                    if (e > error) error = e;
+                }
+                i ++;
+            }
+            else {
+                if (i != 0) {
+                    PointKD p = this.get(i - 1), q = this.get(i);
+                    PointKD r = PointKD.interpolation(p, q, that.get(j).get(0), 0);
+                    double e = r.sphereLoo(that.get(j));
+                    if (e > error) error = e;
+                }
+                j ++;
+            }
+        }
+        return error;
+    }
+
+    public double sphereL2(SeriesKD that) {
+        double error = 0;
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
+            if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
+                if (j != 0) {
+                    PointKD p = that.get(j - 1), q = that.get(j);
+                    PointKD r = PointKD.interpolation(p, q, this.get(i).get(0), 0);
+                    double e = r.sphereL2(this.get(i));
+                    if (e > error) error = e;
+                }
+                i ++;
+            }
+            else {
+                if (i != 0) {
+                    PointKD p = this.get(i - 1), q = this.get(i);
+                    PointKD r = PointKD.interpolation(p, q, that.get(j).get(0), 0);
+                    double e = r.sphereL2(that.get(j));
+                    if (e > error) error = e;
+                }
+                j ++;
+            }
+        }
+        return error;
+    }
 }
