@@ -46,7 +46,7 @@ public class Range {
     public BigDecimal getY() {
         return y;
     }
-    
+
     public void setX(BigDecimal x) {
         this.x = x;
     }

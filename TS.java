@@ -12,13 +12,6 @@ public abstract class TS {
         firstTime = curTime;
     }
 
-    public static long getSetTime() {
-        long curTime = clock.millis();
-        long res = curTime - firstTime;
-        firstTime = curTime;
-        return res;
-    }
-
     public static long getTime() {
         long curTime = clock.millis();
         long res = curTime - firstTime;

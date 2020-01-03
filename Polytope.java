@@ -167,9 +167,6 @@ public class Polytope {
         Vector<Facet> queue = new Vector<Facet>();
         Vector<Facet> margin = new Vector<Facet>();
         Vect v0 = new Vect(chord.getFromVertex(), chord.getToVertex());
-        if (Arithmetic.sgn(chord.range()) == 0) {
-            chord.display();
-        }
         Facet start = chord.getFirstFacet();
         start.setVisited();
         queue.add(start);

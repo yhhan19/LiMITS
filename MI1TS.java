@@ -5,8 +5,8 @@ public class MI1TS extends TS {
 
     private BigDecimal r;
 
-    public MI1TS(BigDecimal r) {
-        this.r = r;
+    public MI1TS(String str) {
+        this.r = new BigDecimal(str);
     }
 
     private Series simplify(Series s, BigDecimal eps) {

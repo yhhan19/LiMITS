@@ -42,8 +42,6 @@ public class Chord {
     }
 
     public boolean intermediate() {
-        //BigDecimal d = getFromVertex().getPoint().distLoo(getToVertex().getPoint());
-        //if (Arithmetic.sgn(d) == 0) return false;
         return (getFromVertex().getSide() ^ getToVertex().getSide()) == 3;
     }
 
