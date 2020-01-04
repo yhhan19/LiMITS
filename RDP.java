@@ -3,6 +3,10 @@ import java.util.Vector;
 
 public class RDP extends TS {
 
+    public String name() {
+        return "S-RDP";
+    }
+
     private Vector<PointKD> recursion(SeriesKD s, int left, int right, Vector<BigDecimal> eps) {
         Vector<PointKD> points = new Vector<PointKD>();
         PointKD p = s.get(left), q = s.get(right);

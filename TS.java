@@ -23,6 +23,8 @@ public abstract class TS {
         System.out.println("time: " + (curTime - firstTime) + "ms");
     }
 
+    public abstract String name();
+
     public abstract SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps);
 
     public double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean real) {

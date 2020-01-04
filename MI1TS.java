@@ -9,6 +9,10 @@ public class MI1TS extends TS {
         this.r = new BigDecimal(str);
     }
 
+    public String name() {
+        return "W-MIG";
+    }
+
     private Series simplify(Series s, BigDecimal eps) {
         Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath();

@@ -35,7 +35,6 @@ public class SeriesKD {
                     p.set(j, p.get(j).subtract(delta));
             }
         }
-        System.out.println("input: " + data.size());
     }
 
     public SeriesKD(SeriesKD s0, Series s1) {

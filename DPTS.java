@@ -9,6 +9,10 @@ public class DPTS extends TS {
         this.times = times;
     }
 
+    public String name() {
+        return "S-OPT";
+    }
+
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
         int backward = times > 0 ? times / s.size() : s.size();
         boolean visible[][] = new boolean[s.size()][backward];

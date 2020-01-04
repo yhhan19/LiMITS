@@ -9,6 +9,10 @@ public class MI2TS extends TS {
         this.R = R;
     }
 
+    public String name() {
+        return "W-MIV";
+    }
+
     private Series simplify(Series s, BigDecimal eps) {
         Polytube p = new Polytube(s, eps);
         Vector<Point> points = p.linkPath();

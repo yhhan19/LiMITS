@@ -3,6 +3,10 @@ import java.util.Vector;
 
 public class G2TS extends TS {
 
+    public String name() {
+        return "W-GRE";
+    }
+
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vect[] low = new Vect[s.dim()], high = new Vect[s.dim()];

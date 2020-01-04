@@ -197,8 +197,8 @@ public class Point {
         BigDecimal dx = x.subtract(p.x).abs(), dy = y.subtract(p.y).abs();
         BigDecimal min = x.min(p.x);
         double cos = Math.cos(Math.toRadians(min.doubleValue()));
-        double dx_ = dx.doubleValue() * (cos * 111320);
-        double dy_ = dy.doubleValue() * 111320;
+        double dx_ = dx.doubleValue() * (cos * Arithmetic.C);
+        double dy_ = dy.doubleValue() * Arithmetic.C;
         return dx_ > dy_ ? dx_ : dy_;
     }
 
@@ -209,6 +209,6 @@ public class Point {
         double cy = Math.cos(Math.toRadians(dy.doubleValue()));
         double cx1 = Math.cos(Math.toRadians(x.doubleValue()));
         double cx2 = Math.cos(Math.toRadians(p.x.doubleValue()));
-        return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * (111320 * 360) / (Math.PI * 2);
+        return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * (Arithmetic.C * 360) / (Math.PI * 2);
     }
 }
