@@ -20,14 +20,14 @@ public class MITS {
         System.out.println();
     }
 
-    public double[][] testSimData(int M, int N, int K, double eps) {
+    public double[][] testSimData(int cases, int size, int dim, double bound, int mono, String type, double eps) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
-        for (int i = 0; i < K; i ++) 
+        for (int i = 0; i < dim; i ++) 
             e.add(new BigDecimal(eps));
         double[][] ret = new double[ts.length][2];
-        for (int i = 0; i < M; i ++) {
+        for (int i = 0; i < cases; i ++) {
             System.out.println("case: " + i);
-            SeriesKD s = new SeriesKD(N, K, (int) 1e8, 2);
+            SeriesKD s = new SeriesKD(size, dim, bound, mono, type);
             for (int j = 0; j < ts.length; j ++) {
                 double[] res = ts[j].evaluateKD(s, e, false);
                 ret[j][0] += res[1];
@@ -37,8 +37,8 @@ public class MITS {
             }
         }
         for (int i = 0; i < ts.length; i ++) {
-            ret[i][0] /= M * N;
-            ret[i][1] /= M;
+            ret[i][0] /= cases * size;
+            ret[i][1] /= cases;
         }
         return ret;
     }
@@ -55,7 +55,7 @@ public class MITS {
             new G2TS(), new MI1TS("0.5"), new MI2TS(10)
         };
         MITS run = new MITS(ts);
-        run.display(run.testSimData(10, 2000, 5, 1e8));
-        run.display(run.testGeoData("./data/", 100));
+        run.display(run.testSimData(10, 2000, 5, 1e8, 2, "gaussian", 1e8));
+        run.display(run.testGeoData("./data/", 7));
     }
 }

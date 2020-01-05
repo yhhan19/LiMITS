@@ -22,6 +22,20 @@ public class PointKD {
             this.data.add(data.get(i));
     }
 
+    public PointKD(double[] data) {
+        this.k = data.length;
+        this.data = new Vector<BigDecimal>();
+        for (int i = 0; i < data.length; i ++) 
+            this.data.add(new BigDecimal(data[i]));
+    }
+
+    public PointKD(int[] data) {
+        this.k = data.length;
+        this.data = new Vector<BigDecimal>();
+        for (int i = 0; i < data.length; i ++) 
+            this.data.add(new BigDecimal(data[i]));
+    }
+
     public void display() {
         System.out.print("[ ");
         for (int i = 0; i < k; i ++) 

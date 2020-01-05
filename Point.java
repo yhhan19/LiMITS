@@ -186,29 +186,28 @@ public class Point {
             return false;
     }
 
-    public Point toL2(Point p, BigDecimal r) {
-        BigDecimal dx = x.subtract(p.x).divide(r, Arithmetic.MC), dy = y.subtract(p.y).divide(r, Arithmetic.MC);
-        BigDecimal sx = Arithmetic.sqrt(BigDecimal.ONE.subtract(dy.multiply(dy).divide(Arithmetic.TWO, Arithmetic.MC)), Arithmetic.MC);
-        BigDecimal sy = Arithmetic.sqrt(BigDecimal.ONE.subtract(dx.multiply(dx).divide(Arithmetic.TWO, Arithmetic.MC)), Arithmetic.MC);
-        return new Point(dx.multiply(sx).multiply(r).add(p.x), dy.multiply(sy).multiply(r).add(p.y));
-    }
-
     public double sphereLoo(Point p) {
         BigDecimal dx = x.subtract(p.x).abs(), dy = y.subtract(p.y).abs();
-        BigDecimal min = x.min(p.x);
-        double cos = Math.cos(Math.toRadians(min.doubleValue()));
-        double dx_ = dx.doubleValue() * (cos * Arithmetic.C);
-        double dy_ = dy.doubleValue() * Arithmetic.C;
+        double dx_ = dx.doubleValue() * Arithmetic.C;
+        double dy_ = dy.doubleValue() * Arithmetic.C * Arithmetic.cos(x.min(p.x));
         return dx_ > dy_ ? dx_ : dy_;
     }
 
     public double sphereL2(Point p) {
+        BigDecimal dx = x.subtract(p.x).abs(), dy = y.subtract(p.y).abs();
+        double sx = Arithmetic.haversin(dx), sy = Arithmetic.haversin(dy);
+        double cx1 = Arithmetic.cos(x), cx2 = Arithmetic.cos(p.x);
+        return 2 * Arithmetic.R * Math.asin(Math.sqrt(sx + cx1 * cx2 * sy)); // better
+    }
+
+    public double sphereL22(Point p) {
         BigDecimal dy = y.subtract(p.y).abs();
-        double sx1 = Math.sin(Math.toRadians(x.doubleValue()));
-        double sx2 = Math.sin(Math.toRadians(p.x.doubleValue()));
-        double cy = Math.cos(Math.toRadians(dy.doubleValue()));
-        double cx1 = Math.cos(Math.toRadians(x.doubleValue()));
-        double cx2 = Math.cos(Math.toRadians(p.x.doubleValue()));
-        return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * (Arithmetic.C * 360) / (Math.PI * 2);
+        double sx1 = Arithmetic.sin(x), sx2 = Arithmetic.sin(p.x);
+        double cy = Arithmetic.cos(dy), cx1 = Arithmetic.cos(x), cx2 = Arithmetic.cos(p.x);
+        return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * Arithmetic.R; // double die here
+    }
+
+    public PointKD sphere2Euclidean() {
+        return null; // to do
     }
 }

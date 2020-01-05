@@ -36,11 +36,10 @@ public class FileScanner {
                 x.add(new BigDecimal(stamp));
                 y.add(new BigDecimal(lat));
                 z.add(new BigDecimal(lon));
-                min = min.max(y.lastElement());
+                min = min.min(y.lastElement());
             }
-            double cos = Math.cos(Math.toRadians(min.doubleValue()));
-            BigDecimal e0 = new BigDecimal(meters / (cos * Arithmetic.C));
-            BigDecimal e1 = new BigDecimal(meters / Arithmetic.C);
+            BigDecimal e0 = new BigDecimal(meters / Arithmetic.C);
+            BigDecimal e1 = new BigDecimal(meters / Arithmetic.C / Arithmetic.cos(min));
             eps.clear();
             eps.add(e0); eps.add(e1);
             Vector<BigDecimal> data = new Vector<BigDecimal>();
@@ -48,8 +47,8 @@ public class FileScanner {
                 if (i > 0 && Arithmetic.sgn(x.get(i).subtract(x.get(i - 1))) <= 0) 
                     continue;
                 BigDecimal dx = x.get(i).subtract(x.get(0)).add(Arithmetic.epsRand());
-                BigDecimal dy = y.get(i).subtract(y.get(0)).add(Arithmetic.epsRand());
-                BigDecimal dz = z.get(i).subtract(z.get(0)).add(Arithmetic.epsRand());
+                BigDecimal dy = y.get(i).add(Arithmetic.epsRand());
+                BigDecimal dz = z.get(i).add(Arithmetic.epsRand());
                 data.clear();
                 data.add(dx); data.add(dy); data.add(dz);
                 points.add(new PointKD(data));

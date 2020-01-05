@@ -7,29 +7,29 @@ import java.util.Vector;
 public class SeriesKD {
 
     private Vector<PointKD> data;
-    private int k;
+    private int dim;
 
     public SeriesKD(Vector<PointKD> data) {
-        this.k = data.get(0).dim();
+        this.dim = data.get(0).dim();
         this.data = new Vector<PointKD>();
         for (int i = 0; i < data.size(); i ++) 
             this.data.add(data.get(i));
     }
 
-    public SeriesKD(int N, int k, int bound, int mono) {
-        this.k = k;
+    public SeriesKD(int size, int dim, int bound, int mono) {
+        this.dim = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
         Vector<BigDecimal> p = new Vector<BigDecimal>();
-        for (int i = 0; i < k; i ++) 
+        for (int i = 0; i < dim; i ++) 
             p.add(new BigDecimal("0"));
-        for (int i = 0; i < N; i ++) {
+        for (int i = 0; i < size; i ++) {
             data.add(new PointKD(p));
             p.set(0, p.get(0).add(BigDecimal.ONE));
-            for (int j = 1; j < k; j ++) {
+            for (int j = 1; j < dim; j ++) {
                 String str = String.valueOf(rand.nextInt(bound));
                 BigDecimal delta = new BigDecimal(str);
-                if (rand.nextInt(mono) == 0)
+                if (rand.nextInt(mono) == 0) 
                     p.set(j, p.get(j).add(delta));
                 else 
                     p.set(j, p.get(j).subtract(delta));
@@ -37,9 +37,31 @@ public class SeriesKD {
         }
     }
 
+    public SeriesKD(int size, int dim, double bound, int mono, String type) {
+        this.dim = dim;
+        data = new Vector<PointKD>();
+        Random rand = new Random();
+        double[] x = new double[dim], y = null;
+        for (int i = 0; i < dim; i ++) 
+            x[i] = 0;
+        for (int i = 0; i < size; i ++) {
+            data.add(new PointKD(x));
+            x[0] += 1;
+            if (type.equals("gaussian")) 
+                y = Arithmetic.gaussian(dim - 1);
+            if (type.equals("uniform")) 
+                y = Arithmetic.uniform(dim - 1);
+            for (int j = 1; j < dim; j ++) 
+                if (rand.nextInt(mono) == 0)
+                    x[j] += y[j - 1] * bound;
+                else 
+                    x[j] -= y[j - 1] * bound;
+        }
+    }
+
     public SeriesKD(SeriesKD s0, Series s1) {
         if (s0 == null) {
-            this.k = 2;
+            this.dim = 2;
             this.data = new Vector<PointKD>();
             Vector<BigDecimal> point = new Vector<BigDecimal>();
             point.add(BigDecimal.ZERO);
@@ -51,7 +73,7 @@ public class SeriesKD {
             }
             return ;
         }
-        this.k = s0.dim() + 1;
+        this.dim = s0.dim() + 1;
         this.data = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
         for (int i = 0; i <= s0.dim(); i ++) 
@@ -119,7 +141,7 @@ public class SeriesKD {
     }
 
     public int dim() {
-        return k;
+        return dim;
     }
     
     public int size() {

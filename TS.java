@@ -6,7 +6,7 @@ public abstract class TS {
 
     public static Clock clock = Clock.systemDefaultZone();
     public static long firstTime = clock.millis();
-    
+
     public static void setTime() {
         long curTime = clock.millis();
         firstTime = curTime;
