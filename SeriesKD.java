@@ -37,25 +37,40 @@ public class SeriesKD {
         }
     }
 
-    public SeriesKD(int size, int dim, double bound, int mono, String type) {
+    public SeriesKD(int size, int dim, double b0, double b1, int mono, String t0, String t1) {
         this.dim = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
-        double[] x = new double[dim], y = null;
-        for (int i = 0; i < dim; i ++) 
-            x[i] = 0;
+        double[] x = new double[dim], y = new double[dim], z = new double[dim];
+        for (int i = 0; i < dim; i ++) {
+            x[i] = y[i] = z[i] = 0;
+        }
         for (int i = 0; i < size; i ++) {
             data.add(new PointKD(x));
             x[0] += 1;
-            if (type.equals("gaussian")) 
-                y = Arithmetic.gaussian(dim - 1);
-            if (type.equals("uniform")) 
-                y = Arithmetic.uniform(dim - 1);
-            for (int j = 1; j < dim; j ++) 
-                if (rand.nextInt(mono) == 0)
-                    x[j] += y[j - 1] * bound;
-                else 
-                    x[j] -= y[j - 1] * bound;
+            if (t1.equals("velocity")) {
+                if (t0.equals("gaussian")) 
+                    y = Arithmetic.gaussian(dim - 1);
+                if (t0.equals("uniform")) 
+                    y = Arithmetic.uniform(dim - 1);
+                for (int j = 1; j < dim; j ++) {
+                    if (rand.nextInt(mono) == 0)
+                        y[j - 1] = - y[j - 1];
+                    x[j] += y[j - 1] * b0;
+                }
+            }
+            if (t1.equals("acceleration")) {
+                if (t0.equals("gaussian")) 
+                    z = Arithmetic.gaussian(dim - 1);
+                if (t0.equals("uniform")) 
+                    z = Arithmetic.uniform(dim - 1);
+                for (int j = 1; j < dim; j ++) {
+                    if (rand.nextInt(mono) == 0) 
+                        z[j - 1] = - z[j - 1];
+                    y[j - 1] += z[j - 1] * b1;
+                    x[j] += y[j - 1] * b0;
+                }
+            }
         }
     }
 
@@ -152,6 +167,10 @@ public class SeriesKD {
         return data.get(i);
     }
 
+    public PointKD lastElement() {
+        return data.lastElement();
+    }
+
     public Series project(int j) {
         Vector<Point> points = new Vector<Point>();
         for (int i = 0; i < size(); i ++) 
@@ -209,7 +228,7 @@ public class SeriesKD {
         return error;
     }
 
-    public double sphereL2(SeriesKD that) {
+    public double sphereL2(SeriesKD that) { // not accurate
         double error = 0;
         for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
             if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
@@ -229,6 +248,23 @@ public class SeriesKD {
                     if (e > error) error = e;
                 }
                 j ++;
+            }
+        }
+        return error;
+    }
+
+    public double sphereL2(SeriesKD that, int T) { // sampling
+        double error = 0;
+        BigDecimal step = this.lastElement().get(0).subtract(this.get(0).get(0)).divide(new BigDecimal(T), Arithmetic.MC);
+        BigDecimal t = step;
+        for (int i = 0, j = 0; i < this.size() && j < that.size(); t = t.add(step)) {
+            while (i < this.size() && this.get(i).get(0).compareTo(t) == -1) i ++;
+            while (j < that.size() && that.get(j).get(0).compareTo(t) == -1) j ++;
+            if (i < this.size() && j < that.size()) {
+                PointKD p = PointKD.interpolation(this.get(i), this.get(i - 1), t, 0);
+                PointKD q = PointKD.interpolation(that.get(j), that.get(j - 1), t, 0);
+                double e = p.sphereL2(q);
+                if (e > error) error = e;
             }
         }
         return error;

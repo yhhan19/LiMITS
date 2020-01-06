@@ -200,14 +200,22 @@ public class Point {
         return 2 * Arithmetic.R * Math.asin(Math.sqrt(sx + cx1 * cx2 * sy)); // better
     }
 
-    public double sphereL22(Point p) {
+    public double sphereL2_(Point p) {
         BigDecimal dy = y.subtract(p.y).abs();
         double sx1 = Arithmetic.sin(x), sx2 = Arithmetic.sin(p.x);
         double cy = Arithmetic.cos(dy), cx1 = Arithmetic.cos(x), cx2 = Arithmetic.cos(p.x);
         return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * Arithmetic.R; // double die here
     }
 
-    public PointKD sphere2Euclidean() {
-        return null; // to do
+    public double[] sphere2Euclidean() {
+        double sx = Arithmetic.sin(x), cx = Arithmetic.cos(x);
+        double sy = Arithmetic.sin(y), cy = Arithmetic.cos(y);
+        double[] x = new double[4];
+        x[0] = -1;
+        x[1] = Arithmetic.R * cx * cy;
+        x[2] = Arithmetic.R * cx * sy;
+        x[3] = Arithmetic.R * sx;
+        //System.out.println(x[1] + " " + x[2] + " " + x[3]); 
+        return x; 
     }
 }

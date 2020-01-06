@@ -20,14 +20,14 @@ public class MITS {
         System.out.println();
     }
 
-    public double[][] testSimData(int cases, int size, int dim, double bound, int mono, String type, double eps) {
+    public double[][] testSimData(int cases, int size, int dim, double b0, double b1, int mono, String t0, String t1, double eps) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
         for (int i = 0; i < dim; i ++) 
             e.add(new BigDecimal(eps));
         double[][] ret = new double[ts.length][2];
         for (int i = 0; i < cases; i ++) {
             System.out.println("case: " + i);
-            SeriesKD s = new SeriesKD(size, dim, bound, mono, type);
+            SeriesKD s = new SeriesKD(size, dim, b0, b1, mono, t0, t1);
             for (int j = 0; j < ts.length; j ++) {
                 double[] res = ts[j].evaluateKD(s, e, false);
                 ret[j][0] += res[1];
@@ -45,17 +45,19 @@ public class MITS {
 
     public double[][] testGeoData(String folderName, double eps) throws Exception {
         FileScanner fs = new FileScanner();
-        double[][] ret = fs.listGeoLifeFiles(ts, folderName, eps);
+        double[][] ret = fs.listGeoLifeFiles_(ts, folderName, eps);
         return ret;
     }
 
     public static void main(String[] args) throws Exception {
         TS[] ts = new TS[] {
-            new RDP(), new G1TS(), new DPTS(0), 
-            new G2TS(), new MI1TS("0.5"), new MI2TS(10)
+            //new RDP(), new G1TS(),
+            //new DPTS(0), 
+            new G2TS(), //new MI1TS("0.5"),
+            new MI2TS(10)
         };
         MITS run = new MITS(ts);
-        run.display(run.testSimData(10, 2000, 5, 1e8, 2, "gaussian", 1e8));
-        run.display(run.testGeoData("./data/", 7));
+        //run.display(run.testSimData(10, 1000, 5, 1e4, 1, 2, "gaussian", "velocity", 1e4));
+        run.display(run.testGeoData("./data/", 1));
     }
 }
