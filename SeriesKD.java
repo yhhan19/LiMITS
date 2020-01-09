@@ -2,43 +2,23 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Random;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class SeriesKD {
 
     private Vector<PointKD> data;
-    private int dim;
+    private int dim, dim_;
 
     public SeriesKD(Vector<PointKD> data) {
-        this.dim = data.get(0).dim();
+        this.dim = this.dim_ = data.get(0).dim();
         this.data = new Vector<PointKD>();
         for (int i = 0; i < data.size(); i ++) 
             this.data.add(data.get(i));
     }
 
-    public SeriesKD(int size, int dim, int bound, int mono) {
-        this.dim = dim;
-        data = new Vector<PointKD>();
-        Random rand = new Random();
-        Vector<BigDecimal> p = new Vector<BigDecimal>();
-        for (int i = 0; i < dim; i ++) 
-            p.add(new BigDecimal("0"));
-        for (int i = 0; i < size; i ++) {
-            data.add(new PointKD(p));
-            p.set(0, p.get(0).add(BigDecimal.ONE));
-            for (int j = 1; j < dim; j ++) {
-                String str = String.valueOf(rand.nextInt(bound));
-                BigDecimal delta = new BigDecimal(str);
-                if (rand.nextInt(mono) == 0) 
-                    p.set(j, p.get(j).add(delta));
-                else 
-                    p.set(j, p.get(j).subtract(delta));
-            }
-        }
-    }
-
-    public SeriesKD(int size, int dim, double b0, double b1, int mono, String t0, String t1) {
-        this.dim = dim;
+    public SeriesKD(int size, int dim, double bound, int mono, String type) {
+        this.dim = this.dim_ = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
         double[] x = new double[dim], y = new double[dim], z = new double[dim];
@@ -48,35 +28,77 @@ public class SeriesKD {
         for (int i = 0; i < size; i ++) {
             data.add(new PointKD(x));
             x[0] += 1;
-            if (t1.equals("velocity")) {
-                if (t0.equals("gaussian")) 
-                    y = Arithmetic.gaussian(dim - 1);
-                if (t0.equals("uniform")) 
-                    y = Arithmetic.uniform(dim - 1);
-                for (int j = 1; j < dim; j ++) {
-                    if (rand.nextInt(mono) == 0)
-                        y[j - 1] = - y[j - 1];
-                    x[j] += y[j - 1] * b0;
-                }
-            }
-            if (t1.equals("acceleration")) {
-                if (t0.equals("gaussian")) 
-                    z = Arithmetic.gaussian(dim - 1);
-                if (t0.equals("uniform")) 
-                    z = Arithmetic.uniform(dim - 1);
-                for (int j = 1; j < dim; j ++) {
-                    if (rand.nextInt(mono) == 0) 
-                        z[j - 1] = - z[j - 1];
-                    y[j - 1] += z[j - 1] * b1;
-                    x[j] += y[j - 1] * b0;
-                }
+            if (type.equals("gaussian")) 
+                y = Arithmetic.gaussian(dim - 1);
+            if (type.equals("uniform")) 
+                y = Arithmetic.uniform(dim - 1);
+            for (int j = 1; j < dim; j ++) {
+                if (rand.nextInt(mono) == 0)
+                    y[j - 1] = - y[j - 1];
+                x[j] += y[j - 1] * bound;
             }
         }
     }
 
+    public SeriesKD(Vector<String> input, int[] perm, String token, String type) {
+        Vector<PointKD> points = new Vector<PointKD>();
+        Vector<BigDecimal> point = new Vector<BigDecimal>();
+        boolean[] flag = new boolean[perm.length];
+        for (int i = 0; i < perm.length; i ++) flag[i] = true;
+        BigDecimal first = null;
+        for (int i = 0; i < input.size(); i ++) {
+            StringTokenizer st = new StringTokenizer(input.get(i), token);
+            Vector<String> temp = new Vector<String>();
+            for (int j = 0; st.hasMoreTokens(); j ++) 
+                temp.add(st.nextToken());
+            point.clear();
+            for (int j = 0; j < perm.length; j ++) {
+                BigDecimal x = new BigDecimal(temp.get(perm[j]));
+                flag[j] = flag[j] && Arithmetic.sgn(x.subtract(new BigDecimal("-1"))) != 0;
+                if (j == 0) {
+                    if (first == null) first = x;
+                    x = x.subtract(first);
+                }
+                point.add(x);
+            }
+            if (i == 0 || Arithmetic.sgn(point.get(0).subtract(points.lastElement().get(0))) > 0) 
+                points.add(new PointKD(point));
+        }
+        for (int i = 0; i < points.size(); i ++) {
+            point.clear();
+            for (int j = 0; j < perm.length; j ++) 
+                if (flag[j]) point.add(points.get(i).get(j));
+            points.set(i, new PointKD(point));
+        }
+        dim_ = points.get(0).dim();
+        data = new Vector<PointKD>();
+        if (type.equals("sphere")) {
+            dim = points.get(0).dim();
+            for (int i = 0; i < points.size(); i ++) 
+                data.add(points.get(i));
+        }
+        if (type.equals("euclidean")) {
+            dim = 4;
+            for (int i = 0; i < points.size(); i ++) {
+                PointKD p = points.get(i);
+                if (points.get(0).dim() == 3) 
+                    point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
+                if (points.get(0).dim() == 4) 
+                    point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), p.get(3));
+                data.add(new PointKD(point));
+            }
+        }
+        shake();
+    }
+
+    private void shake() {
+        for (int i = 0; i < data.size(); i ++) 
+            data.set(i, data.get(i).shake());
+    }
+
     public SeriesKD(SeriesKD s0, Series s1) {
         if (s0 == null) {
-            this.dim = 2;
+            this.dim = this.dim_ = 2;
             this.data = new Vector<PointKD>();
             Vector<BigDecimal> point = new Vector<BigDecimal>();
             point.add(BigDecimal.ZERO);
@@ -88,7 +110,7 @@ public class SeriesKD {
             }
             return ;
         }
-        this.dim = s0.dim() + 1;
+        this.dim = this.dim_ = s0.dim() + 1;
         this.data = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
         for (int i = 0; i <= s0.dim(); i ++) 
@@ -158,6 +180,10 @@ public class SeriesKD {
     public int dim() {
         return dim;
     }
+
+    public int rawDim() {
+        return dim_;
+    }
     
     public int size() {
         return data.size();
@@ -176,6 +202,13 @@ public class SeriesKD {
         for (int i = 0; i < size(); i ++) 
             points.add(get(i).project(j));
         return new Series(points);
+    }
+
+    public BigDecimal min(int j) {
+        BigDecimal min = new BigDecimal("360");
+        for (int i = 0; i < size(); i ++) 
+            min = min.min(get(i).get(j));
+        return min;
     }
 
     public BigDecimal distanceLoo(SeriesKD that) {

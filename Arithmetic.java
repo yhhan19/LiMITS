@@ -14,6 +14,7 @@ public class Arithmetic {
     public static final NumberFormat fd = new DecimalFormat("0.00000000E0");
     public static final double C = 111320;
     public static final double R = C * 360 / (Math.PI * 2);
+    public static final double F2M = 0.3048;
     public static final Random rand = new Random();
 
     public static BigDecimal epsRand() {

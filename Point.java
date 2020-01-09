@@ -1,6 +1,7 @@
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
+import java.util.Vector;
 
 public class Point {
 
@@ -207,15 +208,14 @@ public class Point {
         return Math.acos(cx1 * cx2 * cy + sx1 * sx2) * Arithmetic.R; // double die here
     }
 
-    public double[] sphere2Euclidean() {
+    public static Vector<BigDecimal> sphere2Euclidean(BigDecimal t, BigDecimal x, BigDecimal y, BigDecimal z) {
         double sx = Arithmetic.sin(x), cx = Arithmetic.cos(x);
         double sy = Arithmetic.sin(y), cy = Arithmetic.cos(y);
-        double[] x = new double[4];
-        x[0] = -1;
-        x[1] = Arithmetic.R * cx * cy;
-        x[2] = Arithmetic.R * cx * sy;
-        x[3] = Arithmetic.R * sx;
-        //System.out.println(x[1] + " " + x[2] + " " + x[3]); 
-        return x; 
+        Vector<BigDecimal> point = new Vector<BigDecimal>();
+        point.add(t);
+        point.add(new BigDecimal((Arithmetic.R + z.doubleValue()) * cx * cy));
+        point.add(new BigDecimal((Arithmetic.R + z.doubleValue()) * cx * sy));
+        point.add(new BigDecimal((Arithmetic.R + z.doubleValue()) * sx));
+        return point; 
     }
 }

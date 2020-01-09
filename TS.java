@@ -27,13 +27,13 @@ public abstract class TS {
 
     public abstract SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps);
 
-    public double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean real) {
+    public double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean sphere) {
         double[] res = new double[3];
         setTime();
         SeriesKD t = simplifyKD(s, eps);
         res[0] = (double) getTime();
         res[1] = (double) t.size();
-        res[2] = real ? s.sphereL2(t) / Math.sqrt(2) : s.distanceLoo(t).doubleValue();
+        res[2] = sphere ? s.sphereL2(t) / Math.sqrt(2) : s.distanceLoo(t).doubleValue();
         return res;
     }
 }
