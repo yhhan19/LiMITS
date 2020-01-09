@@ -149,7 +149,7 @@ public class Facet {
             Edge e = edges.get(i);
             Vect v0 = new Vect(origin, e.getFrom());
             Vect v1 = new Vect(origin, e.getTo());
-            BigDecimal c = v0.cross(v1).divide(Arithmetic.TWO);
+            BigDecimal c = v0.cross(v1).divide(new BigDecimal(2));
             result = result.add(c);
         }
         return result;

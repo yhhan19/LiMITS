@@ -1,6 +1,4 @@
 import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.Random;
 import java.util.Vector;
 
@@ -24,16 +22,16 @@ public class SeriesKD {
         this.dim = this.dim_ = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
-        double[] x = new double[dim], y = new double[dim], z = new double[dim];
+        double[] x = new double[dim], y = new double[dim];
         for (int i = 0; i < dim; i ++) {
-            x[i] = y[i] = z[i] = 0;
+            x[i] = y[i] = 0;
         }
         for (int i = 0; i < size; i ++) {
             data.add(new PointKD(x));
             x[0] += 1;
-            if (type.equals("gaussian")) 
+            if (type.equals("GAUSSIAN")) 
                 y = Arithmetic.gaussian(dim - 1);
-            if (type.equals("uniform")) 
+            if (type.equals("UNIFORM")) 
                 y = Arithmetic.uniform(dim - 1);
             for (int j = 1; j < dim; j ++) {
                 if (rand.nextInt(direction) == 0)
@@ -72,12 +70,12 @@ public class SeriesKD {
         }
         dim_ = points.get(0).dim();
         data = new Vector<PointKD>();
-        if (type.equals("sphere")) {
+        if (type.equals("SPHERE")) {
             dim = dim_;
             for (int i = 0; i < points.size(); i ++) 
                 data.add(points.get(i));
         }
-        if (type.equals("euclidean")) {
+        if (type.equals("EUCLIDEAN")) {
             dim = 4;
             for (int i = 0; i < points.size(); i ++) {
                 PointKD p = points.get(i);
@@ -205,8 +203,8 @@ public class SeriesKD {
     }
 
     public BigDecimal min(int j) {
-        BigDecimal min = new BigDecimal("360");
-        for (int i = 0; i < size(); i ++) 
+        BigDecimal min = get(0).get(j);
+        for (int i = 1; i < size(); i ++) 
             min = min.min(get(i).get(j));
         return min;
     }
@@ -229,31 +227,6 @@ public class SeriesKD {
                     PointKD r = PointKD.interpolation(p, q, that.get(j).get(0), 0);
                     BigDecimal e = r.distanceLoo(that.get(j));
                     if (e.compareTo(error) == 1) error = e;
-                }
-                j ++;
-            }
-        }
-        return error;
-    }
-
-    public double sphereLoo(SeriesKD that) {
-        double error = 0;
-        for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
-            if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
-                if (j != 0) {
-                    PointKD p = that.get(j - 1), q = that.get(j);
-                    PointKD r = PointKD.interpolation(p, q, this.get(i).get(0), 0);
-                    double e = r.sphereLoo(this.get(i));
-                    if (e > error) error = e;
-                }
-                i ++;
-            }
-            else {
-                if (i != 0) {
-                    PointKD p = this.get(i - 1), q = this.get(i);
-                    PointKD r = PointKD.interpolation(p, q, that.get(j).get(0), 0);
-                    double e = r.sphereLoo(that.get(j));
-                    if (e > error) error = e;
                 }
                 j ++;
             }

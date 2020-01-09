@@ -8,9 +8,9 @@ public class Series {
 
     private Vector<Point> data;
 
-    public Series(int N) {
+    public Series(int size) {
         this.data = new Vector<Point>();
-        for (int i = 0; i < N; i ++) 
+        for (int i = 0; i < size; i ++) 
             this.data.add(new Point(String.valueOf(i), "0"));
     }
 
@@ -21,15 +21,15 @@ public class Series {
         //simplify();
     }
 
-    public Series(int N, int bound) {
+    public Series(int size, int speed) {
         data = new Vector<Point>();
         Random rand = new Random();
         BigInteger x = new BigInteger("0");
         BigInteger y = new BigInteger("0");
-        for (int i = 0; i < N; i ++) {
+        for (int i = 0; i < size; i ++) {
             Point p = new Point(x, y);
             data.add(p);
-            String str = String.valueOf(rand.nextInt(bound));
+            String str = String.valueOf(rand.nextInt(speed));
             BigInteger delta = new BigInteger(str);
             x = x.add(BigInteger.ONE);
             if (rand.nextInt(2) == 0)
@@ -56,12 +56,6 @@ public class Series {
         }
         System.out.println("simplified: " + result.size());
         data = result;
-    }
-
-    public void display(MathContext mc) {
-        for (int i = 0; i < data.size(); i ++) 
-            data.get(i).display(mc);
-        System.out.println();
     }
 
     public void display() {

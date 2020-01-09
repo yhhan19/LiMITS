@@ -1,4 +1,3 @@
-import java.math.MathContext;
 import java.util.Vector;
 
 public class Vertex {
@@ -17,10 +16,6 @@ public class Vertex {
 
     public void displayShortestPath(int i) {
         this.sp[i].display(i);
-    }
-
-    public void display(MathContext mc) {
-        p.display(mc);
     }
 
     public void display() {

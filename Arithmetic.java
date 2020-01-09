@@ -7,31 +7,26 @@ import java.util.Random;
 
 public class Arithmetic {
 
-    public static final int precision = 64;
-    public static final BigDecimal TWO = new BigDecimal("2");
+    public static final int precision = 64, displayScale = 9;
+    public static final double C = 111320, R = C * 360 / (Math.PI * 2), F2M = 0.3048;
     public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
-    public static final int displayScale = 9;
     public static final NumberFormat fd = new DecimalFormat("0.00000000E0");
-    public static final double C = 111320;
-    public static final double R = C * 360 / (Math.PI * 2);
-    public static final double F2M = 0.3048;
     public static final Random rand = new Random();
 
     public static BigDecimal epsRand() {
-        String str = String.valueOf(rand.nextInt((int) 1e9));
-        BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e20"));
+        String str = String.valueOf(rand.nextDouble());
+        BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e15"));
         return d;
     }
- 
+
     public static BigDecimal sqrt(BigDecimal x, MathContext mc) {
-        BigDecimal g = x.divide(TWO, mc);
+        BigDecimal g = x.divide(new BigDecimal(2), mc);
         boolean done = false;
-        final int maxIterations = mc.getPrecision() + 1;
-        for (int i = 0; ! done && i < maxIterations; i ++) {
+        for (int i = 0; ! done && i < mc.getPrecision() + 1; i ++) {
             if (g.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
             BigDecimal r = x.divide(g, mc);
             r = r.add(g);
-            r = r.divide(TWO, mc);
+            r = r.divide(new BigDecimal(2), mc);
             done = r.equals(g);
             g = r;
         }
@@ -63,7 +58,7 @@ public class Arithmetic {
                 s += x[i] * x[i];
             }
         } while (s > 1);
-        double y = Math.sqrt(-2 * Math.log(s) / s);
+        double y = Math.sqrt(- 2 * Math.log(s) / s);
         for (int i = 0; i < k; i ++) 
             x[i] *= y;
         return x;
@@ -86,20 +81,6 @@ public class Arithmetic {
         if (x.abs().compareTo(eps) <= 0)
             return 0;
         return x.signum();
-    }
-
-    public static int sgn(BigDecimal x, MathContext mc) {
-        BigDecimal eps = new BigDecimal("1E-" + mc.getPrecision());
-        if (x.abs().compareTo(eps) <= 0)
-            return 0;
-        return x.signum();
-    }
-
-    public static String format(BigDecimal x, int scale) {
-        NumberFormat formatter = new DecimalFormat("0.0E0");
-        formatter.setRoundingMode(RoundingMode.HALF_EVEN);
-        formatter.setMinimumFractionDigits(scale);
-        return formatter.format(x);
     }
 
     public static String format(BigDecimal x) {

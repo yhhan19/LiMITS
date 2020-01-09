@@ -60,7 +60,7 @@ public class Range {
     }
 
     public BigDecimal mid() {
-        return (x.add(y)).divide(Arithmetic.TWO);
+        return (x.add(y)).divide(new BigDecimal(2));
     }
 
     public BigDecimal interpolation(BigDecimal r) {

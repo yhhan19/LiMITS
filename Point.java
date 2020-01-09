@@ -108,7 +108,7 @@ public class Point {
         int dy = this.getY().compareTo(p.getY());
         return dy;
     }
-    
+
     public boolean on(Point p, Point q) {
         Vect v0 = new Vect(this, p);
         Vect v1 = new Vect(this, q);

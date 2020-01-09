@@ -41,7 +41,7 @@ public class Vect {
     }
 
     public BigDecimal mid() {
-        return from.getY().add(to.getY()).divide(Arithmetic.TWO);
+        return from.getY().add(to.getY()).divide(new BigDecimal(2));
     }
 
     public void display() {
@@ -91,7 +91,7 @@ public class Vect {
         d = Arithmetic.sqrt(d, mc);
         return d;
     }
-    
+
     public BigDecimal cross(Vect v) {
         BigDecimal a = this.getX().multiply(v.getY());
         BigDecimal b = this.getY().multiply(v.getX());

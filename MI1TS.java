@@ -5,8 +5,8 @@ public class MI1TS extends TS {
 
     private BigDecimal r;
 
-    public MI1TS(String str) {
-        this.r = new BigDecimal(str);
+    public MI1TS(double r) {
+        this.r = new BigDecimal(r);
     }
 
     public String name() {
