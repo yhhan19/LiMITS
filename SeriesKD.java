@@ -2,7 +2,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Random;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class SeriesKD {
@@ -17,7 +16,11 @@ public class SeriesKD {
             this.data.add(data.get(i));
     }
 
-    public SeriesKD(int size, int dim, double bound, int mono, String type) {
+    public SeriesKD(int size, int dim, String type) {
+        Vector<String> type_ = FileScanner.getWords(type, ":");
+        double speed = Double.parseDouble(type_.get(0)); 
+        int direction = Integer.parseInt(type_.get(1));
+        type = type_.get(2);
         this.dim = this.dim_ = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
@@ -33,9 +36,9 @@ public class SeriesKD {
             if (type.equals("uniform")) 
                 y = Arithmetic.uniform(dim - 1);
             for (int j = 1; j < dim; j ++) {
-                if (rand.nextInt(mono) == 0)
+                if (rand.nextInt(direction) == 0)
                     y[j - 1] = - y[j - 1];
-                x[j] += y[j - 1] * bound;
+                x[j] += y[j - 1] * speed;
             }
         }
     }
@@ -47,13 +50,10 @@ public class SeriesKD {
         for (int i = 0; i < perm.length; i ++) flag[i] = true;
         BigDecimal first = null;
         for (int i = 0; i < input.size(); i ++) {
-            StringTokenizer st = new StringTokenizer(input.get(i), token);
-            Vector<String> temp = new Vector<String>();
-            for (int j = 0; st.hasMoreTokens(); j ++) 
-                temp.add(st.nextToken());
+            Vector<String> output = FileScanner.getWords(input.get(i), token);
             point.clear();
             for (int j = 0; j < perm.length; j ++) {
-                BigDecimal x = new BigDecimal(temp.get(perm[j]));
+                BigDecimal x = new BigDecimal(output.get(perm[j]));
                 flag[j] = flag[j] && Arithmetic.sgn(x.subtract(new BigDecimal("-1"))) != 0;
                 if (j == 0) {
                     if (first == null) first = x;
@@ -73,7 +73,7 @@ public class SeriesKD {
         dim_ = points.get(0).dim();
         data = new Vector<PointKD>();
         if (type.equals("sphere")) {
-            dim = points.get(0).dim();
+            dim = dim_;
             for (int i = 0; i < points.size(); i ++) 
                 data.add(points.get(i));
         }
@@ -81,9 +81,9 @@ public class SeriesKD {
             dim = 4;
             for (int i = 0; i < points.size(); i ++) {
                 PointKD p = points.get(i);
-                if (points.get(0).dim() == 3) 
+                if (dim_ == 3) 
                     point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
-                if (points.get(0).dim() == 4) 
+                if (dim_ == 4) 
                     point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), p.get(3));
                 data.add(new PointKD(point));
             }

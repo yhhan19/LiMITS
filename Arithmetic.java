@@ -10,7 +10,7 @@ public class Arithmetic {
     public static final int precision = 64;
     public static final BigDecimal TWO = new BigDecimal("2");
     public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
-    public static final int displayScale = 6;
+    public static final int displayScale = 9;
     public static final NumberFormat fd = new DecimalFormat("0.00000000E0");
     public static final double C = 111320;
     public static final double R = C * 360 / (Math.PI * 2);
