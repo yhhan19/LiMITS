@@ -8,27 +8,27 @@ public class FileScanner {
 
     public static Vector<String> getFiles(String folderName) throws Exception {
         File folder = new File(folderName);
-        Vector<String> list = new Vector<String>();
+        Vector<String> fileNames = new Vector<String>();
         for (final File fileEntry : folder.listFiles()) {
             String fileName = folderName + "/" + fileEntry.getName();
             if (fileEntry.isDirectory()) {
-                list.addAll(getFiles(fileName));
+                fileNames.addAll(getFiles(fileName));
             }
             else {
-                list.add(fileName);
+                fileNames.add(fileName);
             }
         }
-        return list;
+        return fileNames;
     }
 
-    public static Vector<String> getLines(String fileName, int start) throws Exception {
+    public static Vector<String> getLines(String fileName, int startLine) throws Exception {
         File file = new File(fileName);
-        Vector<String> input = new Vector<String>();
+        Vector<String> lines = new Vector<String>();
         BufferedReader br = new BufferedReader(new FileReader(fileName));
-        String s = null;
-        for (int i = 0; (s = br.readLine()) != null; i ++) 
-            if (i >= start) input.add(s);
-        return input;
+        String line = null;
+        for (int i = 0; (line = br.readLine()) != null; i ++) 
+            if (i >= startLine) lines.add(line);
+        return lines;
     }
 
     public static Vector<String> getWords(String input, String token) {

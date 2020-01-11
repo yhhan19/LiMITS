@@ -1,2 +1,2 @@
 rm *.class
-javac -Xlint:unchecked -Xlint:deprecation MITS.java
+javac -Xlint:unchecked -Xlint:deprecation LIMITS.java
