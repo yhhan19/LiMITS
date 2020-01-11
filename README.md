@@ -1,3 +1,3 @@
-# LIMITS: L-Inifinity Multidimensional Interpolation Trajectory Simplification 
+# LIMITS
 
-This is a Java implementation of Multidimensional Interpolation algorithms for weak trajectory simplification under the L_infinity error metric.
+This is a Java implementation of multidimensional interpolation algorithms for weak trajectory simplification under the L_infinity error metric.
