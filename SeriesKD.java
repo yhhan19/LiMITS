@@ -15,7 +15,7 @@ public class SeriesKD {
     }
 
     public SeriesKD(int size, int dim, String type) {
-        Vector<String> type_ = FileScanner.getWords(type, ":");
+        Vector<String> type_ = Reader.getWords(type, "_");
         double speed = Double.parseDouble(type_.get(0)); 
         int direction = Integer.parseInt(type_.get(1));
         type = type_.get(2);
@@ -48,7 +48,7 @@ public class SeriesKD {
         for (int i = 0; i < perm.length; i ++) flag[i] = true;
         BigDecimal first = null;
         for (int i = 0; i < input.size(); i ++) {
-            Vector<String> output = FileScanner.getWords(input.get(i), token);
+            Vector<String> output = Reader.getWords(input.get(i), token);
             point.clear();
             for (int j = 0; j < perm.length; j ++) {
                 BigDecimal x = new BigDecimal(output.get(perm[j]));
