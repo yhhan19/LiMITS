@@ -1,3 +1,3 @@
-# CCCCC: the Curse of Corner Cases and deCimal preCision
+# LIMITS: L-Inifinity Multidimensional Interpolation Trajectory Simplification 
 
 This is a Java implementation of Multidimensional Interpolation algorithms for weak trajectory simplification under the L_infinity error metric.
