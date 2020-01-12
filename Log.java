@@ -22,7 +22,6 @@ public class Log {
         try {
             FileWriter fw = new FileWriter(fileName, true);
             fw.write(output);
-            fw.flush();
             fw.close();
         }
         catch (Exception e) {

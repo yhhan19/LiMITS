@@ -41,13 +41,13 @@ public class SeriesKD {
         }
     }
 
-    public SeriesKD(Vector<String> input, int[] perm, String token, String type) {
+    public SeriesKD(Vector<String> input, int[] perm, String token, int size, String type) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
         boolean[] flag = new boolean[perm.length];
         for (int i = 0; i < perm.length; i ++) flag[i] = true;
         BigDecimal first = null;
-        for (int i = 0; i < input.size(); i ++) {
+        for (int i = 0; i < input.size() && (size <= 2 || i < size); i ++) {
             Vector<String> output = Reader.getWords(input.get(i), token);
             point.clear();
             for (int j = 0; j < perm.length; j ++) {
