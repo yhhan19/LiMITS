@@ -18,7 +18,7 @@ public class Log {
         }
     }
 
-    public void write(String output, boolean toScreen) {
+    public void write(String output) {
         try {
             FileWriter fw = new FileWriter(fileName, true);
             fw.write(output);

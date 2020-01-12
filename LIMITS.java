@@ -81,7 +81,7 @@ public class LIMITS extends Thread {
         if (folderName == null) {
             for (int i = 0; i < cases_; i ++) {
                 SeriesKD s = new SeriesKD(size_, dim, type);
-                log.write("case: " + i + " size: " + s.size() + "\n", false);
+                log.write("case: " + i + " size: " + s.size() + "\n");
                 size += s.size();
                 cases ++;
                 Vector<BigDecimal> e = getEps("EUCLIDEAN", eps, dim - 1, 1);
@@ -89,7 +89,7 @@ public class LIMITS extends Thread {
                     double[] res = ts[j].evaluateKD(s, e, false);
                     results[j][0] += res[1];
                     results[j][1] += res[0];
-                    log.write(toString(new double[]{res[1], res[0], res[2]}), false);
+                    log.write(toString(new double[]{res[1], res[0], res[2]}));
                 }
             }
         }
@@ -97,7 +97,7 @@ public class LIMITS extends Thread {
             for (int i = 0; cases_ <= 0 || cases < cases_; i ++) {
                 SeriesKD s = getSeriesKD(folderName, i, size_, dim, type);
                 if (s == null) continue;
-                log.write("case: " + i + " size: " + s.size() + "\n", false);
+                log.write("case: " + i + " size: " + s.size() + "\n");
                 size += s.size();
                 cases ++;
                 Vector<BigDecimal> e = getEps(type, eps, dim, Arithmetic.cos(s.min(1)));
@@ -105,7 +105,7 @@ public class LIMITS extends Thread {
                     double[] res = ts[j].evaluateKD(s, e, dim == 3 && type.equals("SPHERE"));
                     results[j][0] += res[1];
                     results[j][1] += res[0];
-                    log.write(toString(new double[]{results[j][0] / size, results[j][1] / cases, res[2]}), false);
+                    log.write(toString(new double[]{results[j][0] / size, results[j][1] / cases, res[2]}));
                 }
             }
         }
@@ -113,7 +113,7 @@ public class LIMITS extends Thread {
             results[i][0] /= size;
             results[i][1] /= cases;
         }
-        log.write(toString(results, cases, size, dim), false);
+        log.write(toString(results, cases, size, dim));
         System.out.println(name + " done");
     }
 
