@@ -6,18 +6,27 @@ public class Log {
     private String fileName;
     private File file;
 
-    public Log(String fileName) throws Exception {
+    public Log(String fileName) {
         this.fileName = "log/" + fileName;
-        File file = new File(this.fileName);
-        file.delete();
-        file.createNewFile();
+        try {
+            File file = new File(this.fileName);
+            file.delete();
+            file.createNewFile();
+        }
+        catch (Exception e) {
+
+        }
     }
 
-    public void write(String output) throws Exception {
-        FileWriter fw = new FileWriter(fileName, true);
-        fw.write(output);
-        fw.flush();
-        fw.close();
-        System.out.print(output);
+    public void write(String output, boolean toScreen) {
+        try {
+            FileWriter fw = new FileWriter(fileName, true);
+            fw.write(output);
+            fw.flush();
+            fw.close();
+        }
+        catch (Exception e) {
+            
+        }
     }
 }

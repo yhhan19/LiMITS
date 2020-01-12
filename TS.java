@@ -1,33 +1,26 @@
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.util.Vector;
 
 public abstract class TS {
 
-    public static Clock clock = Clock.systemDefaultZone();
-    public static long firstTime = clock.millis();
+    private long firstTime;
 
-    public static void setTime() {
-        long curTime = clock.millis();
+    public void setTime() {
+        long curTime = System.currentTimeMillis();
         firstTime = curTime;
     }
 
-    public static long getTime() {
-        long curTime = clock.millis();
+    public long getTime() {
+        long curTime = System.currentTimeMillis();
         long res = curTime - firstTime;
         return res;
-    }
-
-    public static void displayTime() {
-        long curTime = clock.millis();
-        System.out.println("time: " + (curTime - firstTime) + "ms");
     }
 
     public abstract String name();
 
     public abstract SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps);
 
-    public double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean sphere) {
+    public synchronized double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean sphere) {
         double[] res = new double[3];
         setTime();
         SeriesKD t = simplifyKD(s, eps);

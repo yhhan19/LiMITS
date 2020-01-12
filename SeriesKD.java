@@ -31,7 +31,7 @@ public class SeriesKD {
             x[0] += 1;
             if (type.equals("GAUSSIAN")) 
                 y = Arithmetic.gaussian(dim - 1);
-            if (type.equals("UNIFORM")) 
+            else if (type.equals("UNIFORM")) 
                 y = Arithmetic.uniform(dim - 1);
             for (int j = 1; j < dim; j ++) {
                 if (rand.nextInt(direction) == 0)
@@ -75,7 +75,7 @@ public class SeriesKD {
             for (int i = 0; i < points.size(); i ++) 
                 data.add(points.get(i));
         }
-        if (type.equals("EUCLIDEAN")) {
+        else if (type.equals("EUCLIDEAN")) {
             dim = 4;
             for (int i = 0; i < points.size(); i ++) {
                 PointKD p = points.get(i);
