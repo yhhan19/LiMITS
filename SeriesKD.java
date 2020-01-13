@@ -15,7 +15,7 @@ public class SeriesKD {
     }
 
     public SeriesKD(int size, int dim, String type) {
-        Vector<String> type_ = Reader.getWords(type, "_");
+        Vector<String> type_ = Reader.getWords(type, "x");
         double speed = Double.parseDouble(type_.get(0)); 
         int direction = Integer.parseInt(type_.get(1));
         type = type_.get(2);

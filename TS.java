@@ -24,8 +24,8 @@ public abstract class TS {
         double[] res = new double[3];
         setTime();
         SeriesKD t = simplifyKD(s, eps);
-        res[0] = (double) getTime();
-        res[1] = (double) t.size();
+        res[1] = (double) getTime();
+        res[0] = (double) t.size();
         res[2] = sphere ? s.sphereL2(t) / Math.sqrt(2) : s.distanceLoo(t).doubleValue();
         return res;
     }
