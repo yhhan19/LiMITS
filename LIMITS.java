@@ -18,7 +18,7 @@ public class LIMITS {
     public static TS[] ts = new TS[] {
         new RDP(), 
         new G1TS(), 
-        //new DPTS(0), 
+        new DPTS(0), 
         new G2TS(), 
         new M1TS(0.5), 
         new M2TS(10)
@@ -57,8 +57,8 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        start("OPORTO_5x0x4_EUCLIDEAN", "100x10x10");
-        start("BEIJING_0x2000x3_SPHERE", "100x10x10");
+        start("OPORTO_0x0x4_EUCLIDEAN", "8x2x10");
+        start("BEIJING_5x2000x3_SPHERE", "100x10x10");
         start("SIM_10x2000x5_10x2xUNIFORM", "100x10x10");
         shutdown();
     }
