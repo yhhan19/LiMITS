@@ -3,7 +3,7 @@ import java.util.Vector;
 
 public class M2TS extends TS {
 
-    private int R;
+    private final int R;
 
     public M2TS(int R) {
         this.R = R;

@@ -3,7 +3,7 @@ import java.util.Vector;
 
 public class M1TS extends TS {
 
-    private BigDecimal r;
+    private final BigDecimal r;
 
     public M1TS(double r) {
         this.r = new BigDecimal(r);

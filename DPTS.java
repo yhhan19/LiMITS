@@ -3,7 +3,7 @@ import java.util.Vector;
 
 public class DPTS extends TS {
 
-    private int times;
+    private final int times;
 
     public DPTS(int times) {
         this.times = times;

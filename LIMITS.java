@@ -15,34 +15,32 @@ public class LIMITS {
 
     public static Task[][] tasks;
 
-    public static TS[] ts() {
-        return new TS[] {
-            new RDP(), 
-            new G1TS(), 
-            new DPTS(0), 
-            new G2TS(), 
-            new M1TS(0.5), 
-            new M2TS(10)
-        };
-    }
+    public static TS[] ts = new TS[] {
+        new RDP(), 
+        new G1TS(), 
+        //new DPTS(0), 
+        new G2TS(), 
+        new M1TS(0.5), 
+        new M2TS(10)
+    };
 
-    public static Result[] start(String param, String div) throws Exception {
-        Vector<String> div_ = Reader.getWords(div, "x");
-        double maxError = Double.parseDouble(div_.get(0)), e = 0;
-        int t0 = Integer.parseInt(div_.get(1)), t1 = Integer.parseInt(div_.get(2));
+    public static Result[] start(String param, String batch) throws Exception {
+        Vector<String> batch_ = Reader.getWords(batch, "x");
+        double maxError = Double.parseDouble(batch_.get(0)), e = 0;
+        int t0 = Integer.parseInt(batch_.get(1)), t1 = Integer.parseInt(batch_.get(2));
         Task[][] tasks = new Task[t0][t1];
         CountDownLatch[] count = new CountDownLatch[t0];
         for (int i = 0; i < t0; i ++) {
             e += maxError / t0;
             count[i] = new CountDownLatch(t1);
             for (int j = 0; j < t1; j ++) {
-                tasks[i][j] = new Task(ts(), j + "x" + t1 + "x" + param + "_" + e, count[i]);
+                tasks[i][j] = new Task(ts, j + "x" + t1 + "x" + param + "_" + e, count[i]);
                 es.execute(tasks[i][j]);
             }
         }
         Result results[] = new Result[tasks.length];
         for (int i = 0; i < tasks.length; i ++) {
-            results[i] = new Result(ts());
+            results[i] = new Result(ts);
             count[i].await();
             for (int j = 0; j < tasks[i].length; j ++) {
                 results[i].add(tasks[i][j].getResults());
