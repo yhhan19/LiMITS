@@ -2,8 +2,8 @@ import java.text.NumberFormat;
 
 public class Result {
 
-    private static NumberFormat f = Arithmetic.fd;
-    
+    private static final NumberFormat f = Arithmetic.DOUBLE_FORMAT;
+
     public static final int LEN = 3;
 
     private TS[] ts;

@@ -7,14 +7,27 @@ import java.util.Random;
 
 public class Arithmetic {
 
-    public static final int precision = 64, displayScale = 9;
-    public static final double C = 111320, R = C * 360 / (Math.PI * 2), F2M = 0.3048;
-    public static final MathContext MC = new MathContext(precision, RoundingMode.HALF_EVEN);
-    public static final NumberFormat fd = new DecimalFormat("0.00000000E0");
-    public static final Random rand = new Random();
+    public static final int 
+        PRECISION = 64, 
+        DISPLAY_SCALE = 9;
+    
+    public static final double 
+        METERS_PER_LON = 111320, 
+        EARTH_RADIUS = METERS_PER_LON * 360 / (Math.PI * 2), 
+        F2M = 0.3048;
+    
+    public static final MathContext 
+        MC = new MathContext(PRECISION, RoundingMode.HALF_EVEN);
+    
+    public static final NumberFormat 
+        DOUBLE_FORMAT = new DecimalFormat("0.00000000E0"),
+        BIGDEC_FORMAT = new DecimalFormat("0.0E0"); 
+    
+    public static final Random 
+        RAND = new Random();
 
     public static BigDecimal epsRand() {
-        String str = String.valueOf(rand.nextDouble());
+        String str = String.valueOf(RAND.nextDouble());
         BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e15"));
         return d;
     }
@@ -54,7 +67,7 @@ public class Arithmetic {
         do {
             s = 0;
             for (int i = 0; i < k; i ++) { 
-                x[i] = rand.nextDouble();
+                x[i] = RAND.nextDouble();
                 s += x[i] * x[i];
             }
         } while (s > 1);
@@ -67,7 +80,7 @@ public class Arithmetic {
     public static double[] uniform(int k) {
         double[] x = new double[k];
         for (int i = 0; i < k; i ++) 
-            x[i] = rand.nextDouble();
+            x[i] = RAND.nextDouble();
         return x;
     }
 
@@ -77,16 +90,16 @@ public class Arithmetic {
     }
 
     public static int sgn(BigDecimal x) {
-        BigDecimal eps = new BigDecimal("1E-" + (precision / 2));
+        BigDecimal eps = new BigDecimal("1E-" + (PRECISION / 2));
         if (x.abs().compareTo(eps) <= 0)
             return 0;
         return x.signum();
     }
 
     public static String format(BigDecimal x) {
-        NumberFormat formatter = new DecimalFormat("0.0E0");
+        NumberFormat formatter = BIGDEC_FORMAT;
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
-        formatter.setMinimumFractionDigits(displayScale);
+        formatter.setMinimumFractionDigits(DISPLAY_SCALE);
         return formatter.format(x);
     }
 }

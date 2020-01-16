@@ -5,13 +5,15 @@ public class Log {
 
     private String fileName;
     private File file;
+    private FileWriter writer;
 
     public Log(String fileName) {
-        this.fileName = "log/" + fileName;
+        this.fileName = LIMITS.LOG_FOLDER_NAME + "/" + fileName;
         try {
-            File file = new File(this.fileName);
+            file = new File(this.fileName);
             file.delete();
             file.createNewFile();
+            writer = new FileWriter(file, true);
         }
         catch (Exception e) {
 
@@ -20,9 +22,16 @@ public class Log {
 
     public void write(String output) {
         try {
-            FileWriter fw = new FileWriter(fileName, true);
-            fw.write(output);
-            fw.close();
+            writer.write(output);
+        }
+        catch (Exception e) {
+            
+        }
+    }
+
+    public void close() {
+        try {
+            writer.close();
         }
         catch (Exception e) {
             

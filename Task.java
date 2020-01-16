@@ -5,16 +5,16 @@ import java.util.Vector;
 public class Task extends Thread {
 
     private TS[] ts;
-    private String param;
     private Log log;
     private Result results;
-    private Vector<Vector<String>> data;
+    private Dataset data;
     private int cases, size, dim, part, total;
-    private String folderName, type, superName;
+    private String param, folderName, type, superName;
     private double eps;
     private CountDownLatch count;
+    private Pointer pointer;
 
-    public Task(TS[] ts, String param, CountDownLatch count) {
+    public Task(TS[] ts, String param, CountDownLatch count, Pointer pointer) {
         this.ts = ts;
         this.param = param;
         log = new Log(param + ".log");
@@ -46,6 +46,7 @@ public class Task extends Thread {
         eps = Double.parseDouble(p.get(3));
         superName += "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3);
         this.count = count;
+        this.pointer = pointer;
     }
 
     public String superName() {
@@ -66,8 +67,8 @@ public class Task extends Thread {
     private Vector<BigDecimal> getError(double cos) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
         if (type.equals("SPHERE")) {
-            e.add(new BigDecimal(eps / Arithmetic.C));
-            e.add(new BigDecimal(eps / Arithmetic.C / cos));
+            e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
+            e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
             if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.F2M));
         }
         else if (type.equals("EUCLIDEAN")) {
@@ -85,7 +86,6 @@ public class Task extends Thread {
         if (folderName == null) {
             for (int i = 0; i < cases; i ++) {
                 SeriesKD s = new SeriesKD(size, dim, type);
-                if (part * cases > i * total || i * total >= (part + 1) * cases) continue;
                 log.write("case: " + i + " size: " + s.size() + "\n");
                 Vector<BigDecimal> e = getError(1);
                 double[][] res = new double[ts.length][];
@@ -97,9 +97,9 @@ public class Task extends Thread {
             }
         }
         else {
-            for (int i = 0; i < data.size() && (cases <= 0 || results.getCases() < cases); i ++) {
+            for (int i = pointer.next(); i < data.size() && (cases <= 0 || i < cases); i = pointer.next()) {
                 SeriesKD s = getSeriesKD(i);
-                if (s == null || part * data.size() > i * total || i * total >= (part + 1) * data.size()) continue;
+                if (s == null) continue;
                 log.write("case: " + i + " size: " + s.size() + "\n");
                 Vector<BigDecimal> e = getError(Arithmetic.cos(s.min(1)));
                 double[][] res = new double[ts.length][];
@@ -120,6 +120,7 @@ public class Task extends Thread {
     public void run() {
         System.out.println("start: " + param);
         test();
+        log.close();
         count.countDown();
         System.out.println("done: " + param);
     }

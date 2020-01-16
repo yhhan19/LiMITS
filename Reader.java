@@ -42,18 +42,6 @@ public class Reader {
         return lines;
     }
 
-    public static Vector<Vector<String>> getDataset(String folderName, int startLine) {
-        System.out.println("loading: " + folderName);
-        Vector<String> fileNames = getFiles(folderName);
-        Vector<Vector<String>> data = new Vector<Vector<String>>();
-        for (int i = 0; i < fileNames.size(); i ++) {
-            Vector<String> lines = getLines(fileNames.get(i), startLine);
-            data.add(lines);
-        }
-        System.out.println("loaded: " + folderName);
-        return data;
-    }
-
     public static Vector<String> getWords(String input, String token) {
         Vector<String> output = new Vector<String>();
         StringTokenizer st = new StringTokenizer(input, token);
