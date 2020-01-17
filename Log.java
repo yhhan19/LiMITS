@@ -20,6 +20,19 @@ public class Log {
         }
     }
 
+    public Log(String folderName, String fileName) {
+        this.fileName = folderName + "/" + fileName;
+        try {
+            file = new File(this.fileName);
+            file.delete();
+            file.createNewFile();
+            writer = new FileWriter(file, true);
+        }
+        catch (Exception e) {
+
+        }
+    }
+
     public void write(String output) {
         try {
             writer.write(output);

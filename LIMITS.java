@@ -6,9 +6,10 @@ import java.util.Vector;
 public class LIMITS {
 
     public static final String 
-        LIMITS_NAME = "L-Inifinity Multidimensional Interpolation Trajectory Simplification (LIMITS)", 
+        PROJECT_NAME = "L-Inifinity Multidimensional Interpolation Trajectory Simplification (LIMITS)", 
         DATA_FOLDER_NAME = "../data", 
-        LOG_FOLDER_NAME = "../log";
+        LOG_FOLDER_NAME = "../log", 
+        REPORT_FOLDER_NAME = "../report";
 
     public static final Datasets 
         DATASETS = new Datasets(new String[] {
@@ -25,14 +26,14 @@ public class LIMITS {
             new M1TS(0.5), 
             new M2TS(10)
         };
-
+    
     public static final int 
         ALL_ALGORITHMS = 0B111111, 
         STRONG_ALGORITHMS = 0B000111, 
         WEAK_ALGORITHMS = 0B111000, 
-        EFFICIENT_ALGORITHMS = 0B110111, 
+        EFFICIENT_ALGORITHMS = 0B111011, 
         EFFECTIVE_ALGORITHMS = 0B101100;
-    
+
     private static final ExecutorService es = Executors.newFixedThreadPool(10);
 
     public static TS[] select(int mask) {
@@ -47,7 +48,7 @@ public class LIMITS {
         return ts;
     }
 
-    public static Task[][] execute(String param, String batch, int algorithms) throws Exception {
+    public static Result[] execute(String param, String batch, int mask) throws Exception {
         Vector<String> batch_ = Reader.getWords(batch, "x");
         double maxError = Double.parseDouble(batch_.get(0));
         int t0 = Integer.parseInt(batch_.get(1)), t1 = Integer.parseInt(batch_.get(2));
@@ -57,26 +58,26 @@ public class LIMITS {
             CountDownLatch count = new CountDownLatch(t1);
             SharedInteger pointer = new SharedInteger();
             for (int j = 0; j < t1; j ++) {
-                tasks[i][j] = new Task(algorithms, j + "x" + param + "_" + e, count, pointer);
+                tasks[i][j] = new Task(mask, j + "x" + param + "_" + e, count, pointer);
                 es.execute(tasks[i][j]);
             }
         }
-        return tasks;
-    }
-
-    public static Result[] summarize(Task[][] tasks) throws Exception {
-        Result results[] = new Result[tasks.length];
-        for (int i = 0; i < tasks.length; i ++) {
+        Log report = new Log(REPORT_FOLDER_NAME, tasks[0][0].superName() + ".txt");
+        Result results[] = new Result[t0];
+        for (int i = 0; i < t0; i ++) {
             results[i] = new Result(tasks[i][0].getTS());
             tasks[i][0].getCount().await();
-            for (int j = 0; j < tasks[i].length; j ++) {
+            for (int j = 0; j < t1; j ++) {
                 results[i].add(tasks[i][j].getResults());
             }
-            Log log = new Log(tasks[i][0].superName() + ".res");
-            log.write(results[i].toString(results[i].getSize()));
+            String res = results[i].toString(results[i].getSize());
+            Log log = new Log(tasks[i][0].taskName() + ".res");
+            log.write(res);
             log.close();
-            System.out.println("batch done: " + tasks[i][0].superName());
+            report.write("error: " + (maxError / t0) * (i + 1) + " " + res);
+            System.out.println("batch done: " + tasks[i][0].taskName());
         }
+        report.close();
         return results;
     }
 
@@ -85,10 +86,10 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        int algorithms = EFFECTIVE_ALGORITHMS & WEAK_ALGORITHMS;
-        summarize(execute("OPORTO_1000x50x4_EUCLIDEAN", "10x5x5", algorithms));
-        summarize(execute("BEIJING_100x50x3_SPHERE", "10x5x5", algorithms));
-        summarize(execute("SIM_100x300x5_10x2xUNIFORM", "10x5x10", algorithms));
+        int mask = EFFECTIVE_ALGORITHMS & WEAK_ALGORITHMS;
+        String data = "OPORTO_1000x50x4_EUCLIDEAN", batch = "10x5x5";
+        // OPORTO_1000x50x4_EUCLIDEAN, BEIJING_100x50x3_SPHERE, SIM_100x200x5_10x2xUNIFORM
+        execute(data, batch, mask);
         shutdown();
     }
 }

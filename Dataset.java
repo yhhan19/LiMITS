@@ -22,7 +22,7 @@ public class Dataset {
         int startLine = Integer.parseInt(param_.get(1));
         token = param_.get(2);
         perm = getPerm(param_.get(3));
-        invalid = param_.size() >= 4 ? param_.get(4) : null;
+        invalid = param_.size() >= 5 ? param_.get(4) : null;
         System.out.println("loading: " + folderName);
         Vector<String> fileNames = Reader.getFiles(folderName);
         data = new Vector<Vector<String>>();

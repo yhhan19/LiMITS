@@ -7,8 +7,6 @@ public class SharedInteger {
     }
 
     public synchronized int next() {
-        int ret = cur;
-        cur ++;
-        return ret;
+        return cur ++;
     }
 }

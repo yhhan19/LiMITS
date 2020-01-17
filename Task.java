@@ -9,7 +9,7 @@ public class Task extends Thread {
     private final Result results;
     private final Dataset data;
     private final int cases, size, dim;
-    private final String param, superName, folderName, type;
+    private final String param, superName, taskName, folderName, type;
     private final double eps;
     private final CountDownLatch count;
     private final SharedInteger pointer;
@@ -22,7 +22,8 @@ public class Task extends Thread {
         log = new Log(param + "_" + algorithms + ".log");
         results = new Result(ts);
         Vector<String> p = Reader.getWords(param, "_"), name = Reader.getWords(p.get(0), "x"), scale = Reader.getWords(p.get(1), "x");
-        superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;
+        superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + algorithms;
+        taskName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;
         folderName = name.get(1).equals("SIM") ? null : name.get(1);
         data = folderName == null ? null : LIMITS.DATASETS.getDataset(folderName);
         cases = Integer.parseInt(scale.get(0));
@@ -30,6 +31,10 @@ public class Task extends Thread {
         dim = Integer.parseInt(scale.get(2));
         type = p.get(2);
         eps = Double.parseDouble(p.get(3));
+    }
+
+    public String taskName() {
+        return taskName;
     }
 
     public String superName() {
