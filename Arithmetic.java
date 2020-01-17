@@ -9,7 +9,8 @@ public class Arithmetic {
 
     public static final int 
         PRECISION = 64, 
-        DISPLAY_SCALE = 9;
+        DISPLAY_SCALE = 9,
+        MAX_DIM = 8;
     
     public static final double 
         METERS_PER_LON = 111320, 

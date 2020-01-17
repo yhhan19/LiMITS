@@ -41,44 +41,44 @@ public class SeriesKD {
         }
     }
 
-    public SeriesKD(Vector<String> input, int[] perm, String token, int size, String type) {
+    public SeriesKD(Dataset dataset, int i, int size, String type) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
-        boolean[] flag = new boolean[perm.length];
-        for (int i = 0; i < perm.length; i ++) flag[i] = true;
+        boolean[] invalid = new boolean[Arithmetic.MAX_DIM];
         BigDecimal first = null;
-        for (int i = 0; i < input.size() && (size <= 2 || i < size); i ++) {
-            Vector<String> output = Reader.getWords(input.get(i), token);
+        for (int j = 0; j < dataset.get(i).size() && (size <= 2 || j < size); j ++) {
+            Vector<String> words = dataset.get(i, j);
             point.clear();
-            for (int j = 0; j < perm.length; j ++) {
-                BigDecimal x = new BigDecimal(output.get(perm[j]));
-                flag[j] = flag[j] && Arithmetic.sgn(x.subtract(new BigDecimal("-1"))) != 0;
-                if (j == 0) {
+            for (int k = 0; k < words.size(); k ++) {
+                String word = words.get(k);
+                invalid[k] = invalid[k] || word.equals(dataset.invalid());
+                BigDecimal x = new BigDecimal(word);
+                if (k == 0) {
                     if (first == null) first = x;
                     x = x.subtract(first);
                 }
                 point.add(x);
             }
-            if (i == 0 || Arithmetic.sgn(point.get(0).subtract(points.lastElement().get(0))) > 0) 
+            if (j == 0 || Arithmetic.sgn(point.get(0).subtract(points.lastElement().get(0))) > 0) 
                 points.add(new PointKD(point));
         }
-        for (int i = 0; i < points.size(); i ++) {
+        for (int j = 0; j < points.size(); j ++) {
             point.clear();
-            for (int j = 0; j < perm.length; j ++) 
-                if (flag[j]) point.add(points.get(i).get(j));
-            points.set(i, new PointKD(point));
+            for (int k = 0; k < points.get(j).dim(); k ++) 
+                if (! invalid[k]) point.add(points.get(j).get(k));
+            points.set(j, new PointKD(point));
         }
         dim_ = points.get(0).dim();
         data = new Vector<PointKD>();
         if (type.equals("SPHERE")) {
             dim = dim_;
-            for (int i = 0; i < points.size(); i ++) 
-                data.add(points.get(i));
+            for (int j = 0; j < points.size(); j ++) 
+                data.add(points.get(j));
         }
         else if (type.equals("EUCLIDEAN")) {
             dim = 4;
-            for (int i = 0; i < points.size(); i ++) {
-                PointKD p = points.get(i);
+            for (int j = 0; j < points.size(); j ++) {
+                PointKD p = points.get(j);
                 if (dim_ == 3) 
                     point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
                 if (dim_ == 4) 
