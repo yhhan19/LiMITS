@@ -4,26 +4,26 @@ import java.util.Vector;
 
 public class Task extends Thread {
 
-    private TS[] ts;
-    private Log log;
-    private Result results;
-    private Dataset data;
-    private int cases, size, dim;
-    private String param, superName, folderName, type;
-    private double eps;
-    private CountDownLatch count;
-    private Pointer pointer;
+    private final TS[] ts;
+    private final Log log;
+    private final Result results;
+    private final Dataset data;
+    private final int cases, size, dim;
+    private final String param, superName, folderName, type;
+    private final double eps;
+    private final CountDownLatch count;
+    private final SharedInteger pointer;
 
-    public Task(TS[] ts, String param, CountDownLatch count, Pointer pointer) {
-        this.ts = ts;
+    public Task(int algorithms, String param, CountDownLatch count, SharedInteger pointer) {
+        this.ts = LIMITS.select(algorithms);
         this.param = param;
         this.count = count;
         this.pointer = pointer;
-        log = new Log(param + ".log");
+        log = new Log(param + "_" + algorithms + ".log");
         results = new Result(ts);
-        Vector<String> p = Reader.getWords(param, "_"), name = Reader.getWords(p.get(0), "x"),  scale = Reader.getWords(p.get(1), "x");
-        superName = name.get(2) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3);
-        folderName = name.get(2).equals("SIM") ? null : name.get(2);
+        Vector<String> p = Reader.getWords(param, "_"), name = Reader.getWords(p.get(0), "x"), scale = Reader.getWords(p.get(1), "x");
+        superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;
+        folderName = name.get(1).equals("SIM") ? null : name.get(1);
         data = folderName == null ? null : LIMITS.DATASETS.getDataset(folderName);
         cases = Integer.parseInt(scale.get(0));
         size = Integer.parseInt(scale.get(1));
@@ -40,12 +40,16 @@ public class Task extends Thread {
         return count;
     }
 
+    public TS[] getTS() {
+        return ts;
+    }
+
     private Vector<BigDecimal> getError(double cos) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
         if (type.equals("SPHERE")) {
             e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
             e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
-            if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.F2M));
+            if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
         }
         else if (type.equals("EUCLIDEAN")) {
             for (int i = 0; i < dim - 1; i ++) 

@@ -167,7 +167,7 @@ public class Point {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getX()) == 0) 
             return p;
-        BigDecimal r = x.subtract(p.x).divide(v.getX(), Arithmetic.MC);
+        BigDecimal r = x.subtract(p.x).divide(v.getX(), Arithmetic.MATH_CONTEXT);
         return p.add(v.scalar(r));
     }
 
@@ -175,7 +175,7 @@ public class Point {
         Vect v = new Vect(p, q);
         if (Arithmetic.sgn(v.getY()) == 0) 
             return p;
-        BigDecimal r = y.subtract(p.y).divide(v.getY(), Arithmetic.MC);
+        BigDecimal r = y.subtract(p.y).divide(v.getY(), Arithmetic.MATH_CONTEXT);
         return p.add(v.scalar(r));
     }
 

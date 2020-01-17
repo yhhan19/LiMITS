@@ -136,9 +136,9 @@ public class Vect {
         BigDecimal c10 = v1.cross(v0);
         BigDecimal c32 = v3.cross(v2);
         BigDecimal x = (c10.multiply(v.getX()).subtract(c32.multiply(this.getX())));
-        x = x.divide(cross, Arithmetic.MC);
+        x = x.divide(cross, Arithmetic.MATH_CONTEXT);
         BigDecimal y = (c10.multiply(v.getY()).subtract(c32.multiply(this.getY())));
-        y = y.divide(cross, Arithmetic.MC);
+        y = y.divide(cross, Arithmetic.MATH_CONTEXT);
         Point p = new Point(x, y);
         return p;
     }
@@ -187,8 +187,8 @@ public class Vect {
     }
 
     public Vect bisector(Vect that) {
-        Vect v0 = this.scalar(that.modulus(Arithmetic.MC));
-        Vect v1 = that.scalar(this.modulus(Arithmetic.MC));
+        Vect v0 = this.scalar(that.modulus(Arithmetic.MATH_CONTEXT));
+        Vect v1 = that.scalar(this.modulus(Arithmetic.MATH_CONTEXT));
         return v0.add(v1);
     }
 }

@@ -28,9 +28,9 @@ public class M2TS extends TS {
     }
     
     private BigDecimal sample(int R, int u) {
-        BigDecimal step = BigDecimal.ONE.divide(new BigDecimal(R), Arithmetic.MC);
-        if (u == 0) return step.multiply(new BigDecimal("1e-6"));
-        if (u == R) return step.multiply((new BigDecimal(u)).subtract(new BigDecimal("1e-6")));
+        BigDecimal step = BigDecimal.ONE.divide(new BigDecimal(R), Arithmetic.MATH_CONTEXT);
+        if (u == 0) return step.multiply(Arithmetic.MI2_ENDPOINT);
+        if (u == R) return step.multiply((new BigDecimal(u)).subtract(Arithmetic.MI2_ENDPOINT));
         return step.multiply(new BigDecimal(u));
     }
 

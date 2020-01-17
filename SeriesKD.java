@@ -261,7 +261,7 @@ public class SeriesKD {
 
     public double sphereL2(SeriesKD that, int T) { // sampling
         double error = 0;
-        BigDecimal step = this.lastElement().get(0).subtract(this.get(0).get(0)).divide(new BigDecimal(T), Arithmetic.MC);
+        BigDecimal step = this.lastElement().get(0).subtract(this.get(0).get(0)).divide(new BigDecimal(T), Arithmetic.MATH_CONTEXT);
         BigDecimal t = step;
         for (int i = 0, j = 0; i < this.size() && j < that.size(); t = t.add(step)) {
             while (i < this.size() && this.get(i).get(0).compareTo(t) == -1) i ++;

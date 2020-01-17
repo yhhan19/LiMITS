@@ -38,7 +38,7 @@ public class G2TS extends TS {
                             Point pl = low[k].interpolationX(s.get(j - 1).get(0));
                             Point ph = high[k].interpolationX(s.get(j - 1).get(0));
                             Point pm = (new Vect(pl, ph)).interpolationYratio(new BigDecimal("0.5"));
-                            data.add(pm.getY().add(BigDecimal.ZERO, Arithmetic.MC));
+                            data.add(pm.getY().add(BigDecimal.ZERO, Arithmetic.MATH_CONTEXT));
                         }
                         point = new PointKD(data);
                     }
@@ -72,7 +72,7 @@ public class G2TS extends TS {
                     Point pl = low[k].interpolationX(s.get(s.size() - 1).get(0));
                     Point ph = high[k].interpolationX(s.get(s.size() - 1).get(0));
                     Point pm = (new Vect(pl, ph)).interpolationYratio(new BigDecimal("0.5"));
-                    data.add(pm.getY().add(BigDecimal.ZERO, Arithmetic.MC));
+                    data.add(pm.getY().add(BigDecimal.ZERO, Arithmetic.MATH_CONTEXT));
                 }
                 points.add(new PointKD(data));
             }

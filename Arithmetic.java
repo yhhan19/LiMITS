@@ -9,19 +9,23 @@ public class Arithmetic {
 
     public static final int 
         PRECISION = 64, 
-        DISPLAY_SCALE = 9,
+        DISPLAY_SCALE = 9, 
         MAX_DIM = 8;
     
     public static final double 
         METERS_PER_LON = 111320, 
         EARTH_RADIUS = METERS_PER_LON * 360 / (Math.PI * 2), 
-        F2M = 0.3048;
+        FEET_TO_METER = 0.3048;
+    
+    public static final BigDecimal 
+        MI2_ENDPOINT = new BigDecimal("1e-6"), 
+        SHAKE_RANGE = new BigDecimal("1e-15");
     
     public static final MathContext 
-        MC = new MathContext(PRECISION, RoundingMode.HALF_EVEN);
+        MATH_CONTEXT = new MathContext(PRECISION, RoundingMode.HALF_EVEN);
     
     public static final NumberFormat 
-        DOUBLE_FORMAT = new DecimalFormat("0.00000000E0"),
+        DOUBLE_FORMAT = new DecimalFormat("0.00000000E0"), 
         BIGDEC_FORMAT = new DecimalFormat("0.0E0"); 
     
     public static final Random 
@@ -29,7 +33,7 @@ public class Arithmetic {
 
     public static BigDecimal epsRand() {
         String str = String.valueOf(RAND.nextDouble());
-        BigDecimal d = new BigDecimal(str).divide(new BigDecimal("1e15"));
+        BigDecimal d = new BigDecimal(str).multiply(SHAKE_RANGE);
         return d;
     }
 

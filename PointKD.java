@@ -82,7 +82,7 @@ public class PointKD {
         VectKD v = new VectKD(p, q);
         if (Arithmetic.sgn(v.get(i)) == 0) 
             return null;
-        BigDecimal r = x.subtract(p.get(i)).divide(v.get(i), Arithmetic.MC);
+        BigDecimal r = x.subtract(p.get(i)).divide(v.get(i), Arithmetic.MATH_CONTEXT);
         return p.add(v.scalar(r));
     }
 
