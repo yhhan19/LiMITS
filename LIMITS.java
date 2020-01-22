@@ -14,7 +14,8 @@ public class LIMITS {
     public static final Datasets 
         DATASETS = new Datasets(new String[] {
             "BEIJINGx6x,x4|0|1", 
-            "OPORTOx0x x2|0|1|3x-1.0"
+            "BEIJING2x0x,x1|3|2", 
+            "MOPSIx0x x2|0|1|3x-1.0"
         });
 
     public static final TS[] 
@@ -50,11 +51,11 @@ public class LIMITS {
 
     public static Result[] execute(String param, String batch, int mask) throws Exception {
         Vector<String> batch_ = Reader.getWords(batch, "x");
-        double maxError = Double.parseDouble(batch_.get(0));
-        int t0 = Integer.parseInt(batch_.get(1)), t1 = Integer.parseInt(batch_.get(2));
+        double minError = Double.parseDouble(batch_.get(0)), maxError = Double.parseDouble(batch_.get(1));
+        int t0 = Integer.parseInt(batch_.get(2)), t1 = Integer.parseInt(batch_.get(3));
         Task[][] tasks = new Task[t0][t1];
         for (int i = 0; i < t0; i ++) {
-            double e = (maxError / t0) * (i + 1);
+            double e = minError + ((maxError - minError) / (t0 - 1)) * i;
             CountDownLatch count = new CountDownLatch(t1);
             SharedInteger pointer = new SharedInteger();
             for (int j = 0; j < t1; j ++) {
@@ -62,7 +63,7 @@ public class LIMITS {
                 es.execute(tasks[i][j]);
             }
         }
-        Log report = new Log(REPORT_FOLDER_NAME, tasks[0][0].superName() + ".txt");
+        Log report = new Log(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
         Result results[] = new Result[t0];
         for (int i = 0; i < t0; i ++) {
             results[i] = new Result(tasks[i][0].getTS());
@@ -74,7 +75,7 @@ public class LIMITS {
             Log log = new Log(tasks[i][0].taskName() + ".res");
             log.write(res);
             log.close();
-            report.write("error: " + (maxError / t0) * (i + 1) + " " + res);
+            report.write("error: " + (minError + ((maxError - minError) / (t0 - 1)) * i) + " " + res);
             System.out.println("batch done: " + tasks[i][0].taskName());
         }
         report.close();
@@ -86,9 +87,9 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        int mask = EFFECTIVE_ALGORITHMS & WEAK_ALGORITHMS;
-        String data = "OPORTO_1000x50x4_EUCLIDEAN", batch = "10x5x5";
-        // OPORTO_1000x50x4_EUCLIDEAN, BEIJING_100x50x3_SPHERE, SIM_100x200x5_10x2xUNIFORM
+        int mask = EFFICIENT_ALGORITHMS;
+        String data = "MOPSI_0x0x3_SPHERE", batch = "5x10x2x10";
+        // MOPSI_1000x50x4_EUCLIDEAN, BEIJING_100x50x3_SPHERE, SIM_100x200x5_10x2xUNIFORM
         execute(data, batch, mask);
         shutdown();
     }

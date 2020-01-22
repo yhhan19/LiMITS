@@ -57,6 +57,16 @@ public class VectKD {
         return d;
     }
 
+    public BigDecimal normnoo() {
+        BigDecimal d = null;
+        for (int i = 0; i < from.dim(); i ++) {
+            BigDecimal dx = this.get(i).abs();
+            if (d == null || d.compareTo(dx) == 1) 
+                d = dx;
+        }
+        return d;
+    }
+
     public BigDecimal norm1() {
         BigDecimal d = BigDecimal.ZERO;
         for (int i = 0; i < from.dim(); i ++) 

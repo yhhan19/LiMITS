@@ -3,6 +3,8 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 public class Arithmetic {
@@ -106,5 +108,17 @@ public class Arithmetic {
         formatter.setRoundingMode(RoundingMode.HALF_EVEN);
         formatter.setMinimumFractionDigits(DISPLAY_SCALE);
         return formatter.format(x);
+    }
+
+    public static BigDecimal getTime(String word) {
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = null;
+        try {
+            date = s.parse(word);
+        }
+        catch (Exception e) {
+
+        }
+        return new BigDecimal(date.getTime());
     }
 }

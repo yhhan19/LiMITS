@@ -51,18 +51,19 @@ public class Task extends Thread {
 
     private Vector<BigDecimal> getError(double cos) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
-        if (type.equals("SPHERE")) {
-            e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
-            e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
-            if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
-        }
-        else if (type.equals("EUCLIDEAN")) {
-            for (int i = 0; i < dim - 1; i ++) 
-                e.add(new BigDecimal(eps));
-        }
-        else {
-            for (int i = 0; i < dim - 1; i ++) 
-                e.add(new BigDecimal(eps));
+        switch (type) {
+            case "SPHERE": 
+                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
+                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
+                if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
+                break;
+            case "EUCLIDEAN": 
+                for (int i = 0; i < dim - 1; i ++) 
+                    e.add(new BigDecimal(eps));
+                break;
+            default: 
+                for (int i = 0; i < dim - 1; i ++) 
+                    e.add(new BigDecimal(eps));
         }
         return e;
     }

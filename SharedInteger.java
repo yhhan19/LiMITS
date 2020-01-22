@@ -7,6 +7,9 @@ public class SharedInteger {
     }
 
     public synchronized int next() {
-        return cur ++;
+        int ret = cur ++;
+        if (cur % 100 == 0) 
+            System.out.println(cur + " trajectories processed");
+        return ret;
     }
 }

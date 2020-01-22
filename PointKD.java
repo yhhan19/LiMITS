@@ -96,6 +96,16 @@ public class PointKD {
         return v.norm1();
     }
 
+    public BigDecimal distanceLnoo(PointKD p) {
+        VectKD v = new VectKD(this, p);
+        return v.normnoo();
+    }
+
+    public BigDecimal distanceLnoo() {
+        VectKD v = new VectKD(this);
+        return v.normnoo();
+    }
+
     public double sphereLoo(PointKD p) {
         Point p_ = new Point(p.get(1), p.get(2));
         Point this_ = new Point(get(1), get(2));
