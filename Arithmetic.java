@@ -17,7 +17,7 @@ public class Arithmetic {
     public static final double 
         METERS_PER_LON = 111320, 
         EARTH_RADIUS = METERS_PER_LON * 360 / (Math.PI * 2), 
-        FEET_TO_METER = 0.3048;
+        FEET_TO_METER = 1;
     
     public static final BigDecimal 
         MI2_ENDPOINT = new BigDecimal("1e-6"), 

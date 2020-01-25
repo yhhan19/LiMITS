@@ -49,20 +49,22 @@ public class Task extends Thread {
         return ts;
     }
 
-    private Vector<BigDecimal> getError(double cos) {
+    private Vector<BigDecimal> getError(SeriesKD s) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
         switch (type) {
             case "SPHERE": 
+                BigDecimal min = s.min(1), max = s.max(1);
+                double cos = min.signum() == -1 && max.signum() == 1 ? 1 : Arithmetic.cos(min.abs().min(max.abs()));
                 e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
                 e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
-                if (dim == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
+                if (s.dim() == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
                 break;
             case "EUCLIDEAN": 
-                for (int i = 0; i < dim - 1; i ++) 
+                for (int i = 0; i < s.dim() - 1; i ++) 
                     e.add(new BigDecimal(eps));
                 break;
             default: 
-                for (int i = 0; i < dim - 1; i ++) 
+                for (int i = 0; i < s.dim() - 1; i ++) 
                     e.add(new BigDecimal(eps));
         }
         return e;
@@ -73,7 +75,7 @@ public class Task extends Thread {
             for (int i = pointer.next(); i < cases; i = pointer.next()) {
                 SeriesKD s = new SeriesKD(size, dim, type);
                 log.write("case: " + i + " size: " + s.size() + "\n");
-                Vector<BigDecimal> e = getError(1);
+                Vector<BigDecimal> e = getError(null);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
                     res[j] = ts[j].evaluateKD(s, e, false);
@@ -87,7 +89,7 @@ public class Task extends Thread {
                 SeriesKD s = new SeriesKD(data, i, size, type);
                 if (s.rawDim() != dim) continue;
                 log.write("case: " + i + " size: " + s.size() + "\n");
-                Vector<BigDecimal> e = getError(Arithmetic.cos(s.min(1)));
+                Vector<BigDecimal> e = getError(s);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
                     res[j] = ts[j].evaluateKD(s, e, dim == 3 && type.equals("SPHERE"));

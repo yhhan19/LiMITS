@@ -35,6 +35,7 @@ public class M2TS extends TS {
     }
 
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
+        if (s.size() <= 2) return s;
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
             Series s_ = s.project(dim), t_ = null;

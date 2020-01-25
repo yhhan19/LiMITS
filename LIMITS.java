@@ -13,9 +13,11 @@ public class LIMITS {
 
     public static final Datasets 
         DATASETS = new Datasets(new String[] {
-            "BEIJINGx6x,x4|0|1", 
-            "BEIJING2x0x,x1|3|2", 
-            "MOPSIx0x x2|0|1|3x-1.0"
+            "BEIJINGx6x,x4/0/1", 
+            "BEIJING2x0x,x1/3/2", 
+            "MOPSIx0x x2/0/1/3x-1.0", 
+            "STORK.CSVx1x,x20/2/4/3/17",
+            "GOOSE.CSVx1x,x19/2/4/3/16"
         });
 
     public static final TS[] 
@@ -27,7 +29,7 @@ public class LIMITS {
             new M1TS(0.5), 
             new M2TS(10)
         };
-    
+
     public static final int 
         ALL_ALGORITHMS = 0B111111, 
         STRONG_ALGORITHMS = 0B000111, 
@@ -35,7 +37,7 @@ public class LIMITS {
         EFFICIENT_ALGORITHMS = 0B111011, 
         EFFECTIVE_ALGORITHMS = 0B101100;
 
-    private static final ExecutorService es = Executors.newFixedThreadPool(10);
+    private static final ExecutorService es = Executors.newFixedThreadPool(12);
 
     public static TS[] select(int mask) {
         int len = 0;
@@ -88,7 +90,7 @@ public class LIMITS {
 
     public static void main(String[] args) throws Exception {
         int mask = EFFICIENT_ALGORITHMS;
-        String data = "MOPSI_0x0x3_SPHERE", batch = "5x10x2x10";
+        String data = "MOPSI_0x0x3_EUCLIDEAN", batch = "1x2x2x12";
         // MOPSI_1000x50x4_EUCLIDEAN, BEIJING_100x50x3_SPHERE, SIM_100x200x5_10x2xUNIFORM
         execute(data, batch, mask);
         shutdown();

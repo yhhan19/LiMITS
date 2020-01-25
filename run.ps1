@@ -1,4 +1,4 @@
 rm *.class
 javac -Xlint:unchecked -Xlint:deprecation LIMITS.java
-java -Xmx8192M -Xss256M LIMITS
+java -Xmx10G -Xss256M LIMITS
 rm *.class

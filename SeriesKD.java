@@ -16,7 +16,7 @@ public class SeriesKD {
 
     public SeriesKD(int size, int dim, String type) {
         Vector<String> type_ = Reader.getWords(type, "x");
-        double speed = Double.parseDouble(type_.get(0)); 
+        double speed = Double.parseDouble(type_.get(0));
         int direction = Integer.parseInt(type_.get(1));
         type = type_.get(2);
         this.dim = this.dim_ = dim;
@@ -54,7 +54,8 @@ public class SeriesKD {
         for (int j = 0; j < dataset.get(i).size() && (size <= 2 || j < size); j ++) {
             Vector<String> words = dataset.get(i, j);
             point.clear();
-            for (int k = 0; k < words.size(); k ++) {
+            int k = 0;
+            while (k < words.size() && ! words.get(k).equals("")) {
                 String word = words.get(k);
                 invalid[k] = invalid[k] || word.equals(dataset.invalid());
                 BigDecimal x = null;
@@ -67,39 +68,29 @@ public class SeriesKD {
                         if (first == null) first = x;
                         x = x.subtract(first);
                         break;
-                    case 1: 
-                        x = new BigDecimal(word);
-                        if (x.signum() == -1) 
-                            x = x.add(new BigDecimal("90"));
-                        break;
-                    case 2: 
-                        x = new BigDecimal(word);
-                        break;
-                    case 3: 
-                        x = new BigDecimal(word);
-                        break;
                     default: 
                         x = new BigDecimal(word);
                 }
                 point.add(x);
+                k ++;
             }
-            PointKD p = new PointKD(point);
-            if (j == 0) {
-                points.add(p);
-            }
-            else {
-                PointKD q = points.lastElement();
-                switch (Arithmetic.sgn(p.get(0).subtract(q.get(0)))) {
-                    case 1: 
-                        points.add(p);
-                        break;
-                    case 0: 
-                        if (p.distanceLnoo().compareTo(q.distanceLnoo()) > 0) 
-                            points.set(points.size() - 1, p);
-                        break;
-                    case -1: 
-                        break;
-                    default: 
+            if (k == words.size()) {
+                PointKD p = new PointKD(point);
+                if (j == 0) {
+                    points.add(p);
+                }
+                else {
+                    PointKD q = points.lastElement();
+                    switch (Arithmetic.sgn(p.get(0).subtract(q.get(0)))) {
+                        case 1: 
+                            points.add(p);
+                            break;
+                        case 0: 
+                            if (p.distanceLnoo().compareTo(q.distanceLnoo()) > 0) 
+                                points.set(points.size() - 1, p);
+                            break;
+                        default: 
+                    }
                 }
             }
         }
@@ -256,6 +247,13 @@ public class SeriesKD {
         for (int i = 1; i < size(); i ++) 
             min = min.min(get(i).get(j));
         return min;
+    }
+
+    public BigDecimal max(int j) {
+        BigDecimal max = get(0).get(j);
+        for (int i = 1; i < size(); i ++) 
+            max = max.max(get(i).get(j));
+        return max;
     }
 
     public BigDecimal distanceLoo(SeriesKD that) {

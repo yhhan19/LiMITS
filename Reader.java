@@ -44,9 +44,10 @@ public class Reader {
 
     public static Vector<String> getWords(String input, String token) {
         Vector<String> output = new Vector<String>();
-        StringTokenizer st = new StringTokenizer(input, token);
-        while (st.hasMoreTokens())
-            output.add(st.nextToken());
+        String[] st = input.split(token);
+        for (int i = 0; i < st.length; i ++) {
+            output.add(st[i]);
+        }
         return output;
     }
 }

@@ -8,6 +8,7 @@ public class G1TS extends TS {
     }
 
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
+        if (s.size() <= 2) return s;
         Vector<PointKD> points = new Vector<PointKD>();
         Vect[] low = new Vect[s.dim()], high = new Vect[s.dim()];
         for (int i = 0, j = 1; j < s.size(); i = j - 1) {

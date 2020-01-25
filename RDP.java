@@ -62,6 +62,7 @@ public class RDP extends TS {
     }
 
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
+        if (s.size() <= 2) return s;
         Vector<PointKD> points = recursion(s, 0, s.size() - 1, eps);
         return new SeriesKD(points);
     }

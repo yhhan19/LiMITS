@@ -28,6 +28,7 @@ public class M1TS extends TS {
     }
     
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
+        if (s.size() <= 2) return s;
         SeriesKD t = null;
         for (int dim = 1; dim < s.dim(); dim ++) {
             if (dim == 1) {

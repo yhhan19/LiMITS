@@ -14,6 +14,7 @@ public class DPTS extends TS {
     }
 
     public SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps) {
+        if (s.size() <= 2) return s;
         int backward = times > 0 ? times / s.size() : s.size();
         boolean visible[][] = new boolean[s.size()][backward];
         Vect[] low = new Vect[s.dim()], high = new Vect[s.dim()];
