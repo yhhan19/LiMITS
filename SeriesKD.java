@@ -46,7 +46,7 @@ public class SeriesKD {
         }
     }
 
-    public SeriesKD(Dataset dataset, int i, int size, String type) {
+    public SeriesKD(Dataset dataset, int i, int dim, int size, String type) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
         boolean[] invalid = new boolean[Arithmetic.MAX_DIM];
@@ -104,15 +104,22 @@ public class SeriesKD {
         data = new Vector<PointKD>();
         switch (type) {
             case "SPHERE": 
-                dim = dim_;
-                for (int j = 0; j < points.size(); j ++) 
-                    data.add(points.get(j));
+                this.dim = 3;
+                for (int j = 0; j < points.size(); j ++) {
+                    point.clear();
+                    for (int k = 0; k < 3; k ++) 
+                        point.add(points.get(j).get(k));
+                    data.add(new PointKD(point));
+                }
                 break;
             case "EUCLIDEAN": 
-                dim = 4;
+                this.dim = 4;
                 for (int j = 0; j < points.size(); j ++) {
                     PointKD p = points.get(j);
-                    switch (dim_) {
+                    if (dim_ == 3) {
+                        point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
+                    }
+                    else switch (dim) {
                         case 3: 
                             point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
                             break;
@@ -120,18 +127,25 @@ public class SeriesKD {
                             point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), p.get(3));
                             break;
                         default: 
-                    }   
+                    }
                     data.add(new PointKD(point));
                 }
                 break;
-            default:
+            default: 
+                this.dim = dim < dim_ ? dim : dim_;
+                for (int j = 0; j < points.size(); j ++) {
+                    point.clear();
+                    for (int k = 0; k < this.dim; k ++) 
+                        point.add(points.get(j).get(k));
+                    data.add(new PointKD(point));
+                }
         }
-        shake();
+        generalize(dataset.getGenRange());
     }
 
-    private void shake() {
+    private void generalize(BigDecimal range) {
         for (int i = 0; i < data.size(); i ++) 
-            data.set(i, data.get(i).shake());
+            data.set(i, data.get(i).generalize(range));
     }
 
     public SeriesKD(SeriesKD s0, Series s1) {
@@ -209,6 +223,17 @@ public class SeriesKD {
         }
     }
 
+    public void simplify(double thres) {
+        Vector<PointKD> res = new Vector<PointKD>();
+        res.add(get(0));
+        for (int i = 1; i < size(); i ++) {
+            double v = get(i).sphereL2(res.lastElement()) / get(i).get(0).subtract(res.lastElement().get(0)).doubleValue();
+            if (v <= thres) res.add(get(i));
+        }
+        System.out.println(size() + " " + res.size());
+        data = res;
+    }
+
     public void display() {
         for (int i = 0; i < size(); i ++) 
             data.get(i).display();
@@ -225,6 +250,39 @@ public class SeriesKD {
     
     public int size() {
         return data.size();
+    }
+
+    public double lengthL2() {
+        double len = 0;
+        for (int i = 1; i < size(); i ++) 
+            len += get(i).sphereL2(get(i - 1));
+        return len;
+    }
+
+    public BigDecimal time() {
+        return lastElement().get(0).subtract(get(0).get(0));
+    }
+
+    public double velocity() {
+        return lengthL2() / time().doubleValue();
+    }
+
+    public double maxVelocity() {
+        double max = 0;
+        for (int i = 1; i < size(); i ++) {
+            double v = get(i).sphereL2(get(i - 1)) / get(i).get(0).subtract(get(i - 1).get(0)).doubleValue();
+            if (v > max) max = v;
+        }
+        return max;
+    }
+
+    public int outsider(double thres) {
+        int count = 0;
+        for (int i = 1; i < size(); i ++) {
+            double v = get(i).sphereL2(get(i - 1)) / get(i).get(0).subtract(get(i - 1).get(0)).doubleValue();
+            if (v > thres) count ++;
+        }
+        return count;
     }
 
     public PointKD get(int i) {
@@ -256,7 +314,7 @@ public class SeriesKD {
         return max;
     }
 
-    public BigDecimal distanceLoo(SeriesKD that) {
+    public BigDecimal distanceLoo(SeriesKD that) { // accurate
         BigDecimal error = BigDecimal.ZERO;
         for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
             if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
@@ -264,7 +322,8 @@ public class SeriesKD {
                     PointKD p = that.get(j - 1), q = that.get(j);
                     PointKD r = PointKD.interpolation(p, q, this.get(i).get(0), 0);
                     BigDecimal e = r.distanceLoo(this.get(i));
-                    if (e.compareTo(error) == 1) error = e;
+                    if (e.compareTo(error) == 1) 
+                        error = e;
                 }
                 i ++;
             }
@@ -273,7 +332,8 @@ public class SeriesKD {
                     PointKD p = this.get(i - 1), q = this.get(i);
                     PointKD r = PointKD.interpolation(p, q, that.get(j).get(0), 0);
                     BigDecimal e = r.distanceLoo(that.get(j));
-                    if (e.compareTo(error) == 1) error = e;
+                    if (e.compareTo(error) == 1) 
+                        error = e;
                 }
                 j ++;
             }
@@ -281,8 +341,10 @@ public class SeriesKD {
         return error;
     }
 
-    public double sphereL2(SeriesKD that) { // not accurate
+    public double sphereL2(SeriesKD that) { // not accurate but a good one
         double error = 0;
+        BigDecimal be = null;
+        PointKD bp = null, br = null;
         for (int i = 0, j = 0; i < this.size() && j < that.size(); ) {
             if (this.get(i).get(0).compareTo(that.get(j).get(0)) == -1) {
                 if (j != 0) {
@@ -301,23 +363,6 @@ public class SeriesKD {
                     if (e > error) error = e;
                 }
                 j ++;
-            }
-        }
-        return error;
-    }
-
-    public double sphereL2(SeriesKD that, int T) { // sampling
-        double error = 0;
-        BigDecimal step = this.lastElement().get(0).subtract(this.get(0).get(0)).divide(new BigDecimal(T), Arithmetic.MATH_CONTEXT);
-        BigDecimal t = step;
-        for (int i = 0, j = 0; i < this.size() && j < that.size(); t = t.add(step)) {
-            while (i < this.size() && this.get(i).get(0).compareTo(t) == -1) i ++;
-            while (j < that.size() && that.get(j).get(0).compareTo(t) == -1) j ++;
-            if (i < this.size() && j < that.size()) {
-                PointKD p = PointKD.interpolation(this.get(i), this.get(i - 1), t, 0);
-                PointKD q = PointKD.interpolation(that.get(j), that.get(j - 1), t, 0);
-                double e = p.sphereL2(q);
-                if (e > error) error = e;
             }
         }
         return error;

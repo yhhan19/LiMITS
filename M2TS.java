@@ -108,6 +108,9 @@ public class M2TS extends TS {
                     BigDecimal ru = sample(R, arg[i - 1]), rv = sample(R, arg[i]);
                     Range last = new Range(s__.get(0).getY().add(eps.get(dim - 1)), s__.get(0).getY().subtract(eps.get(dim - 1)));
                     Series t__ = simplify(s__, eps.get(dim - 1), last, ru, rv, false);
+                    BigDecimal d = s__.distance(t__);
+                    if (Arithmetic.sgn(d.subtract(eps.get(dim - 1))) > 0) 
+                        System.out.println(d);
                     if (i == 1) points.add(t__.get(0));
                     for (int k = 1; k < t__.size(); k ++) 
                         points.add(t__.get(k));

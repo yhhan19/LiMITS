@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.Vector;
 
 public class Dataset {
@@ -6,6 +7,7 @@ public class Dataset {
     private final int[] perm;
     private final String token;
     private final String invalid;
+    private int range;
 
     private int[] getPerm(String s) {
         Vector<String> s_ = Reader.getWords(s, "/");
@@ -22,7 +24,8 @@ public class Dataset {
         int startLine = Integer.parseInt(param_.get(1));
         token = param_.get(2);
         int[] perm_ = getPerm(param_.get(3));
-        invalid = param_.size() >= 5 ? param_.get(4) : null;
+        invalid = param_.get(4);
+        range = Integer.parseInt(param_.get(5));
         System.out.println("loading: " + folderName);
         if (param_.get(0).indexOf('.') != -1) {
             int key = perm_[0];
@@ -67,6 +70,10 @@ public class Dataset {
             output.add(input.get(perm[k]));
         }
         return output;
+    }
+
+    public BigDecimal getGenRange() {
+        return new BigDecimal("1e-" + range);
     }
 
     public int size() {

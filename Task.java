@@ -49,15 +49,20 @@ public class Task extends Thread {
         return ts;
     }
 
+    private double getCos(SeriesKD s) {
+        BigDecimal min = s.min(1), max = s.max(1);
+        if (min.signum() == -1 && max.signum() == 1) return 1;
+        BigDecimal min_ = min.abs().min(max.abs()).subtract(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
+        if (min_.signum() != 1) return 1;
+        return Arithmetic.cos(min_);
+    }
+
     private Vector<BigDecimal> getError(SeriesKD s) {
         Vector<BigDecimal> e = new Vector<BigDecimal>();
         switch (type) {
             case "SPHERE": 
-                BigDecimal min = s.min(1), max = s.max(1);
-                double cos = min.signum() == -1 && max.signum() == 1 ? 1 : Arithmetic.cos(min.abs().min(max.abs()));
                 e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
-                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / cos));
-                if (s.dim() == 4) e.add(new BigDecimal(eps / Arithmetic.FEET_TO_METER));
+                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / getCos(s)));
                 break;
             case "EUCLIDEAN": 
                 for (int i = 0; i < s.dim() - 1; i ++) 
@@ -75,7 +80,7 @@ public class Task extends Thread {
             for (int i = pointer.next(); i < cases; i = pointer.next()) {
                 SeriesKD s = new SeriesKD(size, dim, type);
                 log.write("case: " + i + " size: " + s.size() + "\n");
-                Vector<BigDecimal> e = getError(null);
+                Vector<BigDecimal> e = getError(s);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
                     res[j] = ts[j].evaluateKD(s, e, false);
@@ -86,13 +91,13 @@ public class Task extends Thread {
         }
         else {
             for (int i = pointer.next(); i < data.size() && (cases <= 0 || i < cases); i = pointer.next()) {
-                SeriesKD s = new SeriesKD(data, i, size, type);
-                if (s.rawDim() != dim) continue;
+                SeriesKD s = new SeriesKD(data, i, dim, size, type);
+                if (type.equals("EUCLIDEAN") && s.rawDim() < dim) continue;
                 log.write("case: " + i + " size: " + s.size() + "\n");
                 Vector<BigDecimal> e = getError(s);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
-                    res[j] = ts[j].evaluateKD(s, e, dim == 3 && type.equals("SPHERE"));
+                    res[j] = ts[j].evaluateKD(s, e, type.equals("SPHERE"));
                     log.write(Result.toString(res[j], 1));
                 }
                 results.add(new Result(ts, res, s.size(), 1));

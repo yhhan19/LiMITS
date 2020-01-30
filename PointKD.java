@@ -53,11 +53,11 @@ public class PointKD {
         return new PointKD(data);
     }
 
-    public PointKD shake() {
+    public PointKD generalize(BigDecimal range) {
         Vector<BigDecimal> data = new Vector<BigDecimal>();
         data.add(this.data.get(0));
         for (int i = 1; i < k; i ++) 
-            data.add(this.data.get(i).add(Arithmetic.epsRand()));
+            data.add(this.data.get(i).add(Arithmetic.generalize(range)));
         return new PointKD(data);
     }
 

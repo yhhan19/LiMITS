@@ -8,16 +8,20 @@ public class LIMITS {
     public static final String 
         PROJECT_NAME = "L-Inifinity Multidimensional Interpolation Trajectory Simplification (LIMITS)", 
         DATA_FOLDER_NAME = "../data", 
-        LOG_FOLDER_NAME = "../log", 
+        LOG_FOLDER_NAME = "../log/long", 
+        RES_FOLDER_NAME = "../log/short", 
         REPORT_FOLDER_NAME = "../report";
 
     public static final Datasets 
         DATASETS = new Datasets(new String[] {
-            "BEIJINGx6x,x4/0/1", 
-            "BEIJING2x0x,x1/3/2", 
-            "MOPSIx0x x2/0/1/3x-1.0", 
-            "STORK.CSVx1x,x20/2/4/3/17",
-            "GOOSE.CSVx1x,x19/2/4/3/16"
+            "BEIJINGx6x,x4/0/1/3x-777x12", 
+            "MOPSIx0x x2/0/1/3x-1.0x12", 
+            "BEEx0x,x0/1/2x,x3", 
+            "FLIGHTx1x,x0/3/4/1x,x12", 
+            "TDRIVEx0x,x1/3/2x,x12", 
+            "TAXIx0x;x1/2/3x;x12", 
+            "STORK.CSVx1x,x20/2/4/3/17x,x12", 
+            "GOOSE.CSVx1x,x19/2/4/3/16x,x12"
         });
 
     public static final TS[] 
@@ -32,12 +36,11 @@ public class LIMITS {
 
     public static final int 
         ALL_ALGORITHMS = 0B111111, 
-        STRONG_ALGORITHMS = 0B000111, 
         WEAK_ALGORITHMS = 0B111000, 
         EFFICIENT_ALGORITHMS = 0B111011, 
         EFFECTIVE_ALGORITHMS = 0B101100;
 
-    private static final ExecutorService es = Executors.newFixedThreadPool(12);
+    private static final ExecutorService es = Executors.newFixedThreadPool(10);
 
     public static TS[] select(int mask) {
         int len = 0;
@@ -51,7 +54,7 @@ public class LIMITS {
         return ts;
     }
 
-    public static Result[] execute(String param, String batch, int mask) throws Exception {
+    public static Result[] execute(int mask, String batch, String param) throws Exception {
         Vector<String> batch_ = Reader.getWords(batch, "x");
         double minError = Double.parseDouble(batch_.get(0)), maxError = Double.parseDouble(batch_.get(1));
         int t0 = Integer.parseInt(batch_.get(2)), t1 = Integer.parseInt(batch_.get(3));
@@ -74,7 +77,7 @@ public class LIMITS {
                 results[i].add(tasks[i][j].getResults());
             }
             String res = results[i].toString(results[i].getSize());
-            Log log = new Log(tasks[i][0].taskName() + ".res");
+            Log log = new Log(RES_FOLDER_NAME, tasks[i][0].taskName() + ".res");
             log.write(res);
             log.close();
             report.write("error: " + (minError + ((maxError - minError) / (t0 - 1)) * i) + " " + res);
@@ -84,15 +87,30 @@ public class LIMITS {
         return results;
     }
 
+    public static Result[][] executes(int mask, String batch, String[] params) throws Exception {
+        Result[][] results = new Result[params.length][];
+        for (int i = 0; i < params.length; i ++) {
+            results[i] = execute(mask, batch, params[i]);
+        }
+        return results;
+    }
+
     public static void shutdown() {
         es.shutdown();
     }
 
     public static void main(String[] args) throws Exception {
-        int mask = EFFICIENT_ALGORITHMS;
-        String data = "MOPSI_0x0x3_EUCLIDEAN", batch = "1x2x2x12";
-        // MOPSI_1000x50x4_EUCLIDEAN, BEIJING_100x50x3_SPHERE, SIM_100x200x5_10x2xUNIFORM
-        execute(data, batch, mask);
+        executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
+              "BEIJING_100x0x3_SPHERE" 
+            //, "BEIJING_100x0x3_EUCLIDEAN" 
+            //, "BEIJING_100x0x4_EUCLIDEAN" 
+            //, "MOPSI_250x0x3_SPHERE" 
+            //, "MOPSI_250x0x3_EUCLIDEAN" 
+            //, "MOPSI_250x0x4_EUCLIDEAN" 
+            //, "SIM_10x10000x3_20x2xUNIFORM" 
+            //, "SIM_10x10000x4_20x2xUNIFORM" 
+            //, "BEE_0x0x3_DEFAULT" 
+        });
         shutdown();
     }
 }

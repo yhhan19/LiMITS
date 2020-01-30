@@ -14,28 +14,28 @@ public class Arithmetic {
         DISPLAY_SCALE = 9, 
         MAX_DIM = 8;
     
-    public static final double 
+    public static final double
         METERS_PER_LON = 111320, 
         EARTH_RADIUS = METERS_PER_LON * 360 / (Math.PI * 2), 
-        FEET_TO_METER = 1;
+        FEET_TO_METER = 0.3048;
     
     public static final BigDecimal 
-        MI2_ENDPOINT = new BigDecimal("1e-6"), 
-        SHAKE_RANGE = new BigDecimal("1e-15");
+        MI2_ENDPOINT = new BigDecimal("1e-6");
     
     public static final MathContext 
         MATH_CONTEXT = new MathContext(PRECISION, RoundingMode.HALF_EVEN);
     
     public static final NumberFormat 
         DOUBLE_FORMAT = new DecimalFormat("0.00000000E0"), 
-        BIGDEC_FORMAT = new DecimalFormat("0.0E0"); 
+        BIGDEC_FORMAT = new DecimalFormat("0.0E0");
     
     public static final Random 
         RAND = new Random();
 
-    public static BigDecimal epsRand() {
+    public static BigDecimal generalize(BigDecimal range) {
         String str = String.valueOf(RAND.nextDouble());
-        BigDecimal d = new BigDecimal(str).multiply(SHAKE_RANGE);
+        if (RAND.nextInt(2) == 0) str = "-" + str;
+        BigDecimal d = new BigDecimal(str).multiply(range);
         return d;
     }
 
