@@ -8,15 +8,17 @@ public class Result {
 
     private TS[] ts;
     private double[][] results;
-    private int cases, size, dim;
+    private int cases, size;
+    private double eps;
 
-    public Result(TS[] ts) {
+    public Result(TS[] ts, double eps) {
         this.ts = ts;
         this.results = new double[ts.length][LEN];
         cases = size = 0;
+        this.eps = eps;
     }
 
-    public Result(TS[] ts, double[][] results, int size, int cases) {
+    public Result(TS[] ts, double[][] results, double eps, int size, int cases) {
         this.ts = ts;
         this.results = new double[ts.length][LEN];
         for (int i = 0; i < ts.length; i ++) 
@@ -24,6 +26,7 @@ public class Result {
                 this.results[i][j] = results[i][j];
         this.size = size;
         this.cases = cases;
+        this.eps = eps;
     }
 
     public static String toString(double[] result, int dom) {
@@ -34,7 +37,7 @@ public class Result {
     }
 
     public String toString(int dom) {
-        String s = "cases: " + cases + " total size: " + size + "\n";
+        String s = "error: " + eps + " cases: " + cases + " total size: " + size + "\n";
         for (int i = 0; i < ts.length; i ++) 
             s = s + ts[i].name() + " " + toString(results[i], dom);
         return s;
@@ -64,5 +67,17 @@ public class Result {
 
     public int getSize() {
         return size;
+    }
+
+    public double getError() {
+        return eps;
+    }
+
+    public int getRaws() {
+        return ts.length;
+    }
+
+    public double getData(int i, int j) {
+        return results[i][j];
     }
 }

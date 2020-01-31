@@ -20,7 +20,6 @@ public class Task extends Thread {
         this.count = count;
         this.pointer = pointer;
         log = new Log(param + "_" + algorithms + ".log");
-        results = new Result(ts);
         Vector<String> p = Reader.getWords(param, "_"), name = Reader.getWords(p.get(0), "x"), scale = Reader.getWords(p.get(1), "x");
         superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + algorithms;
         taskName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;
@@ -31,6 +30,7 @@ public class Task extends Thread {
         dim = Integer.parseInt(scale.get(2));
         type = p.get(2);
         eps = Double.parseDouble(p.get(3));
+        results = new Result(ts, eps);
     }
 
     public String taskName() {
@@ -86,7 +86,7 @@ public class Task extends Thread {
                     res[j] = ts[j].evaluateKD(s, e, false);
                     log.write(Result.toString(res[j], 1));
                 }
-                results.add(new Result(ts, res, s.size(), 1));
+                results.add(new Result(ts, res, eps, s.size(), 1));
             }
         }
         else {
@@ -100,7 +100,7 @@ public class Task extends Thread {
                     res[j] = ts[j].evaluateKD(s, e, type.equals("SPHERE"));
                     log.write(Result.toString(res[j], 1));
                 }
-                results.add(new Result(ts, res, s.size(), 1));
+                results.add(new Result(ts, res, eps, s.size(), 1));
             }
         }
         log.write(results.toString(results.getSize()));

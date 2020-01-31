@@ -14,7 +14,7 @@ public class Arithmetic {
         DISPLAY_SCALE = 9, 
         MAX_DIM = 8;
     
-    public static final double
+    public static final double 
         METERS_PER_LON = 111320, 
         EARTH_RADIUS = METERS_PER_LON * 360 / (Math.PI * 2), 
         FEET_TO_METER = 0.3048;
@@ -27,6 +27,7 @@ public class Arithmetic {
     
     public static final NumberFormat 
         DOUBLE_FORMAT = new DecimalFormat("0.00000000E0"), 
+        DOUBLE_FORMAT_ = new DecimalFormat("0.000000"), 
         BIGDEC_FORMAT = new DecimalFormat("0.0E0");
     
     public static final Random 
