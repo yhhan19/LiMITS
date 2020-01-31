@@ -8,8 +8,10 @@ public class SharedInteger {
 
     public synchronized int next() {
         int ret = cur ++;
-        if (cur % 1 == 0) 
-            System.out.println(cur + " trajectories processed");
+        if (cur % 10 == 0) 
+            System.out.print("*");
+        if (cur % 400 == 0) 
+            System.out.println(" " + cur);
         return ret;
     }
 }

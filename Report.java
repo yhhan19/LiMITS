@@ -45,7 +45,7 @@ public class Report {
     public String toString(int x, int y) {
         String series = "{";
         for (int i = 0; i < results.length; i ++) {
-            series += "{" + f.format(results[i].getError()) + ", " + f.format(results[i].getData(0, y) / results[i].getData(x, y)) + "}";
+            series += "{" + f.format(results[i].getError()) + ", " + f.format(results[i].getData(x, y) / results[i].getData(0, y)) + "}";
             series += (i == results.length - 1) ? "}" : ", ";
         }
         return series;
@@ -62,7 +62,7 @@ public class Report {
 
     public void toCommands() {
         Log commands = new Log(LIMITS.FINAL_FOLDER_NAME, fileName);
-        commands.write(toString(0) + toString(1) + toString(2));
+        commands.write(toString(0) + toString(1));
         commands.close();
     }
 }

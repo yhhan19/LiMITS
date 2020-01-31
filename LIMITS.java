@@ -100,14 +100,14 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        //(new Report("../bak/final", "BEIJING_0x0x3_SPHERE_59_1x100x100x30.txt")).toCommands();
+        (new Report("../report", "BEIJING_0x0x3_EUCLIDEAN_59_1x100x100x30.txt")).toCommands();
         executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-              "MOPSI_5x0x3_SPHERE" 
-            , "MOPSI_5x0x3_EUCLIDEAN" 
-            , "MOPSI_5x0x4_EUCLIDEAN" 
+            //  "MOPSI_5x0x3_SPHERE" 
+            //, "MOPSI_5x0x3_EUCLIDEAN" 
+            //, "MOPSI_5x0x4_EUCLIDEAN" 
             //, "SIM_10x10000x3_20x2xUNIFORM" 
             //, "SIM_10x10000x4_20x2xUNIFORM" 
             //, "BEE_0x0x3_DEFAULT" 
