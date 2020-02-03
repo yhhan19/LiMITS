@@ -44,15 +44,30 @@ public class Report {
 
     public String toString(int x, int y) {
         String series = "{";
-        for (int i = 0; i < results.length; i ++) {
-            series += "{" + f.format(results[i].getError()) + ", " + f.format(results[i].getData(x, y) / results[i].getData(0, y)) + "}";
-            series += (i == results.length - 1) ? "}" : ", ";
+        switch (y) {
+            case 0: 
+                for (int i = 0; i < results.length; i ++) {
+                    series += "{" + f.format(results[i].getError()) + ", " + f.format(1 / results[i].getData(x, 0)) + "}";
+                    series += (i == results.length - 1) ? "}" : ", ";
+                }
+                break;
+            case 1: 
+                for (int i = 0; i < results.length; i ++) {
+                    series += "{" + f.format(results[i].getError()) + ", " + f.format(results[i].getData(x, 1)) + "}";
+                    series += (i == results.length - 1) ? "}" : ", ";
+                }
+                break;
+            default: 
+                for (int i = 0; i < results.length; i ++) {
+                    series += "{" + f.format(results[i].getError()) + ", " + f.format(results[i].getData(x, 0) / results[i].getData(0, 0)) + "}";
+                    series += (i == results.length - 1) ? "}" : ", ";
+                }
         }
         return series;
     }
 
     public String toString(int y) {
-        String series = "data = {";
+        String series = "data" + y + " = {";
         for (int i = 0; i < results[0].getRaws(); i ++) {
             series += toString(i, y);
             series += (i == results[0].getRaws() - 1) ? "};\n" : ", ";
@@ -62,7 +77,7 @@ public class Report {
 
     public void toCommands() {
         Log commands = new Log(LIMITS.FINAL_FOLDER_NAME, fileName);
-        commands.write(toString(0) + toString(1));
+        commands.write(toString(0) + toString(1) + toString(2));
         commands.close();
     }
 }

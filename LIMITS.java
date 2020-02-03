@@ -100,7 +100,7 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Report("../report", "BEIJING_0x0x3_EUCLIDEAN_59_1x100x100x30.txt")).toCommands();
+        (new Report("../report", "MOPSI_0x0x4_EUCLIDEAN_59_1x100x100x32.txt")).toCommands();
         executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
