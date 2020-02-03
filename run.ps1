@@ -1,4 +1,10 @@
-rm *.class
-javac -Xlint:unchecked -Xlint:deprecation LIMITS.java
-java -Xmx11G -Xss256M LIMITS
-rm *.class
+javac -cp "src/limits" `
+"src/limits/data/*.java" `
+"src/limits/geometry/*.java" `
+"src/limits/io/*.java" `
+"src/limits/polytope/*.java" `
+"src/limits/simplifier/*.java" `
+"src/limits/task/*.java" `
+"src/limits/util/*.java" 
+
+java -cp "src/" limits.util.LIMITS
