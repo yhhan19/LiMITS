@@ -1,4 +1,4 @@
-javac -cp "src/limits" `
+javac -Xlint:unchecked -Xlint:deprecation -d "bin/" -cp "src/limits" `
 "src/limits/data/*.java" `
 "src/limits/geometry/*.java" `
 "src/limits/io/*.java" `
