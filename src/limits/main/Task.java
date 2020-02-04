@@ -91,10 +91,8 @@ public class Task extends Thread {
     }
 
     public void run() {
-        System.out.println("task start: " + param);
         test();
         log.close();
         count.countDown();
-        System.out.println("task done: " + param);
     }
 }

@@ -68,7 +68,7 @@ public class LIMITS {
         for (int i = 0; i < t0; i ++) {
             double e = minError + ((maxError - minError) / (t0 - 1)) * i;
             CountDownLatch count = new CountDownLatch(t1);
-            SharedInteger pointer = new SharedInteger();
+            SharedInteger pointer = new SharedInteger(i % 2);
             for (int j = 0; j < t1; j ++) {
                 tasks[i][j] = new Task(mask, j + "x" + param + "_" + e, count, pointer);
                 es.execute(tasks[i][j]);
@@ -87,7 +87,7 @@ public class LIMITS {
             log.add(res);
             log.close();
             report.add(res);
-            System.out.println("batch done: " + tasks[i][0].taskName());
+            System.out.println("\nbatch done: " + tasks[i][0].taskName());
         }
         report.close();
         Results rep = new Results(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
@@ -109,12 +109,12 @@ public class LIMITS {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-              "MOPSI_15x0x3_SPHERE" 
-            , "MOPSI_15x0x3_EUCLIDEAN" 
-            , "MOPSI_15x0x4_EUCLIDEAN" 
-            , "SIM_10x100x3_20x2xUNIFORM" 
-            , "SIM_10x100x4_20x2xUNIFORM" 
-            , "BEE_10x0x3_DEFAULT" 
+              "MOPSI_1000x10x3_SPHERE" 
+            , "MOPSI_1000x10x3_EUCLIDEAN" 
+            , "MOPSI_1000x10x4_EUCLIDEAN" 
+            //, "SIM_10x100x3_20x2xUNIFORM" 
+            //, "SIM_10x100x4_20x2xUNIFORM" 
+            //, "BEE_10x0x3_DEFAULT" 
         });
         shutdown();
     }

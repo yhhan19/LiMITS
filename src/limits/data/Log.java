@@ -4,15 +4,15 @@ import limits.io.*;
 
 public class Log extends Writer {
 
-    private String log;
+    private int len;
 
     public Log(String folderName, String fileName) {
         super(folderName, fileName);
-        log = "";
+        len = 0;
     }
 
     public void add(String s) {
-        log += s;
+        len += s.length();
         super.write(s);
     }
 }
