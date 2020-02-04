@@ -5,7 +5,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.Vector;
 
 import limits.data.*;
-import limits.geometry.SeriesKD;
 import limits.simplifier.*;
 
 public class Task extends Thread {
@@ -29,8 +28,8 @@ public class Task extends Thread {
         String[] p = param.split("_"), name = p[0].split("x"), scale = p[1].split("x");
         superName = name[1] + "_" + p[1] + "_" + p[2] + "_" + algorithms;
         taskName = name[1] + "_" + p[1] + "_" + p[2] + "_" + p[3] + "_" + algorithms;
-        folderName = name[1].equals("SIM") ? null : name[1];
-        data = folderName == null ? null : LIMITS.DATASETS.getDataset(folderName);
+        folderName = name[1];
+        data = LIMITS.DATASETS.getDataset(folderName);
         cases = Integer.parseInt(scale[0]);
         size = Integer.parseInt(scale[1]);
         dim = Integer.parseInt(scale[2]);
@@ -56,32 +55,17 @@ public class Task extends Thread {
     }
 
     public void test() {
-        if (folderName == null) {
-            for (int i = pointer.next(); i < cases; i = pointer.next()) {
-                SeriesKD s = new SeriesKD(size, dim, type);
-                log.add("case: " + i + " size: " + s.size() + "\n");
-                Vector<BigDecimal> e = s.getError(type, eps);
-                double[][] res = new double[ts.length][];
-                for (int j = 0; j < ts.length; j ++) {
-                    res[j] = ts[j].evaluateKD(s, e, false);
-                    log.add(Result.toString(res[j], 1));
-                }
-                results.add(new Result(TS.getNames(ts), res, eps, s.size(), 1));
+        for (int i = pointer.next(); i < data.size() && (cases <= 0 || i < cases); i = pointer.next()) {
+            limits.geometry.SeriesKD input = new limits.geometry.SeriesKD(data.getWords(i), data.invalid(), data.getGenRange(), dim, size, type);
+            if (type.equals("EUCLIDEAN") && input.rawDim() < dim) continue;
+            log.add("case: " + i + " size: " + input.size() + "\n");
+            Vector<BigDecimal> error = input.getError(type, eps);
+            double[][] output = new double[ts.length][];
+            for (int j = 0; j < ts.length; j ++) {
+                output[j] = ts[j].evaluateKD(input, error, type.equals("SPHERE"));
+                log.add(Result.toString(output[j], 1));
             }
-        }
-        else {
-            for (int i = pointer.next(); i < data.size() && (cases <= 0 || i < cases); i = pointer.next()) {
-                SeriesKD s = new SeriesKD(data.getWords(i), data.invalid(), data.getGenRange(), dim, size, type);
-                if (type.equals("EUCLIDEAN") && s.rawDim() < dim) continue;
-                log.add("case: " + i + " size: " + s.size() + "\n");
-                Vector<BigDecimal> e = s.getError(type, eps);
-                double[][] res = new double[ts.length][];
-                for (int j = 0; j < ts.length; j ++) {
-                    res[j] = ts[j].evaluateKD(s, e, type.equals("SPHERE"));
-                    log.add(Result.toString(res[j], 1));
-                }
-                results.add(new Result(TS.getNames(ts), res, eps, s.size(), 1));
-            }
+            results.add(new Result(TS.getNames(ts), output, eps, input.size(), 1));
         }
         log.write(results.toString(results.getSize()));
     }

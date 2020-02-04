@@ -18,133 +18,134 @@ public class SeriesKD {
             this.data.add(data.get(i));
     }
 
-    public SeriesKD(int size, int dim, String type) {
-        String[] type_ = type.split("x");
-        double speed = Double.parseDouble(type_[0]);
-        int direction = Integer.parseInt(type_[1]);
-        type = type_[2];
-        this.dim = this.dim_ = dim;
-        data = new Vector<PointKD>();
-        Random rand = new Random();
-        double[] x = new double[dim], y = new double[dim];
-        for (int i = 0; i < dim; i ++) {
-            x[i] = y[i] = 0;
-        }
-        for (int i = 0; i < size; i ++) {
-            data.add(new PointKD(x));
-            x[0] += 1;
-            switch (type) {
-                case "GAUSSIAN": 
-                    y = Arithmetic.gaussian(dim - 1);
-                    break;
-                case "UNIFORM": 
-                    y = Arithmetic.uniform(dim - 1);
-                    break;
-                default: 
-            }
-            for (int j = 1; j < dim; j ++) {
-                if (rand.nextInt(direction) == 0)
-                    y[j - 1] = - y[j - 1];
-                x[j] += y[j - 1] * speed;
-            }
-        }
-    }
-
     public SeriesKD(Vector<Vector<String>> input, String invalid, BigDecimal range, int dim, int size, String type) {
-        Vector<PointKD> points = new Vector<PointKD>();
-        Vector<BigDecimal> point = new Vector<BigDecimal>();
-        boolean[] inv = new boolean[Arithmetic.MAX_DIM];
-        BigDecimal first = null;
-        for (int j = 0; j < input.size() && (size <= 2 || j < size); j ++) {
-            Vector<String> words = input.get(j);
-            point.clear();
-            int k = 0;
-            while (k < words.size() && ! words.get(k).equals("")) {
-                String word = words.get(k);
-                inv[k] = inv[k] || word.equals(invalid);
-                BigDecimal x = null;
-                switch (k) {
-                    case 0: 
-                        if (word.indexOf(" ") == -1) 
-                            x = new BigDecimal(word);
-                        else 
-                            x = Arithmetic.getTime(word);
-                        if (first == null) first = x;
-                        x = x.subtract(first);
+        if (input == null) {
+            String[] type_ = type.split("x");
+            double speed = Double.parseDouble(type_[0]);
+            int direction = Integer.parseInt(type_[1]);
+            type = type_[2];
+            this.dim = this.dim_ = dim;
+            data = new Vector<PointKD>();
+            Random rand = new Random();
+            double[] x = new double[dim], y = new double[dim];
+            for (int i = 0; i < dim; i ++) {
+                x[i] = y[i] = 0;
+            }
+            for (int i = 0; i < size; i ++) {
+                data.add(new PointKD(x));
+                x[0] += 1;
+                switch (type) {
+                    case "GAUSSIAN": 
+                        y = Arithmetic.gaussian(dim - 1);
+                        break;
+                    case "UNIFORM": 
+                        y = Arithmetic.uniform(dim - 1);
                         break;
                     default: 
-                        x = new BigDecimal(word);
                 }
-                point.add(x);
-                k ++;
+                for (int j = 1; j < dim; j ++) {
+                    if (rand.nextInt(direction) == 0)
+                        y[j - 1] = - y[j - 1];
+                    x[j] += y[j - 1] * speed;
+                }
             }
-            if (k == words.size()) {
-                PointKD p = new PointKD(point);
-                if (j == 0) {
-                    points.add(p);
-                }
-                else {
-                    PointKD q = points.lastElement();
-                    switch (Arithmetic.sgn(p.get(0).subtract(q.get(0)))) {
-                        case 1: 
-                            points.add(p);
-                            break;
+        }
+        else {
+            Vector<PointKD> points = new Vector<PointKD>();
+            Vector<BigDecimal> point = new Vector<BigDecimal>();
+            boolean[] inv = new boolean[Arithmetic.MAX_DIM];
+            BigDecimal first = null;
+            for (int j = 0; j < input.size() && (size <= 2 || j < size); j ++) {
+                Vector<String> words = input.get(j);
+                point.clear();
+                int k = 0;
+                while (k < words.size() && ! words.get(k).equals("")) {
+                    String word = words.get(k);
+                    inv[k] = inv[k] || word.equals(invalid);
+                    BigDecimal x = null;
+                    switch (k) {
                         case 0: 
-                            if (p.distanceLnoo().compareTo(q.distanceLnoo()) > 0) 
-                                points.set(points.size() - 1, p);
+                            if (word.indexOf(" ") == -1) 
+                                x = new BigDecimal(word);
+                            else 
+                                x = Arithmetic.getTime(word);
+                            if (first == null) first = x;
+                            x = x.subtract(first);
                             break;
                         default: 
+                            x = new BigDecimal(word);
+                    }
+                    point.add(x);
+                    k ++;
+                }
+                if (k == words.size()) {
+                    PointKD p = new PointKD(point);
+                    if (j == 0) {
+                        points.add(p);
+                    }
+                    else {
+                        PointKD q = points.lastElement();
+                        switch (Arithmetic.sgn(p.get(0).subtract(q.get(0)))) {
+                            case 1: 
+                                points.add(p);
+                                break;
+                            case 0: 
+                                if (p.distanceLnoo().compareTo(q.distanceLnoo()) > 0) 
+                                    points.set(points.size() - 1, p);
+                                break;
+                            default: 
+                        }
                     }
                 }
             }
-        }
-        for (int j = 0; j < points.size(); j ++) {
-            point.clear();
-            for (int k = 0; k < points.get(j).dim(); k ++) 
-                if (! inv[k]) point.add(points.get(j).get(k));
-            points.set(j, new PointKD(point));
-        }
-        dim_ = points.get(0).dim();
-        data = new Vector<PointKD>();
-        switch (type) {
-            case "SPHERE": 
-                this.dim = 3;
-                for (int j = 0; j < points.size(); j ++) {
-                    point.clear();
-                    for (int k = 0; k < 3; k ++) 
-                        point.add(points.get(j).get(k));
-                    data.add(new PointKD(point));
-                }
-                break;
-            case "EUCLIDEAN": 
-                this.dim = 4;
-                for (int j = 0; j < points.size(); j ++) {
-                    PointKD p = points.get(j);
-                    if (dim_ == 3) {
-                        point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
+            for (int j = 0; j < points.size(); j ++) {
+                point.clear();
+                for (int k = 0; k < points.get(j).dim(); k ++) 
+                    if (! inv[k]) point.add(points.get(j).get(k));
+                points.set(j, new PointKD(point));
+            }
+            dim_ = points.get(0).dim();
+            data = new Vector<PointKD>();
+            switch (type) {
+                case "SPHERE": 
+                    this.dim = 3;
+                    for (int j = 0; j < points.size(); j ++) {
+                        point.clear();
+                        for (int k = 0; k < 3; k ++) 
+                            point.add(points.get(j).get(k));
+                        data.add(new PointKD(point));
                     }
-                    else switch (dim) {
-                        case 3: 
+                    break;
+                case "EUCLIDEAN": 
+                    this.dim = 4;
+                    for (int j = 0; j < points.size(); j ++) {
+                        PointKD p = points.get(j);
+                        if (dim_ == 3) {
                             point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
-                            break;
-                        case 4: 
-                            point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), p.get(3));
-                            break;
-                        default: 
+                        }
+                        else switch (dim) {
+                            case 3: 
+                                point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), BigDecimal.ZERO);
+                                break;
+                            case 4: 
+                                point = Point.sphere2Euclidean(p.get(0), p.get(1), p.get(2), p.get(3));
+                                break;
+                            default: 
+                        }
+                        data.add(new PointKD(point));
                     }
-                    data.add(new PointKD(point));
-                }
-                break;
-            default: 
-                this.dim = dim < dim_ ? dim : dim_;
-                for (int j = 0; j < points.size(); j ++) {
-                    point.clear();
-                    for (int k = 0; k < this.dim; k ++) 
-                        point.add(points.get(j).get(k));
-                    data.add(new PointKD(point));
-                }
+                    break;
+                default: 
+                    this.dim = dim < dim_ ? dim : dim_;
+                    for (int j = 0; j < points.size(); j ++) {
+                        point.clear();
+                        for (int k = 0; k < this.dim; k ++) 
+                            point.add(points.get(j).get(k));
+                        data.add(new PointKD(point));
+                    }
+            }
+            generalize(range);
         }
-        generalize(range);
     }
 
     private void generalize(BigDecimal range) {

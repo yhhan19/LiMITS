@@ -22,6 +22,13 @@ public class Dataset {
         return perm;
     }
 
+    public Dataset() {
+        data = null;
+        perm = null;
+        token = invalid = null;
+        range = 0;
+    }
+
     public Dataset(String folderName_, String param) {
         String[] param_ = param.split("x");
         String folderName = folderName_ + "/" + param_[0];
@@ -78,6 +85,7 @@ public class Dataset {
     }
 
     public Vector<Vector<String>> getWords(int i) {
+        if (data == null) return null;
         Vector<Vector<String>> output = new Vector<Vector<String>>();
         for (int j = 0; j < data.get(i).size(); j ++) {
             output.add(get(i, j));
@@ -90,6 +98,7 @@ public class Dataset {
     }
 
     public int size() {
+        if (data == null) return Integer.MAX_VALUE;
         return data.size();
     }
 

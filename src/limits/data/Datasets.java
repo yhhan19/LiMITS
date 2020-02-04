@@ -7,6 +7,7 @@ public class Datasets {
     private Dataset[] data;
     private final String[] params;
     private final String folderName;
+    private static final Dataset simData = new Dataset();
 
     public Datasets(String folderName, String[] params) {
         this.folderName = folderName;
@@ -20,6 +21,7 @@ public class Datasets {
     }
 
     private int getIndex(String folderName) {
+        if (folderName.equals("SIM")) return params.length;
         for (int i = 0; i < params.length; i ++) {
             if (folderName.equals(getWord(i, 0))) 
                 return i;
@@ -30,6 +32,7 @@ public class Datasets {
     public Dataset getDataset(String folderName) {
         int i = getIndex(folderName);
         if (i == -1) return null;
+        if (i == params.length) return simData;
         if (data[i] == null) {
             synchronized (this) {
                 if (data[i] == null) {

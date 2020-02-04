@@ -105,15 +105,15 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
+        executes(EFFICIENT_ALGORITHMS, "1x5x5x10", new String[] {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-              "MOPSI_1000x10x3_SPHERE" 
-            , "MOPSI_1000x10x3_EUCLIDEAN" 
-            , "MOPSI_1000x10x4_EUCLIDEAN" 
-            //, "SIM_10x100x3_20x2xUNIFORM" 
-            //, "SIM_10x100x4_20x2xUNIFORM" 
+              "MOPSI_1000x100x3_SPHERE" 
+            , "MOPSI_1000x100x3_EUCLIDEAN" 
+            , "MOPSI_1000x100x4_EUCLIDEAN" 
+            , "SIM_100x100x3_20x2xUNIFORM" 
+            , "SIM_10x100x4_20x2xUNIFORM" 
             //, "BEE_10x0x3_DEFAULT" 
         });
         shutdown();
