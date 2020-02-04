@@ -4,42 +4,34 @@ import java.text.NumberFormat;
 import java.util.Vector;
 
 import limits.io.*;
-import limits.simplifier.*;
-import limits.util.*;
 
 public class Results {
 
-    private static final NumberFormat f = Writer.DOUBLE_FORMAT_;
+    protected static final NumberFormat f = Writer.DOUBLE_FORMAT_;
 
     private Result[] results;
-    private String fileName;
-
-    private TS search(String name) {
-        for (int i = 0; i < LIMITS.ALGORITHMS.length; i ++) 
-            if (LIMITS.ALGORITHMS[i].name().equals(name)) 
-                return LIMITS.ALGORITHMS[i];
-        return null;
-    }
+    private String fileName, folderName;
 
     public Results(String folderName, String fileName) {
+        this.folderName = folderName;
         this.fileName = fileName;
         Vector<Result> temp = new Vector<Result>();
         Vector<String> lines = Reader.getLines(folderName + "/" + fileName, 0);
         for (int i = lines.size() - 1, j = lines.size(); i >= 0; i --) {
-            Vector<String> words = Arithmetic.getWords(lines.get(i), " ");
-            if (words.get(0).equals("error:")) {
-                double eps = Double.parseDouble(words.get(1));
-                int cases = Integer.parseInt(words.get(3)), size = Integer.parseInt(words.get(6));
-                TS[] ts = new TS[j - i - 1];
+            String[] words = lines.get(i).split(" ");
+            if (words[0].equals("error:")) {
+                double eps = Double.parseDouble(words[1]);
+                int cases = Integer.parseInt(words[3]), size = Integer.parseInt(words[6]);
+                String[] names = new String[j - i - 1];
                 double[][] res = new double[j - i - 1][3];
                 for (int k = i + 1; k < j; k ++) {
-                    Vector<String> words_ = Arithmetic.getWords(lines.get(k), " ");
-                    ts[k - i - 1] = search(words_.get(0));
-                    res[k - i - 1][0] = Double.parseDouble(words_.get(1));
-                    res[k - i - 1][1] = Double.parseDouble(words_.get(2));
-                    res[k - i - 1][2] = Double.parseDouble(words_.get(3));
+                    String[] words_ = lines.get(k).split(" ");
+                    names[k - i - 1] = words_[0];
+                    res[k - i - 1][0] = Double.parseDouble(words_[1]);
+                    res[k - i - 1][1] = Double.parseDouble(words_[2]);
+                    res[k - i - 1][2] = Double.parseDouble(words_[3]);
                 }
-                temp.add(new Result(ts, res, eps, size, cases));
+                temp.add(new Result(names, res, eps, size, cases));
                 j = i;
             }
         }
@@ -82,7 +74,7 @@ public class Results {
     }
 
     public void toCommands() {
-        Writer commands = new Writer(LIMITS.FINAL_FOLDER_NAME, fileName);
+        Writer commands = new Writer(folderName, fileName + ".nb");
         commands.write(toString(0) + toString(1) + toString(2));
         commands.close();
     }

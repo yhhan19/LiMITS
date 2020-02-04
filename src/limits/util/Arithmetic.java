@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.Vector;
 
 public class Arithmetic {
-
+    
     public static final int 
         PRECISION = 64, 
         MAX_DIM = 8;
@@ -109,14 +109,5 @@ public class Arithmetic {
 
         }
         return new BigDecimal(date.getTime());
-    }
-
-    public static Vector<String> getWords(String input, String token) {
-        Vector<String> output = new Vector<String>();
-        String[] st = input.split(token);
-        for (int i = 0; i < st.length; i ++) {
-            output.add(st[i]);
-        }
-        return output;
     }
 }

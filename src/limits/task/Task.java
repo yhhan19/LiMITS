@@ -5,15 +5,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.Vector;
 
 import limits.data.*;
-import limits.geometry.*;
-import limits.io.*;
+import limits.geometry.SeriesKD;
 import limits.simplifier.*;
 import limits.util.*;
 
 public class Task extends Thread {
 
     private final TS[] ts;
-    private final Writer log;
+    private final Log log;
     private final Result results;
     private final Dataset data;
     private final int cases, size, dim;
@@ -27,18 +26,18 @@ public class Task extends Thread {
         this.param = param;
         this.count = count;
         this.pointer = pointer;
-        log = new Writer(LIMITS.LOG_FOLDER_NAME, param + "_" + algorithms + ".log");
-        Vector<String> p = Arithmetic.getWords(param, "_"), name = Arithmetic.getWords(p.get(0), "x"), scale = Arithmetic.getWords(p.get(1), "x");
-        superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + algorithms;
-        taskName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;
-        folderName = name.get(1).equals("SIM") ? null : name.get(1);
+        log = new Log(LIMITS.LOG_FOLDER_NAME, param + "_" + algorithms + ".log");
+        String[] p = param.split("_"), name = p[0].split("x"), scale = p[1].split("x");
+        superName = name[1] + "_" + p[1] + "_" + p[2] + "_" + algorithms;
+        taskName = name[1] + "_" + p[1] + "_" + p[2] + "_" + p[3] + "_" + algorithms;
+        folderName = name[1].equals("SIM") ? null : name[1];
         data = folderName == null ? null : LIMITS.DATASETS.getDataset(folderName);
-        cases = Integer.parseInt(scale.get(0));
-        size = Integer.parseInt(scale.get(1));
-        dim = Integer.parseInt(scale.get(2));
-        type = p.get(2);
-        eps = Double.parseDouble(p.get(3));
-        results = new Result(ts, eps);
+        cases = Integer.parseInt(scale[0]);
+        size = Integer.parseInt(scale[1]);
+        dim = Integer.parseInt(scale[2]);
+        type = p[2];
+        eps = Double.parseDouble(p[3]);
+        results = new Result(TS.getNames(ts), eps);
     }
 
     public String taskName() {
@@ -87,28 +86,28 @@ public class Task extends Thread {
         if (folderName == null) {
             for (int i = pointer.next(); i < cases; i = pointer.next()) {
                 SeriesKD s = new SeriesKD(size, dim, type);
-                log.write("case: " + i + " size: " + s.size() + "\n");
+                log.add("case: " + i + " size: " + s.size() + "\n");
                 Vector<BigDecimal> e = getError(s);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
                     res[j] = ts[j].evaluateKD(s, e, false);
-                    log.write(Result.toString(res[j], 1));
+                    log.add(Result.toString(res[j], 1));
                 }
-                results.add(new Result(ts, res, eps, s.size(), 1));
+                results.add(new Result(TS.getNames(ts), res, eps, s.size(), 1));
             }
         }
         else {
             for (int i = pointer.next(); i < data.size() && (cases <= 0 || i < cases); i = pointer.next()) {
-                SeriesKD s = new SeriesKD(data, i, dim, size, type);
+                SeriesKD s = new SeriesKD(data.getWords(i), data.invalid(), data.getGenRange(), dim, size, type);
                 if (type.equals("EUCLIDEAN") && s.rawDim() < dim) continue;
-                log.write("case: " + i + " size: " + s.size() + "\n");
+                log.add("case: " + i + " size: " + s.size() + "\n");
                 Vector<BigDecimal> e = getError(s);
                 double[][] res = new double[ts.length][];
                 for (int j = 0; j < ts.length; j ++) {
                     res[j] = ts[j].evaluateKD(s, e, type.equals("SPHERE"));
-                    log.write(Result.toString(res[j], 1));
+                    log.add(Result.toString(res[j], 1));
                 }
-                results.add(new Result(ts, res, eps, s.size(), 1));
+                results.add(new Result(TS.getNames(ts), res, eps, s.size(), 1));
             }
         }
         log.write(results.toString(results.getSize()));

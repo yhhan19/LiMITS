@@ -9,6 +9,13 @@ public abstract class TS {
 
     public abstract String name();
 
+    public static String[] getNames(TS[] ts) {
+        String[] names = new String[ts.length];
+        for (int i = 0; i < ts.length; i ++) 
+            names[i] = ts[i].name();
+        return names;
+    }
+
     public abstract SeriesKD simplifyKD(SeriesKD s, Vector<BigDecimal> eps);
 
     public double[] evaluateKD(SeriesKD s, Vector<BigDecimal> eps, boolean sphere) {

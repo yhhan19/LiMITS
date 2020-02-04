@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.Vector;
 
 import limits.data.*;
-import limits.io.*;
 import limits.simplifier.*;
 import limits.task.*;
 
@@ -18,11 +17,10 @@ public class LIMITS {
         DATA_FOLDER_NAME = IO_FOLDER_NAME + "/data", 
         LOG_FOLDER_NAME = IO_FOLDER_NAME + "/log/long", 
         RES_FOLDER_NAME = IO_FOLDER_NAME + "/log/short", 
-        REPORT_FOLDER_NAME = IO_FOLDER_NAME + "/report", 
-        FINAL_FOLDER_NAME = IO_FOLDER_NAME + "/final";
+        REPORT_FOLDER_NAME = IO_FOLDER_NAME + "/report";
 
     public static final Datasets 
-        DATASETS = new Datasets(new String[] {
+        DATASETS = new Datasets(DATA_FOLDER_NAME, new String[] {
             "BEIJINGx6x,x4/0/1/3x-777x12", 
             "MOPSIx0x x2/0/1/3x-1.0x12", 
             "BEEx0x,x0/1/2x,x3", 
@@ -64,9 +62,9 @@ public class LIMITS {
     }
 
     public static void execute(int mask, String batch, String param) throws Exception {
-        Vector<String> batch_ = Arithmetic.getWords(batch, "x");
-        double minError = Double.parseDouble(batch_.get(0)), maxError = Double.parseDouble(batch_.get(1));
-        int t0 = Integer.parseInt(batch_.get(2)), t1 = Integer.parseInt(batch_.get(3));
+        String[] batch_ = batch.split("x");
+        double minError = Double.parseDouble(batch_[0]), maxError = Double.parseDouble(batch_[1]);
+        int t0 = Integer.parseInt(batch_[2]), t1 = Integer.parseInt(batch_[3]);
         Task[][] tasks = new Task[t0][t1];
         for (int i = 0; i < t0; i ++) {
             double e = minError + ((maxError - minError) / (t0 - 1)) * i;
@@ -77,19 +75,19 @@ public class LIMITS {
                 es.execute(tasks[i][j]);
             }
         }
-        Writer report = new Writer(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
+        Log report = new Log(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
         Result results[] = new Result[t0];
         for (int i = 0; i < t0; i ++) {
-            results[i] = new Result(tasks[i][0].getTS(), tasks[i][0].getResults().getError());
+            results[i] = new Result(TS.getNames(tasks[i][0].getTS()), tasks[i][0].getResults().getError());
             tasks[i][0].getCount().await();
             for (int j = 0; j < t1; j ++) {
                 results[i].add(tasks[i][j].getResults());
             }
             String res = results[i].toString(results[i].getSize());
-            Writer log = new Writer(RES_FOLDER_NAME, tasks[i][0].taskName() + ".res");
-            log.write(res);
+            Log log = new Log(RES_FOLDER_NAME, tasks[i][0].taskName() + ".res");
+            log.add(res);
             log.close();
-            report.write(res);
+            report.add(res);
             System.out.println("batch done: " + tasks[i][0].taskName());
         }
         report.close();
@@ -108,7 +106,6 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Results(REPORT_FOLDER_NAME, "MOPSI_0x0x4_EUCLIDEAN_59_1x100x100x32.txt")).toCommands();
         executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 

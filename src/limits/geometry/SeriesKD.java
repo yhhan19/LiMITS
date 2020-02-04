@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Random;
 import java.util.Vector;
 
-import limits.data.*;
 import limits.util.*;
 
 public class SeriesKD {
@@ -20,10 +19,10 @@ public class SeriesKD {
     }
 
     public SeriesKD(int size, int dim, String type) {
-        Vector<String> type_ = Arithmetic.getWords(type, "x");
-        double speed = Double.parseDouble(type_.get(0));
-        int direction = Integer.parseInt(type_.get(1));
-        type = type_.get(2);
+        String[] type_ = type.split("x");
+        double speed = Double.parseDouble(type_[0]);
+        int direction = Integer.parseInt(type_[1]);
+        type = type_[2];
         this.dim = this.dim_ = dim;
         data = new Vector<PointKD>();
         Random rand = new Random();
@@ -51,18 +50,18 @@ public class SeriesKD {
         }
     }
 
-    public SeriesKD(Dataset dataset, int i, int dim, int size, String type) {
+    public SeriesKD(Vector<Vector<String>> input, String invalid, BigDecimal range, int dim, int size, String type) {
         Vector<PointKD> points = new Vector<PointKD>();
         Vector<BigDecimal> point = new Vector<BigDecimal>();
-        boolean[] invalid = new boolean[Arithmetic.MAX_DIM];
+        boolean[] inv = new boolean[Arithmetic.MAX_DIM];
         BigDecimal first = null;
-        for (int j = 0; j < dataset.get(i).size() && (size <= 2 || j < size); j ++) {
-            Vector<String> words = dataset.get(i, j);
+        for (int j = 0; j < input.size() && (size <= 2 || j < size); j ++) {
+            Vector<String> words = input.get(j);
             point.clear();
             int k = 0;
             while (k < words.size() && ! words.get(k).equals("")) {
                 String word = words.get(k);
-                invalid[k] = invalid[k] || word.equals(dataset.invalid());
+                inv[k] = inv[k] || word.equals(invalid);
                 BigDecimal x = null;
                 switch (k) {
                     case 0: 
@@ -102,7 +101,7 @@ public class SeriesKD {
         for (int j = 0; j < points.size(); j ++) {
             point.clear();
             for (int k = 0; k < points.get(j).dim(); k ++) 
-                if (! invalid[k]) point.add(points.get(j).get(k));
+                if (! inv[k]) point.add(points.get(j).get(k));
             points.set(j, new PointKD(point));
         }
         dim_ = points.get(0).dim();
@@ -145,7 +144,7 @@ public class SeriesKD {
                     data.add(new PointKD(point));
                 }
         }
-        generalize(dataset.getGenRange());
+        generalize(range);
     }
 
     private void generalize(BigDecimal range) {

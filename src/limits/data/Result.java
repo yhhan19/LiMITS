@@ -2,32 +2,28 @@ package limits.data;
 
 import java.text.NumberFormat;
 
-import limits.io.*;
-import limits.simplifier.*;
-import limits.util.*;
-
 public class Result {
 
-    private static final NumberFormat f = Writer.DOUBLE_FORMAT;
+    private static final NumberFormat f = Results.f;
 
     public static final int LEN = 3;
 
-    private TS[] ts;
+    private String[] names;
     private double[][] results;
     private int cases, size;
     private double eps;
 
-    public Result(TS[] ts, double eps) {
-        this.ts = ts;
-        this.results = new double[ts.length][LEN];
+    public Result(String[] names, double eps) {
+        this.names = names;
+        this.results = new double[names.length][LEN];
         cases = size = 0;
         this.eps = eps;
     }
 
-    public Result(TS[] ts, double[][] results, double eps, int size, int cases) {
-        this.ts = ts;
-        this.results = new double[ts.length][LEN];
-        for (int i = 0; i < ts.length; i ++) 
+    public Result(String[] names, double[][] results, double eps, int size, int cases) {
+        this.names = names;
+        this.results = new double[names.length][LEN];
+        for (int i = 0; i < names.length; i ++) 
             for (int j = 0; j < LEN; j ++) 
                 this.results[i][j] = results[i][j];
         this.size = size;
@@ -44,8 +40,8 @@ public class Result {
 
     public String toString(int dom) {
         String s = "error: " + eps + " cases: " + cases + " total size: " + size + "\n";
-        for (int i = 0; i < ts.length; i ++) 
-            s = s + ts[i].name() + " " + toString(results[i], dom);
+        for (int i = 0; i < names.length; i ++) 
+            s = s + names[i] + " " + toString(results[i], dom);
         return s;
     }
 
@@ -57,7 +53,7 @@ public class Result {
     }
 
     public void add(Result that) {
-        for (int i = 0; i < ts.length; i ++) {
+        for (int i = 0; i < names.length; i ++) {
             for (int j = 0; j < LEN - 1; j ++) 
                 results[i][j] += that.results[i][j];
             if (results[i][LEN - 1] < that.results[i][LEN - 1]) 
@@ -80,7 +76,7 @@ public class Result {
     }
 
     public int getRaws() {
-        return ts.length;
+        return names.length;
     }
 
     public double getData(int i, int j) {

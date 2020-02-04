@@ -2,22 +2,21 @@ package limits.data;
 
 import java.util.Vector;
 
-import limits.io.*;
-import limits.util.*;
-
 public class Datasets {
 
     private Dataset[] data;
     private final String[] params;
+    private final String folderName;
 
-    public Datasets(String[] params) {
+    public Datasets(String folderName, String[] params) {
+        this.folderName = folderName;
         this.params = params;
         data = new Dataset[params.length];
     }
 
     private String getWord(int i, int j) {
-        Vector<String> param_ = Arithmetic.getWords(params[i], "x");
-        return param_.get(j);
+        String[] param_ = params[i].split("x");
+        return param_[j];
     }
 
     private int getIndex(String folderName) {
@@ -34,7 +33,7 @@ public class Datasets {
         if (data[i] == null) {
             synchronized (this) {
                 if (data[i] == null) {
-                    data[i] = new Dataset(params[i]);
+                    data[i] = new Dataset(this.folderName, params[i]);
                 }
             }
         }
