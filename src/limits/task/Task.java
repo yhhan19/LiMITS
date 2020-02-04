@@ -13,7 +13,7 @@ import limits.util.*;
 public class Task extends Thread {
 
     private final TS[] ts;
-    private final Log log;
+    private final Writer log;
     private final Result results;
     private final Dataset data;
     private final int cases, size, dim;
@@ -27,7 +27,7 @@ public class Task extends Thread {
         this.param = param;
         this.count = count;
         this.pointer = pointer;
-        log = new Log(param + "_" + algorithms + ".log");
+        log = new Writer(LIMITS.LOG_FOLDER_NAME, param + "_" + algorithms + ".log");
         Vector<String> p = Arithmetic.getWords(param, "_"), name = Arithmetic.getWords(p.get(0), "x"), scale = Arithmetic.getWords(p.get(1), "x");
         superName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + algorithms;
         taskName = name.get(1) + "_" + p.get(1) + "_" + p.get(2) + "_" + p.get(3) + "_" + algorithms;

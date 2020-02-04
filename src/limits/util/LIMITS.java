@@ -77,7 +77,7 @@ public class LIMITS {
                 es.execute(tasks[i][j]);
             }
         }
-        Log report = new Log(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
+        Writer report = new Writer(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
         Result results[] = new Result[t0];
         for (int i = 0; i < t0; i ++) {
             results[i] = new Result(tasks[i][0].getTS(), tasks[i][0].getResults().getError());
@@ -86,14 +86,14 @@ public class LIMITS {
                 results[i].add(tasks[i][j].getResults());
             }
             String res = results[i].toString(results[i].getSize());
-            Log log = new Log(RES_FOLDER_NAME, tasks[i][0].taskName() + ".res");
+            Writer log = new Writer(RES_FOLDER_NAME, tasks[i][0].taskName() + ".res");
             log.write(res);
             log.close();
             report.write(res);
             System.out.println("batch done: " + tasks[i][0].taskName());
         }
         report.close();
-        Report rep = new Report(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
+        Results rep = new Results(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
         rep.toCommands();
     }
 
@@ -108,7 +108,7 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        (new Report(REPORT_FOLDER_NAME, "MOPSI_0x0x4_EUCLIDEAN_59_1x100x100x32.txt")).toCommands();
+        (new Results(REPORT_FOLDER_NAME, "MOPSI_0x0x4_EUCLIDEAN_59_1x100x100x32.txt")).toCommands();
         executes(EFFICIENT_ALGORITHMS, "1x10x10x10", new String[] {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 

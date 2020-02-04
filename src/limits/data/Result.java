@@ -8,7 +8,7 @@ import limits.util.*;
 
 public class Result {
 
-    private static final NumberFormat f = Log.DOUBLE_FORMAT;
+    private static final NumberFormat f = Writer.DOUBLE_FORMAT;
 
     public static final int LEN = 3;
 

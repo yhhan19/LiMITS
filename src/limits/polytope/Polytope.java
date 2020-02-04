@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Vector;
 
 import limits.geometry.*;
-import limits.util.*;
 
 public class Polytope {
 

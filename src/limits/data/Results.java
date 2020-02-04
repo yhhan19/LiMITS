@@ -7,9 +7,9 @@ import limits.io.*;
 import limits.simplifier.*;
 import limits.util.*;
 
-public class Report {
+public class Results {
 
-    private static final NumberFormat f = Log.DOUBLE_FORMAT_;
+    private static final NumberFormat f = Writer.DOUBLE_FORMAT_;
 
     private Result[] results;
     private String fileName;
@@ -21,7 +21,7 @@ public class Report {
         return null;
     }
 
-    public Report(String folderName, String fileName) {
+    public Results(String folderName, String fileName) {
         this.fileName = fileName;
         Vector<Result> temp = new Vector<Result>();
         Vector<String> lines = Reader.getLines(folderName + "/" + fileName, 0);
@@ -82,7 +82,7 @@ public class Report {
     }
 
     public void toCommands() {
-        Log commands = new Log(LIMITS.FINAL_FOLDER_NAME, fileName);
+        Writer commands = new Writer(LIMITS.FINAL_FOLDER_NAME, fileName);
         commands.write(toString(0) + toString(1) + toString(2));
         commands.close();
     }

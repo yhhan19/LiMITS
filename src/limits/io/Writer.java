@@ -7,9 +7,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import limits.util.*;
-
-public class Log {
+public class Writer {
 
     public static final int 
         DISPLAY_SCALE = 9;
@@ -23,20 +21,7 @@ public class Log {
     private File file;
     private FileWriter writer;
 
-    public Log(String fileName) {
-        this.fileName = LIMITS.LOG_FOLDER_NAME + "/" + fileName;
-        try {
-            file = new File(this.fileName);
-            file.delete();
-            file.createNewFile();
-            writer = new FileWriter(file, true);
-        }
-        catch (Exception e) {
-
-        }
-    }
-
-    public Log(String folderName, String fileName) {
+    public Writer(String folderName, String fileName) {
         this.fileName = folderName + "/" + fileName;
         try {
             file = new File(this.fileName);
@@ -65,12 +50,5 @@ public class Log {
         catch (Exception e) {
             
         }
-    }
-
-    public static String format(BigDecimal x) {
-        NumberFormat formatter = BIGDEC_FORMAT;
-        formatter.setRoundingMode(RoundingMode.HALF_EVEN);
-        formatter.setMinimumFractionDigits(DISPLAY_SCALE);
-        return formatter.format(x);
     }
 }

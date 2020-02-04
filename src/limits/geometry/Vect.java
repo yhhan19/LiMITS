@@ -3,7 +3,6 @@ package limits.geometry;
 import java.math.BigDecimal;
 import java.math.MathContext;
 
-import limits.polytope.*;
 import limits.util.*;
 
 public class Vect {
@@ -14,22 +13,6 @@ public class Vect {
         this.from = new Point(from);
         this.to = new Point(to);
     }
-    /*
-    public Vect(Edge e) {
-        this.from = e.getFrom().getPoint();
-        this.to = e.getTo().getPoint();
-    }
-
-    public Vect(Chord ch) {
-        this.from = ch.getFromVertex().getPoint();
-        this.to = ch.getToVertex().getPoint();
-    }
-
-    public Vect(Vertex v0, Vertex v1) {
-        this.from = v0.getPoint();
-        this.to = v1.getPoint();
-    }
-    */
 
     public Vect(Point to) {
         this.from = Point.ORIGIN;
