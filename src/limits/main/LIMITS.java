@@ -1,4 +1,4 @@
-package limits.util;
+package limits.main;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import limits.data.*;
 import limits.simplifier.*;
-import limits.task.*;
 
 public class LIMITS {
 

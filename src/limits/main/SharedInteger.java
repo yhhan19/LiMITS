@@ -1,4 +1,4 @@
-package limits.task;
+package limits.main;
 
 public class SharedInteger {
     

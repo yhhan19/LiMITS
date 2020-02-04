@@ -371,4 +371,30 @@ public class SeriesKD {
         }
         return error;
     }
+
+    private double getCos(double eps) {
+        BigDecimal min = min(1), max = max(1);
+        if (min.signum() == -1 && max.signum() == 1) return 1;
+        BigDecimal min_ = min.abs().min(max.abs()).subtract(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
+        if (min_.signum() != 1) return 1;
+        return Arithmetic.cos(min_);
+    }
+
+    public Vector<BigDecimal> getError(String type, double eps) {
+        Vector<BigDecimal> e = new Vector<BigDecimal>();
+        switch (type) {
+            case "SPHERE": 
+                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON));
+                e.add(new BigDecimal(eps / Arithmetic.METERS_PER_LON / getCos(eps)));
+                break;
+            case "EUCLIDEAN": 
+                for (int i = 0; i < dim() - 1; i ++) 
+                    e.add(new BigDecimal(eps));
+                break;
+            default: 
+                for (int i = 0; i < dim() - 1; i ++) 
+                    e.add(new BigDecimal(eps));
+        }
+        return e;
+    }
 }
