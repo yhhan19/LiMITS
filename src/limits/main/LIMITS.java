@@ -27,7 +27,8 @@ public class LIMITS {
             "TDRIVEx0x,x1/3/2x,x12", 
             "TAXIx0x;x1/2/3x;x12", 
             "STORK.CSVx1x,x20/2/4/3/17x,x12", 
-            "GOOSE.CSVx1x,x19/2/4/3/16x,x12"
+            "GOOSE.CSVx1x,x19/2/4/3/16x,x12", 
+            "FISH.CSVx1x,x1/2/3/4/5x,x12"
         });
 
     public static final TS[] 
@@ -91,7 +92,7 @@ public class LIMITS {
         }
         report.close();
         Results rep = new Results(REPORT_FOLDER_NAME, tasks[0][0].superName() + "_" + batch + ".txt");
-        rep.toCommands();
+        rep.toCommands(param.split("_")[0], minError + "," + maxError);
     }
 
     public static void executes(int mask, String batch, String[] params) throws Exception {
@@ -105,15 +106,16 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        executes(EFFICIENT_ALGORITHMS, "1x5x5x10", new String[] {
+        executes(EFFICIENT_ALGORITHMS, "0.1x5x50x10", new String[] {
+            "FISH.CSV_0x0x4_DEFAULT" 
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-              "MOPSI_1000x100x3_SPHERE" 
-            , "MOPSI_1000x100x3_EUCLIDEAN" 
-            , "MOPSI_1000x100x4_EUCLIDEAN" 
-            , "SIM_100x100x3_20x2xUNIFORM" 
-            , "SIM_10x100x4_20x2xUNIFORM" 
+            //  "MOPSI_1000x100x3_SPHERE" 
+            //, "MOPSI_1000x100x3_EUCLIDEAN" 
+            //, "MOPSI_1000x100x4_EUCLIDEAN" 
+            //, "SIM_100x100x3_20x2xUNIFORM" 
+            //, "SIM_10x100x4_20x2xUNIFORM" 
             //, "BEE_10x0x3_DEFAULT" 
         });
         shutdown();

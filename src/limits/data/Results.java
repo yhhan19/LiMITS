@@ -73,9 +73,17 @@ public class Results {
         return series;
     }
 
-    public void toCommands() {
+    public void toCommands(String name, String range) {
         Writer commands = new Writer(folderName, fileName + ".nb");
         commands.write(toString(0) + toString(1) + toString(2));
+        String plotCommands = "";
+        plotCommands += "f2 = ListLinePlot[data2, DataRange->{" + range + "},Frame->{{True,False},{True,False}},PlotRange->All,PlotLabels->Placed[{\"RDP\",\"CIS\",\"CIW\",\"MIM\",\"MIV\"},{Automatic}],FrameLabel->{\"error (m)\",\"performance\"},LabelStyle->Directive[Bold,Medium]];\n";
+        plotCommands += "f0 = ListLinePlot[data0, DataRange->{" + range + "},Frame->{{True,False},{True,False}},PlotRange->All,PlotLabels->Placed[{\"RDP\",\"CIS\",\"CIW\",\"MIM\",\"MIV\"},{Automatic}],FrameLabel->{\"error (m)\",\"compression ratio\"},LabelStyle->Directive[Bold,Medium]];\n";
+        plotCommands += "f1 = ListLinePlot[data1, DataRange->{" + range +"},Frame->{{True,False},{True,False}},PlotRange->All,PlotLabels->{\"RDP\",\"CIS\",\"CIW\",\"MIM\",\"MIV\"},FrameLabel->{\"error (m)\",\"time/point (ms)\"},LabelStyle->Directive[Bold,Medium]];\n";
+        plotCommands += "Export[\"" + name + "-relative-effectiveness.pdf\",f2];\n";
+        plotCommands += "Export[\"" + name + "-absolute-effectiveness.pdf\",f0];\n";
+        plotCommands += "Export[\"" + name + "-efficiency.pdf\",f1];\n";
+        commands.write(plotCommands);
         commands.close();
     }
 }
