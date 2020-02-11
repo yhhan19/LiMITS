@@ -23,11 +23,6 @@ public class LIMITS {
             "BEIJINGx6x,x4/0/1/3x-777x12", 
             "MOPSIx0x x2/0/1/3x-1.0x12", 
             "BEEx0x,x0/1/2x,x3", 
-            "FLIGHTx1x,x0/3/4/1x,x12", 
-            "TDRIVEx0x,x1/3/2x,x12", 
-            "TAXIx0x;x1/2/3x;x12", 
-            "STORK.CSVx1x,x20/2/4/3/17x,x12", 
-            "GOOSE.CSVx1x,x19/2/4/3/16x,x12", 
             "FISH.CSVx1x,x1/2/3/4/5x,x12"
         });
 
@@ -45,7 +40,7 @@ public class LIMITS {
         ALL_ALGORITHMS = 0B111111, 
         WEAK_ALGORITHMS = 0B111000, 
         EFFICIENT_ALGORITHMS = 0B111011, 
-        EFFECTIVE_ALGORITHMS = 0B101100;
+        EFFECTIVE_ALGORITHMS = 0B100100;
 
     private static final ExecutorService es = Executors.newFixedThreadPool(10);
 
@@ -106,18 +101,19 @@ public class LIMITS {
     }
 
     public static void main(String[] args) throws Exception {
-        executes(EFFICIENT_ALGORITHMS, "0.1x5x50x10", new String[] {
-            "FISH.CSV_0x0x4_DEFAULT" 
+        executes(EFFECTIVE_ALGORITHMS, "1x20x20x10", new String[] {
+            //  "FISH.CSV_0x0x4_DEFAULT" 
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-            //  "MOPSI_1000x100x3_SPHERE" 
+            //  "MOPSI_0x10000x3_SPHERE" 
             //, "MOPSI_1000x100x3_EUCLIDEAN" 
             //, "MOPSI_1000x100x4_EUCLIDEAN" 
-            //, "SIM_100x100x3_20x2xUNIFORM" 
-            //, "SIM_10x100x4_20x2xUNIFORM" 
-            //, "BEE_10x0x3_DEFAULT" 
+            //  "SIM_2500x1000x3_1x2xGAUSSIAN" 
+            //  "SIM_2500x1000x4_1x2xGAUSSIAN" 
+            //  "BEE_0x0x3_DEFAULT" 
         });
+        //(new Results(REPORT_FOLDER_NAME, "-.txt")).toCommands("-", "0,1");
         shutdown();
     }
 }

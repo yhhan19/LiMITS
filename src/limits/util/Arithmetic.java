@@ -64,7 +64,7 @@ public class Arithmetic {
         return Math.cos(x_);
     }
 
-    public static double[] gaussian(int k) {
+    public static double[] gaussian(double t, int k) {
         double[] x = new double[k];
         double s;
         do {
@@ -76,7 +76,7 @@ public class Arithmetic {
         } while (s > 1);
         double y = Math.sqrt(- 2 * Math.log(s) / s);
         for (int i = 0; i < k; i ++) 
-            x[i] *= y;
+            x[i] *= y * t;
         return x;
     }
 

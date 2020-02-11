@@ -33,10 +33,10 @@ public class SeriesKD {
             }
             for (int i = 0; i < size; i ++) {
                 data.add(new PointKD(x));
-                x[0] += 1;
+                x[0] += 1.0 / size;
                 switch (type) {
                     case "GAUSSIAN": 
-                        y = Arithmetic.gaussian(dim - 1);
+                        y = Arithmetic.gaussian(1 / Math.sqrt(size), dim - 1);
                         break;
                     case "UNIFORM": 
                         y = Arithmetic.uniform(dim - 1);
