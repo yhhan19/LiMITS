@@ -11,11 +11,26 @@ public class SeriesKD {
     private Vector<PointKD> data;
     private int dim, dim_;
 
+    private Vector<Integer> comCode;
+
+    public SeriesKD(int size, int dim) {
+        this.dim = this.dim_ = dim;
+        this.data = new Vector<PointKD>();
+        this.comCode = new Vector<Integer>();
+        for (int i = 0; i < size; i ++) {
+            this.data.add(new PointKD(i, dim));
+            this.comCode.add(dim - 1);
+        }
+    }
+
     public SeriesKD(Vector<PointKD> data) {
         this.dim = this.dim_ = data.get(0).dim();
         this.data = new Vector<PointKD>();
-        for (int i = 0; i < data.size(); i ++) 
+        this.comCode = new Vector<Integer>();
+        for (int i = 0; i < data.size(); i ++) {
             this.data.add(data.get(i));
+            this.comCode.add(dim - 1);
+        }
     }
 
     public SeriesKD(Vector<Vector<String>> input, String invalid, BigDecimal range, int dim, int size, String type) {
@@ -26,6 +41,7 @@ public class SeriesKD {
             type = type_[2];
             this.dim = this.dim_ = dim;
             data = new Vector<PointKD>();
+            comCode = new Vector<Integer>();
             Random rand = new Random();
             double[] x = new double[dim], y = new double[dim];
             for (int i = 0; i < dim; i ++) {
@@ -33,6 +49,7 @@ public class SeriesKD {
             }
             for (int i = 0; i < size; i ++) {
                 data.add(new PointKD(x));
+                comCode.add(dim - 1);
                 x[0] += 1.0 / size;
                 switch (type) {
                     case "GAUSSIAN": 
@@ -106,6 +123,7 @@ public class SeriesKD {
             }
             dim_ = points.get(0).dim();
             data = new Vector<PointKD>();
+            comCode = new Vector<Integer>();
             switch (type) {
                 case "SPHERE": 
                     this.dim = 3;
@@ -114,6 +132,7 @@ public class SeriesKD {
                         for (int k = 0; k < 3; k ++) 
                             point.add(points.get(j).get(k));
                         data.add(new PointKD(point));
+                        comCode.add(dim - 1);
                     }
                     break;
                 case "EUCLIDEAN": 
@@ -133,6 +152,7 @@ public class SeriesKD {
                             default: 
                         }
                         data.add(new PointKD(point));
+                        comCode.add(dim - 1);
                     }
                     break;
                 default: 
@@ -142,6 +162,7 @@ public class SeriesKD {
                         for (int k = 0; k < this.dim; k ++) 
                             point.add(points.get(j).get(k));
                         data.add(new PointKD(point));
+                        comCode.add(dim - 1);
                     }
             }
             generalize(range);
@@ -154,6 +175,7 @@ public class SeriesKD {
     }
 
     public SeriesKD(SeriesKD s0, Series s1) {
+        comCode = new Vector<Integer>();
         if (s0 == null) {
             this.dim = this.dim_ = 2;
             this.data = new Vector<PointKD>();
@@ -164,6 +186,7 @@ public class SeriesKD {
                 point.set(0, s1.get(i).getX());
                 point.set(1, s1.get(i).getY());
                 data.add(new PointKD(point));
+                comCode.add(1);
             }
             return ;
         }
@@ -181,6 +204,7 @@ public class SeriesKD {
                         point.set(k, s0.get(i).get(k));
                     point.set(s0.dim(), s1.get(j).getY());
                     data.add(new PointKD(point));
+                    comCode.add(s0.comCode.get(i) + 1);
                     i ++; j ++;
                     break;
                 case -1:
@@ -202,6 +226,7 @@ public class SeriesKD {
                             point.set(k, r.get(k));
                         point.set(s0.dim(), s1.get(j).getY());
                         data.add(new PointKD(point));
+                        comCode.add(1);
                     }
                     j ++;
                     break;
@@ -224,6 +249,7 @@ public class SeriesKD {
                 point.set(k, r.get(k));
             point.set(s0.dim(), s1.get(j).getY());
             data.add(new PointKD(point));
+            comCode.add(1);
             j ++;
         }
     }
@@ -397,5 +423,52 @@ public class SeriesKD {
                     e.add(new BigDecimal(eps));
         }
         return e;
+    }
+
+    public int getBitSize() {
+        int count[] = new int[dim()];
+        for (int i = 0; i < size(); i ++) {
+            count[comCode.get(i)] ++;
+            Arithmetic.count[comCode.get(i)] ++;
+        }
+        if (count[dim() - 1] == size()) {
+            return 32 * size() * dim();
+        }
+        else {
+            int total = 0, bits = 0;
+            for (int i = 1; i < dim(); i ++) {
+                total += count[i] * (i + 1);
+                if (i == 1 || i == 2) 
+                    bits += count[i] * (dim() - 2);
+                else 
+                    bits += count[i] * (dim() - i);
+            }
+            return bits + total * 32;
+        }
+    }
+
+    public double restore() {
+        Vector<PointKD> comData = new Vector<PointKD>();
+        for (int i = 0; i < size(); i ++) {
+            Vector<BigDecimal> point = new Vector<BigDecimal>();
+            point.add(data.get(i).get(0));
+            for (int j = 1; j <= comCode.get(i); j ++) {
+                point.add(data.get(i).get(j + (dim() - 1 - comCode.get(i))));
+            }
+            comData.add(new PointKD(point));
+        }
+        long time = System.currentTimeMillis();
+        Vector<Vector<Point>> s_ = new Vector<Vector<Point>>();
+        for (int i = 0; i < dim() - 1; i ++) 
+            s_.add(new Vector<Point>());
+        for (int i = 0; i < size(); i ++) {
+            PointKD p = comData.get(i);
+            for (int j = p.dim() - 1, k = 0; j >= 1; j --, k ++) 
+                s_.get(k).add(new Point(p.get(0), p.get(j)));
+        }
+        SeriesKD s = null;
+        for (int i = dim() - 2; i >= 0; i --) 
+            s = new SeriesKD(s, new Series(s_.get(i)));
+        return (double) (System.currentTimeMillis() - time);
     }
 }

@@ -23,13 +23,14 @@ public class Results {
                 double eps = Double.parseDouble(words[1]);
                 int cases = Integer.parseInt(words[3]), size = Integer.parseInt(words[6]);
                 String[] names = new String[j - i - 1];
-                double[][] res = new double[j - i - 1][3];
+                double[][] res = new double[j - i - 1][Result.LEN];
                 for (int k = i + 1; k < j; k ++) {
                     String[] words_ = lines.get(k).split(" ");
                     names[k - i - 1] = words_[0];
                     res[k - i - 1][0] = Double.parseDouble(words_[1]);
                     res[k - i - 1][1] = Double.parseDouble(words_[2]);
                     res[k - i - 1][2] = Double.parseDouble(words_[3]);
+                    res[k - i - 1][3] = Double.parseDouble(words_[4]);
                 }
                 temp.add(new Result(names, res, eps, size, cases));
                 j = i;

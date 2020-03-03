@@ -2,11 +2,13 @@ package limits.data;
 
 import java.text.NumberFormat;
 
+import limits.util.*;
+
 public class Result {
 
     private static final NumberFormat f = Results.f;
 
-    public static final int LEN = 3;
+    public static final int LEN = Arithmetic.RES_LEN;
 
     private String[] names;
     private double[][] results;
@@ -31,17 +33,18 @@ public class Result {
         this.eps = eps;
     }
 
-    public static String toString(double[] result, int dom) {
+    public static String toString(double[] result, int dom, int dom_) {
         String s = "";
-        for (int i = 0; i < LEN - 1; i ++) 
+        for (int i = 0; i < LEN - 2; i ++) 
             s = s + f.format(result[i] / dom) + " ";
+        s = s + f.format(result[LEN - 2] / dom_ / 32 / dom) + " ";
         return s + f.format(result[LEN - 1]) + "\n";
     }
 
-    public String toString(int dom) {
+    public String toString(int dom, int dom_) {
         String s = "error: " + eps + " cases: " + cases + " total size: " + size + "\n";
         for (int i = 0; i < names.length; i ++) 
-            s = s + names[i] + " " + toString(results[i], dom);
+            s = s + names[i] + " " + toString(results[i], dom, dom_);
         return s;
     }
 

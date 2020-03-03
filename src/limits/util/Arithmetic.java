@@ -12,7 +12,10 @@ public class Arithmetic {
     
     public static final int 
         PRECISION = 64, 
-        MAX_DIM = 8;
+        MAX_DIM = 8,
+        RES_LEN = 5;
+    
+    public static int[] count = new int[MAX_DIM];
     
     public static final double 
         METERS_PER_LON = 111320, 

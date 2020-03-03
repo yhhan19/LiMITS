@@ -1,5 +1,7 @@
 package limits.main;
 
+import limits.util.*;
+
 public class SharedInteger {
     
     private volatile int cur;
@@ -15,8 +17,8 @@ public class SharedInteger {
         int ret = cur ++;
         if (cur % 10 == 0) 
             System.out.print(ch);
-        if (cur % 400 == 0) 
-            System.out.println(" " + cur);
+        if (cur % 100 == 0) 
+            System.out.println(Arithmetic.count[1] + " "  +  Arithmetic.count[2] + " " + Arithmetic.count[3] + " " + cur);
         return ret;
     }
 }

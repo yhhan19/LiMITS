@@ -18,6 +18,14 @@ public class PointKD {
             this.data.add(BigDecimal.ZERO);
     }
 
+    public PointKD(int index, int k) {
+        this.k = k;
+        this.data = new Vector<BigDecimal>();
+        this.data.add(new BigDecimal(index));
+        for (int i = 1; i < k; i ++) 
+            this.data.add(BigDecimal.ZERO);
+    }
+
     public PointKD(Vector<BigDecimal> data) {
         this.k = data.size();
         this.data = new Vector<BigDecimal>();
