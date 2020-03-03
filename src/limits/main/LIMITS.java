@@ -11,7 +11,7 @@ import limits.simplifier.*;
 public class LIMITS {
 
     public static final String 
-        PROJECT_NAME = "L-Inifinity Multidimensional Interpolation Trajectory Simplification (LIMITS)", 
+        PROJECT_NAME = "L-infinity Multidimensional Interpolation Trajectory Simplification (LiMITS)", 
         IO_FOLDER_NAME = "C:/Academics/vldb-2020/experiments-java", 
         DATA_FOLDER_NAME = IO_FOLDER_NAME + "/data", 
         LOG_FOLDER_NAME = IO_FOLDER_NAME + "/log/long", 
@@ -34,14 +34,13 @@ public class LIMITS {
             new G2TS(), 
             new M1TS(0.5), 
             new M2TS(10),
-            new M2TS(20)
         };
 
     public static final int 
-        ALL_ALGORITHMS = 0B1111111, 
-        WEAK_ALGORITHMS = 0B1111000, 
-        EFFICIENT_ALGORITHMS = 0B1111011, 
-        EFFECTIVE_ALGORITHMS = 0B1001000;
+        ALL_ALGORITHMS = 0B111111, 
+        WEAK_ALGORITHMS = 0B111000, 
+        EFFICIENT_ALGORITHMS = 0B111011, 
+        EFFECTIVE_ALGORITHMS = 0B001000;
 
     private static final ExecutorService es = Executors.newFixedThreadPool(10);
 
@@ -114,9 +113,9 @@ public class LIMITS {
             //  "BEIJING_10x0x3_SPHERE" 
             //, "BEIJING_10x0x3_EUCLIDEAN" 
             //, "BEIJING_10x0x4_EUCLIDEAN" 
-              "MOPSI_10x0x3_SPHERE" 
+            //  "MOPSI_10x0x3_SPHERE" 
             //, "MOPSI_1000x100x3_EUCLIDEAN" 
-            //, "MOPSI_0x0x4_EUCLIDEAN" 
+             "MOPSI_0x0x4_EUCLIDEAN" 
             //  "SIM_2500x1000x3_1x2xGAUSSIAN" 
             //  "SIM_2500x1000x4_1x2xGAUSSIAN" 
             //  "BEE_0x0x3_DEFAULT" 
