@@ -40,7 +40,7 @@ public class LIMITS {
         ALL_ALGORITHMS = 0B111111, 
         WEAK_ALGORITHMS = 0B111000, 
         EFFICIENT_ALGORITHMS = 0B111011, 
-        EFFECTIVE_ALGORITHMS = 0B001000;
+        EFFECTIVE_ALGORITHMS = 0B101000;
 
     private static final ExecutorService es = Executors.newFixedThreadPool(10);
 
